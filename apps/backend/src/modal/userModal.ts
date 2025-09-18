@@ -27,16 +27,22 @@ async function getUserModal() {
 
   return getuser;
 }
-async function searchUser(username?: string, email?: string) {
+async function searchUserName(data: { username?: string }) {
   const search = await prisma.user.findUnique({
     where: {
-      username: username,
-      email: email,
-    },
-    select: {
-      username: true,
+      username: data.username,
     },
   });
+  console.log('search result in the modal:', search);
+  return search;
+}
+async function searchUserEmail(data: { email?: string }) {
+  const search = await prisma.user.findUnique({
+    where: {
+      email: data.email,
+    },
+  });
+  console.log('search result in the modal:', search);
   return search;
 }
 async function deleteUserModal(email: string) {
@@ -75,7 +81,8 @@ async function updateUserModal(
 export const userModal = {
   createUserModal,
   getUserModal,
-  searchUser,
+  searchUserName,
+  searchUserEmail,
   deleteUserModal,
   updateUserModal,
 };

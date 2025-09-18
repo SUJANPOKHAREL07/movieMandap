@@ -18,10 +18,11 @@ export const createUserController = async (
     if (!username || !email || !password) {
       throw new Error('All filed required to be filled');
     }
+    const searchNameExist = await userModal.searchUserName({ username });
+    const searchEmailExist = await userModal.searchUserEmail({ email });
 
-    const searchExist = await userModal.searchUser(email, username);
-    if (searchExist) {
-      throw new Error('User already register');
+    if (searchNameExist !== null || searchEmailExist !== null) {
+      throw new Error('User already register:');
     }
     const registerUser = await userModal.createUserModal({
       email,
@@ -37,16 +38,16 @@ export const deleteUserController = async (
   email: string
 ): Promise<TDeleteUser> => {
   try {
-    console.log('this is the email to delete', email);
     if (!email) {
       return {
-        success: true,
+        success: false,
         message: 'Failed to deleteUser',
         email: email,
       };
     }
-    const searchUser = await userModal.searchUser(email);
-    if (!searchUser) {
+    const searchUser = await userModal.searchUserEmail({ email });
+    console.log('Search user result:', searchUser);
+    if (searchUser === null) {
       return {
         success: false,
         message: 'No user found',
@@ -77,6 +78,16 @@ export const updateUserController = async (
   username?: string,
   password?: string
 ) => {
+  console.log('lenght of the usernmae:', username?.length);
+  if (username !== undefined) {
+    console.log('Inside the update user if ');
+    const searchNameExist = await userModal.searchUserName({ username });
+
+    if (searchNameExist !== null) {
+      throw new Error('User name exist:');
+    }
+  }
   const update = await userModal.updateUserModal(email, username, password);
+  console.log('update user:', update);
   return update;
 };

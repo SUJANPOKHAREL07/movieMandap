@@ -21,3 +21,15 @@ export interface TDeleteUser {
   message: string;
   email: string;
 }
+export interface TUpdateUser {
+  email: string;
+  username?: string;
+  passwowrd?: string;
+  success: boolean;
+  message: string;
+}
+
+export interface TResponse {
+  success: Boolean;
+  message: string;
+}

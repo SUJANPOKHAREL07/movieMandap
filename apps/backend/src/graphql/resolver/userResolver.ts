@@ -14,13 +14,13 @@ export const userResolvers = {
   Mutation: {
     createUser: async (
       _: any,
-      data: { email: string; password: string; username: string }
+      data: { email: string; username: string; password: string }
     ) => {
       console.log('resolver:', data);
       return await createUserController(
         data.email,
-        data.password,
-        data.username
+        data.username,
+        data.password
       );
     },
     deleteUser: async (_: any, data: { email: string }) => {
