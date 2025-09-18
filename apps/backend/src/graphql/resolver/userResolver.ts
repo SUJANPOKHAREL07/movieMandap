@@ -3,7 +3,8 @@ import {
   deleteUserController,
   getUserController,
   updateUserController,
-} from '../../controller/userController';
+  verifyOtpService,
+} from '../../service/userService';
 
 export const userResolvers = {
   Query: {
@@ -14,15 +15,18 @@ export const userResolvers = {
   Mutation: {
     createUser: async (
       _: any,
-      data: { email: string; username: string; password: string }
+      data: { email: string; username: string; password: string },
+      { req }: any
     ) => {
       console.log('resolver:', data);
       return await createUserController(
         data.email,
         data.username,
-        data.password
+        data.password,
+        req
       );
     },
+
     deleteUser: async (_: any, data: { email: string }) => {
       return await deleteUserController(data.email);
     },
@@ -31,6 +35,9 @@ export const userResolvers = {
       data: { email: string; username?: string; password?: string }
     ) => {
       return updateUserController(data.email, data.username, data.password);
+    },
+    verifyOtp: async (_: any, data: { otp: string }, { req }: any) => {
+      return await verifyOtpService(data.otp, req);
     },
   },
 };

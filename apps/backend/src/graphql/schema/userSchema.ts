@@ -30,6 +30,9 @@ export const userTypeDefs = gql`
     username: String!
     email: String!
   }
+  type Otp {
+    otp: String!
+  }
   type Query {
     users: [Get!]!
   }
@@ -37,5 +40,7 @@ export const userTypeDefs = gql`
     createUser(email: String!, username: String!, password: String!): User!
     deleteUser(email: String!): Delete!
     updateUser(email: String!, username: String, password: String): Update!
+    verifyOtp(otp: String!): Boolean
+    resendOtp(email: String!): String
   }
 `;

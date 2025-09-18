@@ -3,18 +3,32 @@ import prisma from '../prisma/client';
 async function createUserModal(data: {
   username: string;
   email: string;
-  password: string;
+  passwordHashed: string;
 }) {
   console.log('data in the modal:', data);
   const register = prisma.user.create({
     data: {
       username: data.username,
       email: data.email,
-      password: data.password,
+      password: data.passwordHashed,
     },
   });
 
   return register;
+}
+async function pendingUser(data: {
+  username: string;
+  email: string;
+  passwordHashed: string;
+}) {
+  const user = await prisma.user.create({
+    data: {
+      username: data.username,
+      email: data.email,
+      password: data.passwordHashed,
+    },
+  });
+  return user;
 }
 async function getUserModal() {
   const getuser = await prisma.user.findMany({
@@ -80,6 +94,7 @@ async function updateUserModal(
 }
 export const userModal = {
   createUserModal,
+  pendingUser,
   getUserModal,
   searchUserName,
   searchUserEmail,
