@@ -1,3 +1,4 @@
+import { Role } from '@prisma/client';
 import prisma from '../prisma/client';
 import { TCreateUser } from '../types/user.types';
 
@@ -8,6 +9,7 @@ async function createUserModal(data: TCreateUser) {
       username: data.username,
       email: data.email,
       password: data.password,
+      role: data.role,
       verified: true,
     },
   });
@@ -18,11 +20,13 @@ async function pendingUser(data: {
   username: string;
   email: string;
   password: string;
+  role: Role;
 }) {
   return {
     username: data.username,
     email: data.email,
     password: data.password,
+    role: data.role,
   };
 }
 async function getUserModal() {
@@ -45,7 +49,7 @@ async function searchUserName(data: { username?: string }) {
   console.log('search result in the modal:', search);
   return search;
 }
-async function searchUserEmail(data: { email?: string }) {
+async function searchUserEmail(data: { email: string }) {
   const search = await prisma.user.findUnique({
     where: {
       email: data.email,

@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 export const userTypeDefs = gql`
   type User {
-    id: ID!
+    id: String!
     username: String!
     email: String!
   }
@@ -21,6 +21,7 @@ export const userTypeDefs = gql`
       username: String!
       email: String!
       password: String!
+      role: String
     ): MutationResponse!
     verifyOtp(otp: String!): MutationResponse!
     resendOtp(email: String!): MutationResponse!

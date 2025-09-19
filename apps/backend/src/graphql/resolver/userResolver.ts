@@ -12,7 +12,7 @@ export const userResolvers = {
   },
   Mutation: {
     createUser: async (_: any, args: TCreateUser, { req }: any) =>
-      createUserController(args.email, args.username, args.password, req),
+      createUserController(args, req),
 
     verifyOtp: async (_: any, { otp }: any, { req }: any) =>
       verifyOtpService(otp, req),

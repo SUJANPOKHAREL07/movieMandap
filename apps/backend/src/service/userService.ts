@@ -1,4 +1,5 @@
 import { userModal } from '../modal/userModal';
+import { TCreateUser } from '../types/user.types';
 import { otpService } from '../userVerifyOTP/otpService';
 import { hashPassword } from '../utils/passwordHashing';
 
@@ -14,9 +15,7 @@ export const getUserController = async () => {
 };
 
 export const createUserController = async (
-  email: string,
-  username: string,
-  password: string,
+  { email, username, password, role }: TCreateUser,
   req: any
 ) => {
   if (!username || !email || !password) {
@@ -38,6 +37,7 @@ export const createUserController = async (
     username,
     email,
     password: passwordHashed,
+    role,
   });
 
   // ✅ Save into session

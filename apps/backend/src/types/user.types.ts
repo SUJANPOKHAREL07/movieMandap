@@ -1,7 +1,10 @@
+import { Role } from '@prisma/client';
+
 export interface TCreateUser {
   username: string;
   email: string;
   password: string;
+  role: Role;
 }
 export interface TUser {
   id: string;

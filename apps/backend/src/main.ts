@@ -14,7 +14,7 @@ app.use(
     secret: process.env.JWT_SECRET || 'supersecret',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 10 * 60 * 1000, httpOnly: true }, // 10 min
+    cookie: { maxAge: 15 * 60 * 1000, httpOnly: true }, // 15 min
   })
 );
 app.use(
