@@ -24,23 +24,6 @@ model user {
     role            Role      @default(user)
 }
 
-model admin {
-    id              String    @id @default(cuid())
-    username        String    @unique
-    email           String    @unique
-    password        String
-    createdAt       DateTime  @default(now())
-    udpatedAt       DateTime  @default(now())
-    verified        Boolean   @default(false)
-    otpVerify       String?   @default("")
-    otpExpired      DateTime?
-    updateOtp       String?
-    updateOtpExpire DateTime?
-    resetOtp        String?   @default("")
-    resetOtpExpired DateTime?
-    role            Role      @default(user)
-}
-
 enum Role {
     user
     moderator

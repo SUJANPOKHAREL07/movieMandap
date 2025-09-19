@@ -1,0 +1,270 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite", etc.
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  password      String
+  displayName   String?
+  avatar        String?
+  bio           String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isVerified    Boolean   @default(false)
+  role          UserRole  @default(USER)
+
+  // Relationships
+  reviews       Review[]
+  ratings       Rating[]
+  watchlist     WatchlistItem[]
+  followers     Follow[]    @relation("Follower")
+  following     Follow[]    @relation("Following")
+  likedReviews  Like[]
+  comments      Comment[]
+
+  @@map("users")
+}
+
+model Movie {
+  id              String    @id @default(cuid())
+  title           String
+  originalTitle   String?
+  overview        String?
+  releaseDate     DateTime?
+  runtime         Int?
+  posterPath      String?
+  backdropPath    String?
+  imdbId          String?   @unique
+  tmdbId          Int?      @unique
+  budget          BigInt?
+  revenue         BigInt?
+  status          String?
+  tagline         String?
+  popularity      Float?
+  voteAverage     Float?
+  voteCount       Int?
+  adult           Boolean   @default(false)
+
+  // Relationships
+  reviews         Review[]
+  ratings         Rating[]
+  genres          MovieGenre[]
+  productionCompanies MovieProductionCompany[]
+  watchlistItems  WatchlistItem[]
+  crew            CrewMember[]
+  cast            CastMember[]
+
+  @@map("movies")
+}
+
+model Genre {
+  id    Int     @id
+  name  String
+
+  // Relationships
+  movies MovieGenre[]
+
+  @@map("genres")
+}
+
+model MovieGenre {
+  id        String   @id @default(cuid())
+  movieId   String
+  genreId   Int
+
+  // Relationships
+  movie   Movie   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre   @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, genreId])
+  @@map("movie_genres")
+}
+
+model ProductionCompany {
+  id            Int     @id
+  name          String
+  logoPath      String?
+  originCountry String?
+
+  // Relationships
+  movies MovieProductionCompany[]
+
+  @@map("production_companies")
+}
+
+model MovieProductionCompany {
+  id                  String   @id @default(cuid())
+  movieId             String
+  productionCompanyId Int
+
+  // Relationships
+  movie             Movie             @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  productionCompany ProductionCompany @relation(fields: [productionCompanyId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, productionCompanyId])
+  @@map("movie_production_companies")
+}
+
+model Person {
+  id              String    @id @default(cuid())
+  name            String
+  biography       String?
+  birthday        DateTime?
+  deathday        DateTime?
+  placeOfBirth    String?
+  popularity      Float?
+  profilePath     String?
+  imdbId          String?   @unique
+  tmdbId          Int?      @unique
+  adult           Boolean   @default(false)
+
+  // Relationships
+  crewRoles      CrewMember[]
+  castRoles      CastMember[]
+
+  @@map("people")
+}
+
+model CrewMember {
+  id          String   @id @default(cuid())
+  movieId     String
+  personId    String
+  department  String
+  job         String
+  creditId    String?  @unique
+
+  // Relationships
+  movie  Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, personId, job])
+  @@map("crew_members")
+}
+
+model CastMember {
+  id          String   @id @default(cuid())
+  movieId     String
+  personId    String
+  character   String
+  order       Int
+  creditId    String?  @unique
+
+  // Relationships
+  movie  Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([movieId, personId, character])
+  @@map("cast_members")
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  rating      Float?
+  isSpoiler   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  movieId     String
+
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie       Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  comments    Comment[]
+
+  @@unique([userId, movieId])
+  @@map("reviews")
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  score     Float    // Typically 0-10 or 0-5
+  userId    String
+  movieId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@map("ratings")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  reviewId  String
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  userId    String
+  reviewId  String
+  parentId  String?   // For nested comments
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relationships
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review   Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model WatchlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  addedAt   DateTime @default(now())
+  note      String?
+
+  // Relationships
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@map("watchlist_items")
+}
+
+model Follow {
+  id           String   @id @default(cuid())
+  followerId   String   // User who is following
+  followingId  String   // User who is being followed
+  createdAt    DateTime @default(now())
+
+  // Relationships
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
