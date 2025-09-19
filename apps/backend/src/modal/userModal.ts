@@ -1,16 +1,14 @@
 import prisma from '../prisma/client';
+import { TCreateUser } from '../types/user.types';
 
-async function createUserModal(data: {
-  username: string;
-  email: string;
-  passwordHashed: string;
-}) {
+async function createUserModal(data: TCreateUser) {
   console.log('data in the modal:', data);
-  const register = prisma.user.create({
+  const register = await prisma.user.create({
     data: {
       username: data.username,
       email: data.email,
-      password: data.passwordHashed,
+      password: data.password,
+      verified: true,
     },
   });
 
@@ -19,16 +17,13 @@ async function createUserModal(data: {
 async function pendingUser(data: {
   username: string;
   email: string;
-  passwordHashed: string;
+  password: string;
 }) {
-  const user = await prisma.user.create({
-    data: {
-      username: data.username,
-      email: data.email,
-      password: data.passwordHashed,
-    },
-  });
-  return user;
+  return {
+    username: data.username,
+    email: data.email,
+    password: data.password,
+  };
 }
 async function getUserModal() {
   const getuser = await prisma.user.findMany({
@@ -92,6 +87,14 @@ async function updateUserModal(
   });
   return update;
 }
+async function updateVerification(email: string) {
+  console.log('udpate verification', email);
+  const data = await prisma.user.update({
+    where: { email: email },
+    data: { verified: true },
+  });
+  return data;
+}
 export const userModal = {
   createUserModal,
   pendingUser,
@@ -100,4 +103,5 @@ export const userModal = {
   searchUserEmail,
   deleteUserModal,
   updateUserModal,
+  updateVerification,
 };

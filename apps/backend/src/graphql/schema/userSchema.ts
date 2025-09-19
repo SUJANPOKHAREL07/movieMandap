@@ -2,45 +2,27 @@ import { gql } from 'apollo-server-express';
 
 export const userTypeDefs = gql`
   type User {
-    id: String!
+    id: ID!
     username: String!
     email: String!
-    password: String!
-  }
-  input createUser {
-    username: String!
-    email: String!
-    password: String!
   }
 
-  type Update {
-    email: String!
-    username: String
-    password: String
+  type MutationResponse {
     success: Boolean!
     message: String!
   }
-  type Delete {
-    success: Boolean!
-    message: String!
-    email: String!
-  }
-  type Get {
-    id: String!
-    username: String!
-    email: String!
-  }
-  type Otp {
-    otp: String!
-  }
+
   type Query {
-    users: [Get!]!
+    users: [User!]!
   }
+
   type Mutation {
-    createUser(email: String!, username: String!, password: String!): User!
-    deleteUser(email: String!): Delete!
-    updateUser(email: String!, username: String, password: String): Update!
-    verifyOtp(otp: String!): Boolean
-    resendOtp(email: String!): String
+    createUser(
+      username: String!
+      email: String!
+      password: String!
+    ): MutationResponse!
+    verifyOtp(otp: String!): MutationResponse!
+    resendOtp(email: String!): MutationResponse!
   }
 `;
