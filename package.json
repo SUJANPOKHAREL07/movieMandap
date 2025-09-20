@@ -13,7 +13,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:all": "npx prisma migrate dev --name init && npx prisma db push && npx prisma generate",
-    "prisma:db:reset": "npx prisma migrate reset",
+    "prisma:reset": "npx prisma migrate reset",
     "clean": "yarn cache clean",
     "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\""
   },

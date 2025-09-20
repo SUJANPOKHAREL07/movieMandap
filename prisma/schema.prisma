@@ -22,6 +22,9 @@ model user {
     resetOtp        String?   @default("")
     resetOtpExpired DateTime?
     role            Role      @default(user)
+    login           login[]
+
+    @@unique([email, id])
 }
 
 enum Role {
@@ -32,9 +35,10 @@ enum Role {
 
 model login {
     id            String @id @default(cuid())
-    username      String
-    email         String
+    userId        String
+    useremail     String
     password      String
     role          Role
-    refresh_token String
+    refresh_token String @unique @db.VarChar(1000)
+    user          user?  @relation(fields: [useremail, userId], references: [email, id])
 }
