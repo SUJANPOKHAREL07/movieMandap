@@ -1,10 +1,11 @@
 import { Role } from '@prisma/client';
 
 export interface TLogin {
+  username: string;
   email: string;
   password: string;
 }
 export interface TLoad {
-  username: string;
+  userId: string;
   role: Role;
 }
