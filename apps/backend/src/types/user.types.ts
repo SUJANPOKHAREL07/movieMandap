@@ -1,5 +1,5 @@
 import { Role } from '@prisma/client';
-
+import express from 'express';
 export interface TCreateUser {
   username: string;
   email: string;
@@ -35,4 +35,8 @@ export interface TUpdateUser {
 export interface TResponse {
   success: Boolean;
   message: string;
+}
+export interface TContext {
+  req: express.Request;
+  res: express.Response;
 }

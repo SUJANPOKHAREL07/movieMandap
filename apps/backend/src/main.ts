@@ -5,10 +5,12 @@ import cookieParser from 'cookie-parser';
 import { typeDefs } from './graphql/schema/schema';
 import { resolvers } from './graphql/resolver/resolver';
 import cors from 'cors';
-
+import { JWT } from './authMiddleware/jwtToken';
+import { TContext } from './types/user.types';
 const app = express();
 
 app.use(cookieParser());
+// app.use(express.json());
 app.use(
   session({
     secret: process.env.JWT_SECRET || 'supersecret',
@@ -27,7 +29,17 @@ async function startServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req, res }) => ({ req, res }),
+    // @ts-ignore
+    context: async ({ req }: TContext) => {
+      const token = await req.headers['refresh_token'];
+      // console.log('main token:', token);
+      // const refToken = String(token);
+      try {
+        const user = await JWT.verifyRefreshToken(token as string);
+        console.log(user);
+        return user;
+      } catch (err) {}
+    },
   });
 
   await server.start();
