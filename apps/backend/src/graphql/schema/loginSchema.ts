@@ -6,16 +6,13 @@ export const LoginTypeDefs = gql`
     password: String!
     username: String
   }
-  type loginResponse {
+  type Response {
     success: Boolean!
     message: String!
   }
 
   type Mutation {
-    loginUser(
-      email: String
-      username: String
-      password: String!
-    ): loginResponse!
+    loginUser(email: String, username: String, password: String!): Response!
+    logoutUser: Response
   }
 `;
