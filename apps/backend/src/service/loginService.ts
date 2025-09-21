@@ -3,9 +3,10 @@
 //   EXPIRE_REFRESH_TOKEN,
 // } from '../authMiddleware/expireTiming';
 import { JWT } from '../authMiddleware/jwtToken';
-import { loginModal } from '../modal/loginModal';
+import { loginModal, LogoutModal } from '../modal/loginModal';
 
 import { TLoad } from '../types/login.types';
+import { TResponse } from '../types/user.types';
 import { comparePassword } from '../utils/passwordHashing';
 
 async function loginUser(
@@ -61,8 +62,22 @@ async function loginUser(
   }
   return { success: true, message: 'Success Login' };
 }
-async function logoutService(req: any, res: any) {
-  const getrefreshToken = req.header['refresh_token'];
-  console.log('refresh token for logout', getrefreshToken);
+async function logoutService(
+  userId: string,
+  token: string
+): Promise<TResponse> {
+  const searchLog = await loginModal.getLoginInfo(token);
+  if (searchLog === null) {
+    return {
+      success: false,
+      message: 'No log info found! Login First',
+    };
+  }
+  // @ts-ignore
+  const logout = await LogoutModal.logout(token);
+  return {
+    success: true,
+    message: 'logout success',
+  };
 }
 export const loginService = { loginUser, logoutService };

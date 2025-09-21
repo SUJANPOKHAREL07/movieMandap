@@ -4,20 +4,20 @@ import {
   getUserController,
   resendOtpController,
 } from '../../service/userService';
-import { TContext, TCreateUser } from '../../types/user.types';
+import { TCreateUser, TReqRes } from '../../types/user.types';
 
 export const userResolvers = {
   Query: {
     users: async () => getUserController(),
   },
   Mutation: {
-    createUser: async (_: any, args: TCreateUser, { req }: TContext) =>
+    createUser: async (_: any, args: TCreateUser, { req }: TReqRes) =>
       createUserController(args, req),
 
-    verifyOtp: async (_: any, { otp }: any, { req }: TContext) =>
+    verifyOtp: async (_: any, { otp }: any, { req }: TReqRes) =>
       verifyOtpService(otp, req),
 
-    resendOtp: async (_: any, { email }: any, { req }: TContext) =>
+    resendOtp: async (_: any, { email }: any, { req }: TReqRes) =>
       resendOtpController(email, req),
   },
 };

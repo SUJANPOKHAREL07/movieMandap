@@ -36,7 +36,11 @@ export interface TResponse {
   success: Boolean;
   message: string;
 }
-export interface TContext {
+export interface TReqRes {
   req: express.Request;
   res: express.Response;
+}
+export interface TContext {
+  userId: string;
+  role: Role | undefined;
 }

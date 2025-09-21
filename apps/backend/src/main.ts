@@ -6,7 +6,7 @@ import { typeDefs } from './graphql/schema/schema';
 import { resolvers } from './graphql/resolver/resolver';
 import cors from 'cors';
 import { JWT } from './authMiddleware/jwtToken';
-import { TContext } from './types/user.types';
+import { TReqRes } from './types/user.types';
 const app = express();
 
 app.use(cookieParser());
@@ -30,14 +30,17 @@ async function startServer() {
     typeDefs,
     resolvers,
     // @ts-ignore
-    context: async ({ req }: TContext) => {
+    context: async ({ req }: TReqRes) => {
       const token = await req.headers['refresh_token'];
-      // console.log('main token:', token);
-      // const refToken = String(token);
+      if (!token) {
+        return {
+          message: 'Login first',
+        };
+      }
       try {
         const user = await JWT.verifyRefreshToken(token as string);
-        console.log(user);
-        return user;
+
+        return { user, token };
       } catch (err) {}
     },
   });
