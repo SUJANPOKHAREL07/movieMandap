@@ -13,7 +13,7 @@ model user {
     email           String    @unique
     password        String
     createdAt       DateTime  @default(now())
-    udpatedAt       DateTime  @default(now())
+    udpatedAt       DateTime  @default(now()) @updatedAt
     verified        Boolean   @default(false)
     otpVerify       String?   @default("")
     otpExpired      DateTime?
@@ -39,6 +39,32 @@ model login {
     useremail     String
     password      String
     role          Role
-    refresh_token String @unique @db.VarChar(1000)
+    refresh_token String @unique @db.VarChar(500)
     user          user?  @relation(fields: [useremail, userId], references: [email, id])
+}
+
+model Movie {
+    id            String      @id @default(cuid())
+    title         String
+    originalTitle String?
+    overview      String?
+    releaseDate   DateTime?
+    runtime       Int?
+    posterPath    String?
+    budget        BigInt?
+    revenue       BigInt?
+    status        movieStatus @default(IN_PRODUCTION)
+    tagline       String?
+    adult         Boolean     @default(false)
+
+    @@map("movies")
+}
+
+enum movieStatus {
+    RELEASED
+    IN_PRODUCTION
+    POST_PRODUCTION
+    PLANNED
+    CANCELLED
+    RUMORED
 }

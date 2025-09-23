@@ -42,13 +42,10 @@ model Movie {
   runtime         Int?
   posterPath      String?
   backdropPath    String?
-  imdbId          String?   @unique
-  tmdbId          Int?      @unique
   budget          BigInt?
   revenue         BigInt?
   status          String?
   tagline         String?
-  popularity      Float?
   voteAverage     Float?
   voteCount       Int?
   adult           Boolean   @default(false)
