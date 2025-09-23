@@ -42,3 +42,25 @@ model login {
     refresh_token String @unique @db.VarChar(1000)
     user          user?  @relation(fields: [useremail, userId], references: [email, id])
 }
+
+model Movie {
+    id            String      @id @default(cuid())
+    title         String
+    originalTitle String?
+    overview      String?
+    releaseDate   DateTime?
+    runtime       Int?
+    posterPath    String?
+    budget        BigInt?
+    revenue       BigInt?
+    status        movieStatus @default(upcomming)
+    tagline       String?
+    adult         Boolean     @default(false)
+
+    @@map("movies")
+}
+
+enum movieStatus {
+    release
+    upcomming
+}
