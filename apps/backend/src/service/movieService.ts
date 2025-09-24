@@ -1,8 +1,8 @@
 import { movieModal } from '../modal/movieModal';
-import { TMovie, TMovieResponse } from '../types/movie.types';
+import { TGetMovie, TMovieResponse } from '../types/movie.types';
 
 const getAllMovie = async (): Promise<TMovieResponse> => {
-  const getData: TMovie[] = await movieModal.getAllMovie();
+  const getData: TGetMovie[] = await movieModal.getAllMovie();
   if (!getData) {
     return {
       success: true,

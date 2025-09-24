@@ -5,15 +5,17 @@ import cookieParser from 'cookie-parser';
 import { typeDefs } from './graphql/schema/schema';
 import { resolvers } from './graphql/resolver/resolver';
 import cors from 'cors';
-import { JWT } from './authMiddleware/jwtToken';
 import { TReqRes } from './types/user.types';
+import { authContextMiddleware } from './authMiddleware/authMiddleware';
+// import { JWT } from './authMiddleware/jwtToken';
+
 const app = express();
 
 app.use(cookieParser());
 // app.use(express.json());
 app.use(
   session({
-    secret: process.env.JWT_SECRET || 'supersecret',
+    secret: process.env.JWT_SECRETE || 'supersecret',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 15 * 60 * 1000, httpOnly: true }, // 15 min
@@ -26,24 +28,36 @@ app.use(
   })
 );
 async function startServer() {
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    // @ts-ignore
-    context: async ({ req }: TReqRes) => {
-      const token = await req.headers['refresh_token'];
-      if (!token) {
+  const server = new ApolloServer(
+    {
+      typeDefs,
+      resolvers,
+      context: async ({ req, res }: TReqRes) => {
+        const auth = await authContextMiddleware({ req, res });
         return {
-          message: 'Login first',
+          req,
+          res,
+          user: auth.user,
+          token: auth.token,
         };
-      }
-      try {
-        const user = await JWT.verifyRefreshToken(token as string);
+      },
+    }
+    // @ts-ignore
+    //   context: async ({ req, res }: TReqRes) => {
+    //     session: req.session;
+    //     const token = await req.headers['refresh_token'];
+    //     if (!token) {
+    //       return {
+    //         message: 'Login first',
+    //       };
+    //     }
+    //     try {
+    //       const user = await JWT.verifyRefreshToken(token as string);
 
-        return { user, token };
-      } catch (err) {}
-    },
-  });
+    //       return { user, token };
+    //     } catch (err) {}
+    //   },
+  );
 
   await server.start();
   server.applyMiddleware({

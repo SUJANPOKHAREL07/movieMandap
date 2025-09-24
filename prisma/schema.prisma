@@ -39,7 +39,7 @@ model login {
     useremail     String
     password      String
     role          Role
-    refresh_token String @unique @db.VarChar(500)
+    refresh_token String @db.Text()
     user          user?  @relation(fields: [useremail, userId], references: [email, id])
 }
 

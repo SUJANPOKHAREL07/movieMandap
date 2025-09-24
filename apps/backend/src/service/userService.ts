@@ -21,7 +21,7 @@ export const createUserController = async (
   if (!username || !email || !password) {
     throw new Error('All fields are required');
   }
-
+  console.log('user data:', email, username, password, role);
   const searchNameExist = await userModal.searchUserName({ username });
   const searchEmailExist = await userModal.searchUserEmail({ email });
 
@@ -39,11 +39,11 @@ export const createUserController = async (
     password: passwordHashed,
     role,
   });
-
+  console.log('pending user data::::', pendingUserData);
   // ✅ Save into session
   req.session.pendingUserData = pendingUserData;
+  console.log('session pending user data::', req.session.pendingUserData);
   req.session.email = email;
-  console.log(req.session.pendingUserData);
   await new Promise<void>((resolve, reject) =>
     req.session.save((err: any) => (err ? reject(err) : resolve()))
   );

@@ -11,8 +11,11 @@ export const userResolvers = {
     users: async () => getUserController(),
   },
   Mutation: {
-    createUser: async (_: any, args: TCreateUser, { req }: TReqRes) =>
-      createUserController(args, req),
+    createUser: async (_: any, args: TCreateUser, context: TReqRes) => {
+      console.log(args);
+      console.log('user context::', context.req);
+      await createUserController(args, context.req);
+    },
 
     verifyOtp: async (_: any, { otp }: any, { req }: TReqRes) =>
       verifyOtpService(otp, req),

@@ -1,3 +1,4 @@
+import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { loginService } from '../../service/loginService';
 import { TLogin } from '../../types/login.types';
 import { TReqRes } from '../../types/user.types';
@@ -12,15 +13,10 @@ export const loginResolver = {
       return await loginService.loginUser(email, password, username, req, res);
     },
     logoutUser: async (_: any, __: any, context: any) => {
-      if (context.token === '') {
-        return {
-          success: false,
-          message: 'No header found',
-        };
-      }
+      const auth = await authContextMiddleware(context);
       return await loginService.logoutService(
-        context.user.userId,
-        context.token
+        String(auth.user?.userId),
+        auth.token
       );
     },
   },

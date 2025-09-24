@@ -27,7 +27,7 @@ export interface TDeleteUser {
 export interface TUpdateUser {
   email: string;
   username?: string;
-  passwowrd?: string;
+  password?: string;
   success: boolean;
   message: string;
 }

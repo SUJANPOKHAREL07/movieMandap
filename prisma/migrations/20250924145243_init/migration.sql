@@ -28,9 +28,8 @@ CREATE TABLE `login` (
     `useremail` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `role` ENUM('user', 'moderator', 'admin') NOT NULL,
-    `refresh_token` VARCHAR(1000) NOT NULL,
+    `refresh_token` TEXT NOT NULL,
 
-    UNIQUE INDEX `login_refresh_token_key`(`refresh_token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -45,7 +44,7 @@ CREATE TABLE `movies` (
     `posterPath` VARCHAR(191) NULL,
     `budget` BIGINT NULL,
     `revenue` BIGINT NULL,
-    `status` ENUM('release', 'upcomming') NOT NULL DEFAULT 'upcomming',
+    `status` ENUM('RELEASED', 'IN_PRODUCTION', 'POST_PRODUCTION', 'PLANNED', 'CANCELLED', 'RUMORED') NOT NULL DEFAULT 'IN_PRODUCTION',
     `tagline` VARCHAR(191) NULL,
     `adult` BOOLEAN NOT NULL DEFAULT false,
 

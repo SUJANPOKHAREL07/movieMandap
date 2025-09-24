@@ -66,6 +66,7 @@ async function logoutService(
   userId: string,
   token: string
 ): Promise<TResponse> {
+  console.log('token in the user service::', token);
   const searchLog = await loginModal.getLoginInfo(token);
   if (searchLog === null) {
     return {
