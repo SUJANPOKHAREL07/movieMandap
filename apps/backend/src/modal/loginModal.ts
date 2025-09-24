@@ -53,7 +53,7 @@ async function alreadyLoggedIn(email: string) {
   return data;
 }
 async function getLoginInfo(token: string) {
-  const get = await prisma.login.findUnique({
+  const get = await prisma.login.findMany({
     where: {
       refresh_token: token,
     },
@@ -63,7 +63,7 @@ async function getLoginInfo(token: string) {
 export const LogoutModal = { logout };
 
 async function logout(token: string) {
-  const user = await prisma.login.delete({
+  const user = await prisma.login.deleteMany({
     where: {
       refresh_token: token,
     },

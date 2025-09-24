@@ -15,7 +15,13 @@ function generateRefreshToken(loadToken: TLoad) {
   return token;
 }
 function verifyRefreshToken(refreshToken: string): TLoad {
+  // console.log('refresh token receoved', refreshToken);
+  // console.log('secrete:', JWT_SECRET);
   const checkRefreshToken = verify(refreshToken, JWT_SECRET);
+  if (typeof checkRefreshToken !== 'string') {
+    console.log('failed the user verification');
+  }
+  console.log('token verification:', checkRefreshToken);
   return checkRefreshToken as TLoad;
 }
 

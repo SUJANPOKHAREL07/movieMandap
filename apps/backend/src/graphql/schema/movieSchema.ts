@@ -35,7 +35,7 @@ export const movieTypeDefs = gql`
       title: String!
       originalTitle: String
       releaseDate: Date
-      runTime: Int!
+      runtime: Int!
       posterPath: String!
       budget: Int!
       revenue: Int

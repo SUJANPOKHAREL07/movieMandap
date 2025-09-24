@@ -22,6 +22,7 @@ async function pendingUser(data: {
   password: string;
   role: Role;
 }) {
+  console.log('pending user data modal:', data);
   return {
     username: data.username,
     email: data.email,
