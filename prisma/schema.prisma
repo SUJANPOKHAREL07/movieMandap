@@ -34,13 +34,14 @@ enum Role {
 }
 
 model login {
-    id            String @id @default(cuid())
+    id            String   @id @default(cuid())
     userId        String
     useremail     String
     password      String
     role          Role
-    refresh_token String @db.Text()
-    user          user?  @relation(fields: [useremail, userId], references: [email, id])
+    refresh_token String   @db.Text()
+    user          user?    @relation(fields: [useremail, userId], references: [email, id])
+    createdAt     DateTime @default(now())
 }
 
 model Movie {

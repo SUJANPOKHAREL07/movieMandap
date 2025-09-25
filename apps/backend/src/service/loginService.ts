@@ -19,12 +19,13 @@ async function loginUser(
   if (!email && !username) {
     throw new Error('Email or User name is required');
   }
+  const token = req.headers.refresh_token;
 
   const searchUser = await loginModal.checkLoginCred({ email, username });
   if (searchUser === null) {
     return { success: false, message: 'SignUp first' };
   }
-  const alreadyloggedIn = await loginModal.alreadyLoggedIn(searchUser?.email);
+  const alreadyloggedIn = await loginModal.alreadyLoggedIn(token);
   if (alreadyloggedIn) {
     return {
       success: false,
@@ -75,7 +76,7 @@ async function logoutService(
     };
   }
   // @ts-ignore
-  const logout = await LogoutModal.logout(token);
+  const logout = await LogoutModal.logout(token, userId);
   return {
     success: true,
     message: 'logout success',

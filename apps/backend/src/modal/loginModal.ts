@@ -44,10 +44,10 @@ async function loginUser(data: {
   console.log('data stored in the table :', dataLogin);
   return dataLogin;
 }
-async function alreadyLoggedIn(email: string) {
+async function alreadyLoggedIn(token: string) {
   const data = await prisma.login.findFirst({
     where: {
-      useremail: email,
+      refresh_token: token,
     },
   });
   return data;
@@ -62,10 +62,11 @@ async function getLoginInfo(token: string) {
 }
 export const LogoutModal = { logout };
 
-async function logout(token: string) {
+async function logout(token: string, userId: string) {
   const user = await prisma.login.deleteMany({
     where: {
       refresh_token: token,
+      userId: userId,
     },
   });
   return user;

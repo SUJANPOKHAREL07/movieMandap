@@ -7,10 +7,11 @@ import { resolvers } from './graphql/resolver/resolver';
 import cors from 'cors';
 import { TReqRes } from './types/user.types';
 import { authContextMiddleware } from './authMiddleware/authMiddleware';
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 // import { JWT } from './authMiddleware/jwtToken';
 
 const app = express();
-
+app.use(graphqlUploadExpress());
 app.use(cookieParser());
 // app.use(express.json());
 app.use(
