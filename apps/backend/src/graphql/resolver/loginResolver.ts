@@ -14,6 +14,13 @@ export const loginResolver = {
     },
     logoutUser: async (_: any, __: any, context: any) => {
       const auth = await authContextMiddleware(context);
+      console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
       return await loginService.logoutService(
         String(auth.user?.userId),
         auth.token
