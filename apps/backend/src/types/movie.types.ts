@@ -1,7 +1,6 @@
 import { movieStatus } from '@prisma/client';
 
 export interface TMovie {
-  id: string;
   title: string;
   originalTitle?: string | null;
   overview?: string | null;
@@ -10,9 +9,30 @@ export interface TMovie {
   posterPath?: string | null;
   budget?: bigint | null;
   revenue?: bigint | null;
-  status: movieStatus | null;
+  status: movieStatus;
   tagline?: string | null;
-  adult: boolean | null;
+  adult: boolean;
+  trailerLink: string | null;
+}
+export interface TMovieInput {
+  title: string;
+  originalTitle?: string | null;
+  overview?: string | null;
+  releaseDate?: Date | null;
+  runtime?: number | null;
+  budget?: bigint | null;
+  revenue?: bigint | null;
+  status: movieStatus;
+  tagline?: string | null;
+  adult: boolean;
+  trailerLink: string | null;
+  poster?: TFile;
+}
+export interface TFile {
+  filename: string;
+  mimetype: string;
+  encoding: string;
+  createReadStream: () => NodeJS.ReadableStream;
 }
 export interface TGetMovie {
   title: string;
@@ -26,6 +46,7 @@ export interface TGetMovie {
   status: movieStatus | null;
   tagline?: string | null;
   adult: boolean | null;
+  trailerLink: String | null;
 }
 export interface TMovieResponse {
   success: boolean;

@@ -13,7 +13,7 @@ export const userResolvers = {
   Mutation: {
     createUser: async (_: any, args: TCreateUser, context: TReqRes) => {
       console.log(args);
-      console.log('user context::', context.req);
+      // console.log('user context::', context.req);
       await createUserController(args, context.req);
     },
 

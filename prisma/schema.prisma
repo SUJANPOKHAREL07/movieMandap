@@ -52,6 +52,7 @@ model Movie {
     releaseDate   DateTime?
     runtime       Int?
     posterPath    String?
+    trailerLink   String?
     budget        BigInt?
     revenue       BigInt?
     status        movieStatus @default(IN_PRODUCTION)
