@@ -1,8 +1,10 @@
 import { gql } from 'apollo-server-express';
 
 export const movieTypeDefs = gql`
+
   scalar Upload
   scalar Date
+
 
   enum MovieStatus {
     RELEASED
