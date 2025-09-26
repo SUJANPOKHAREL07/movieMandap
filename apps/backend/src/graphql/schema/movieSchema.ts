@@ -1,7 +1,9 @@
 import { gql } from 'apollo-server-express';
 
 export const movieTypeDefs = gql`
-  scalar Uplaod
+  scalar Upload
+  scalar Date
+
   enum MovieStatus {
     RELEASED
     IN_PRODUCTION
@@ -10,6 +12,7 @@ export const movieTypeDefs = gql`
     CANCELLED
     RUMORED
   }
+
   type Movie {
     id: String!
     title: String!
@@ -17,31 +20,36 @@ export const movieTypeDefs = gql`
     releaseDate: Date
     runTime: Int!
     posterPath: String!
+    trailerLink: String
     budget: Int!
     revenue: Int
     status: MovieStatus!
     tagline: String!
     adutl: Boolean!
   }
+
   type movieResponse {
     success: Boolean!
     message: String!
   }
+
   type Query {
     getMovie: [Movie!]!
   }
+
   type Mutation {
-    createMovive(
+    createMovie(
       title: String!
       originalTitle: String
       releaseDate: Date
       runtime: Int!
-      posterPath: String!
+      poster: Upload!
       budget: Int!
       revenue: Int
       status: MovieStatus!
       tagline: String!
       adutl: Boolean!
+      trailerLink: String
     ): movieResponse
   }
 `;

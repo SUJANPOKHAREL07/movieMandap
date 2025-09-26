@@ -19,9 +19,9 @@ function verifyRefreshToken(refreshToken: string): TLoad {
   // console.log('secrete:', JWT_SECRET);
   const checkRefreshToken = verify(refreshToken, JWT_SECRET);
   if (typeof checkRefreshToken !== 'string') {
-    console.log('failed the user verification');
+    // console.log('failed the user verification');
   }
-  console.log('token verification:', checkRefreshToken);
+  // console.log('token verification:', checkRefreshToken);
   return checkRefreshToken as TLoad;
 }
 
