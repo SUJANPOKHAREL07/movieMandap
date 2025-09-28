@@ -11,9 +11,10 @@ export const movieResolver = {
   },
   Mutation: {
     createMovie: async (_: any, args: any, { req, res }: any) => {
-      const { posterPath, ...data } = args;
-      const poster = await uploadFile(posterPath);
-      return await movieService.createMovie(data, poster, res, req);
+      const { poster, ...data } = args;
+      const posterPath = await uploadFile(poster);
+      console.log('posteer path::', posterPath);
+      return await movieService.createMovie(data, posterPath);
     },
   },
 };

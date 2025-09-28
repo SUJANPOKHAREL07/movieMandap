@@ -18,12 +18,18 @@ const getAllMovie = async (): Promise<TMovieResponse> => {
     data: getData,
   };
 };
-const createMovie = async (data: any, poster: any, req: any, res: any) => {
+const createMovie = async (data: any, poster: string, token: string) => {
   try {
+    console.log('poster and data', poster, data);
     const createMovie = await movieModal.createMovie(data, poster);
+
     if (!createMovie) {
       throw new Error('Failed in move creation controller');
     }
+    return {
+      message: 'Movie created',
+      success: false,
+    };
   } catch (err) {
     throw new Error('Failed to create the movie');
   }

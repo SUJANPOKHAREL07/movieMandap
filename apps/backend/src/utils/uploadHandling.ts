@@ -5,25 +5,38 @@ import { TFile } from '../types/movie.types';
 
 export async function uploadFile(file: TFile) {
   const { createReadStream, filename } = await file;
+  console.log('Inside the file upload');
   const stream = createReadStream();
+  console.log('Stream in the file upload::', stream);
 
   const uniqueName = `${uuid()}-${filename}`;
-  const uploadDir = path.join(__dirname, '../uploads');
+  const uploadDir = path.join(`${process.cwd()}/apps/backend`, 'uploads');
   const filePath = path.join(uploadDir, uniqueName);
 
+  console.log('name of file ::', uniqueName);
+  console.log('file directory ::', uploadDir);
+  console.log('file path ::', filePath);
   // Ensure upload directory exists
   if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
   }
 
   // Save file
   await new Promise<void>((resolve, reject) => {
     const writeStream = fs.createWriteStream(filePath);
-    stream.pipe(writeStream);
-    writeStream.on('finish', () => resolve());
-    writeStream.on('error', (err) => reject(err));
-  });
 
-  // Return path (you could return S3/Cloudinary URL instead)
+    stream
+      .pipe(writeStream)
+      .on('finish', () => {
+        console.log('✅ File saved:', filePath);
+        resolve();
+      })
+      .on('error', (err) => {
+        console.error('❌ File save error:', err);
+        reject(err);
+      });
+    console.log('CWD:', process.cwd());
+  });
+  // console.log(`../uploads/${uniqueName}`);
   return `/uploads/${uniqueName}`;
 }

@@ -1,10 +1,8 @@
 import { gql } from 'apollo-server-express';
 
 export const movieTypeDefs = gql`
-
   scalar Upload
   scalar Date
-
 
   enum MovieStatus {
     RELEASED
@@ -21,7 +19,7 @@ export const movieTypeDefs = gql`
     originalTitle: String
     releaseDate: Date
     runTime: Int!
-    posterPath: String!
+    poster: String!
     trailerLink: String
     budget: Int!
     revenue: Int
@@ -50,7 +48,7 @@ export const movieTypeDefs = gql`
       revenue: Int
       status: MovieStatus!
       tagline: String!
-      adutl: Boolean!
+      adult: Boolean!
       trailerLink: String
     ): movieResponse
   }

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev:backend": "nx run backend:serve",
+    "start": "nx run backend:serve",
     "build:backend": "nx build backend",
     "start:backend": "node dist/apps/backend/main.js",
     "dev:frontend": "nx serve frontend",

@@ -8,6 +8,7 @@ import cors from 'cors';
 import { TReqRes } from './types/user.types';
 import { authContextMiddleware } from './authMiddleware/authMiddleware';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
+import path from 'path';
 // import { JWT } from './authMiddleware/jwtToken';
 
 const app = express();
@@ -28,6 +29,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 async function startServer() {
   const server = new ApolloServer(
     {
