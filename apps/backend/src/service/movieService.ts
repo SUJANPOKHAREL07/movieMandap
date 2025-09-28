@@ -18,9 +18,10 @@ const getAllMovie = async (): Promise<TMovieResponse> => {
     data: getData,
   };
 };
-const createMovie = async (data: any, poster: string, token: string) => {
+const createMovie = async (data: any, poster: string) => {
   try {
     console.log('poster and data', poster, data);
+
     const createMovie = await movieModal.createMovie(data, poster);
 
     if (!createMovie) {
