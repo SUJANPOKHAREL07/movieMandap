@@ -29,9 +29,9 @@ export interface TMovieInput {
   poster?: TFile;
 }
 export interface TFile {
-  filename: string;
-  mimetype: string;
-  encoding: string;
+  filename?: string;
+  mimetype?: string;
+  encoding?: string;
   createReadStream: () => NodeJS.ReadableStream;
 }
 export interface TGetMovie {

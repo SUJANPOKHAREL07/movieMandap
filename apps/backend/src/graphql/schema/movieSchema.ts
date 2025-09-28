@@ -17,15 +17,16 @@ export const movieTypeDefs = gql`
     id: String!
     title: String!
     originalTitle: String
+    overview: String
     releaseDate: Date
-    runTime: Int!
-    poster: String!
-    trailerLink: String
-    budget: Int!
-    revenue: Int
+    runtime: Int!
+    posterPath: String
+    trailerLink: String!
+    # budget: Int!,
+    revenue: Int!
     status: MovieStatus!
     tagline: String!
-    adutl: Boolean!
+    adult: Boolean!
   }
 
   type movieResponse {
@@ -34,7 +35,7 @@ export const movieTypeDefs = gql`
   }
 
   type Query {
-    getMovie: [Movie!]!
+    getMovie: [Movie]
   }
 
   type Mutation {
