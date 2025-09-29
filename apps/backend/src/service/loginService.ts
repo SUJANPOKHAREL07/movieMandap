@@ -26,7 +26,7 @@ async function loginUser(
     return { success: false, message: 'SignUp first' };
   }
   const alreadyloggedIn = await loginModal.alreadyLoggedIn(token);
-  if (alreadyloggedIn) {
+  if (alreadyloggedIn !== null) {
     return {
       success: false,
       message: 'User already logged in ',
@@ -73,6 +73,13 @@ async function logoutService(
     return {
       success: false,
       message: 'No log info found! Login First',
+    };
+  }
+  const tokenExist = await LogoutModal.checkToken(token);
+  if (tokenExist === null) {
+    return {
+      success: false,
+      message: 'No user found',
     };
   }
   // @ts-ignore

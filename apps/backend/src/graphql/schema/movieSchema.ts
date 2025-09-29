@@ -22,7 +22,7 @@ export const movieTypeDefs = gql`
     runtime: Int!
     posterPath: String
     trailerLink: String!
-    # budget: Int!,
+    budget: Int!
     revenue: Int!
     status: MovieStatus!
     tagline: String!

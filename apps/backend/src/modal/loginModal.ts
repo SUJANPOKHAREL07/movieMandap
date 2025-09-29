@@ -60,8 +60,15 @@ async function getLoginInfo(token: string) {
   });
   return get;
 }
-export const LogoutModal = { logout };
-
+export const LogoutModal = { logout, checkToken };
+async function checkToken(token: string) {
+  const data = await prisma.login.findFirst({
+    where: {
+      refresh_token: token,
+    },
+  });
+  return data;
+}
 async function logout(token: string, userId: string) {
   const user = await prisma.login.deleteMany({
     where: {
