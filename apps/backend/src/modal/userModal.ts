@@ -41,7 +41,7 @@ async function getUserModal() {
 
   return getuser;
 }
-async function searchUserName(data: { username?: string }) {
+async function searchUserName(data: { username: string }) {
   const search = await prisma.user.findUnique({
     where: {
       username: data.username,
@@ -76,21 +76,20 @@ async function deleteUserModal(email: string) {
     message: 'User deleted ',
   };
 }
-async function updateUserModal(
-  email: string,
-  username?: string,
-  password?: string
-) {
-  const update = await prisma.user.update({
-    where: {
-      email: email,
-    },
-    data: {
-      username: username,
-      password: password,
-    },
-  });
-  return update;
+async function updateUserModal(userId: string, newUsername: string) {
+  try {
+    return await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        username: newUsername,
+      },
+    });
+  } catch (err) {
+    console.log('Update error in the update modal', err);
+    return;
+  }
 }
 async function updateVerification(email: string) {
   console.log('udpate verification', email);

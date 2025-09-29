@@ -25,5 +25,6 @@ export const userTypeDefs = gql`
     ): MutationResponse!
     verifyOtp(otp: String!): MutationResponse!
     resendOtp(email: String!): MutationResponse!
+    updateUsername(newUsername: String!): MutationResponse!
   }
 `;
