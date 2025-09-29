@@ -10,11 +10,11 @@ declare module 'express-session' {
   }
 }
 
-export const getUserController = async () => {
+const getUserController = async () => {
   return await userModal.getUserModal();
 };
 
-export const createUserController = async (
+const createUserController = async (
   { email, username, password, role }: TCreateUser,
   req: any
 ) => {
@@ -54,7 +54,7 @@ export const createUserController = async (
   return { success: true, message: 'OTP sent to email' };
 };
 
-export const verifyOtpService = async (otp: string, req: any) => {
+const verifyOtpService = async (otp: string, req: any) => {
   console.log('verify otp session data :', req.session.pendingUserData);
   if (!req.session.pendingUserData) {
     return { success: false, message: 'No pending user data' };
@@ -80,7 +80,7 @@ export const verifyOtpService = async (otp: string, req: any) => {
   return { success: true, message: 'User created successfully' };
 };
 
-export const resendOtpController = async (email: string, req: any) => {
+const resendOtpController = async (email: string, req: any) => {
   if (
     !req.session.pendingUserData ||
     req.session.pendingUserData.email !== email
@@ -90,4 +90,31 @@ export const resendOtpController = async (email: string, req: any) => {
 
   await otpService.resendOtp(req.session);
   return { success: true, message: 'OTP resent' };
+};
+const updateUserDetail = async (username: string, userId: string) => {
+  const check = await userModal.searchUserName({ username });
+  if (check !== null) {
+    return {
+      success: false,
+      message: 'Username already exist',
+    };
+  }
+  const update = await userModal.updateUserModal(userId, username);
+  if (!update) {
+    return {
+      success: false,
+      message: 'Failed to update the user name',
+    };
+  }
+  return {
+    success: true,
+    message: 'Username updated',
+  };
+};
+export const userService = {
+  resendOtpController,
+  verifyOtpService,
+  createUserController,
+  getUserController,
+  updateUserDetail,
 };
