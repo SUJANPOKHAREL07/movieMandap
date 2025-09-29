@@ -41,8 +41,8 @@ export interface TGetMovie {
   releaseDate?: Date | null;
   runtime?: number | null;
   posterPath?: string | null;
-  budget?: bigint | null;
-  revenue?: bigint | null;
+  budget?: number | null;
+  revenue?: number | null;
   status: movieStatus | null;
   tagline?: string | null;
   adult: boolean | null;
