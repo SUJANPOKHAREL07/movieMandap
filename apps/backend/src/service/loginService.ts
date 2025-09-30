@@ -2,11 +2,14 @@
 //   EXPIRE_ACCESS_TOKEN,
 //   EXPIRE_REFRESH_TOKEN,
 // } from '../authMiddleware/expireTiming';
+
 import { JWT } from '../authMiddleware/jwtToken';
 import { loginModal, LogoutModal } from '../modal/loginModal';
+import { userModal } from '../modal/userModal';
 
 import { TLoad } from '../types/login.types';
-import { TResponse } from '../types/user.types';
+import { TReqRes, TResponse } from '../types/user.types';
+import { resetPasswordService } from '../userVerifyOTP/resetPassOtpService';
 import { comparePassword } from '../utils/passwordHashing';
 
 async function loginUser(
@@ -89,4 +92,39 @@ async function logoutService(
     message: 'logout success',
   };
 }
-export const loginService = { loginUser, logoutService };
+export const loginService = { loginUser, logoutService, resetPassword };
+
+// reset password
+
+async function resetPassword(
+  { req }: TReqRes,
+  email?: string,
+  username?: string
+) {
+  if (typeof email === 'undefined' && typeof username === 'undefined') {
+    throw new Error('Email or user name is required');
+  }
+  let user: any;
+  if (typeof email === 'undefined') {
+    user = await userModal.searchUserName({ username });
+    console.log('user name and email-inside if:', user.email);
+  }
+
+  user = await userModal.searchUserEmail({ email });
+  console.log('email from the user name:', user?.email);
+
+  if (user === null) {
+    throw new Error('No user found');
+  }
+  const data = await resetPasswordService.sendOtp(user.email, req.session);
+  if (data.success !== true) {
+    return {
+      success: false,
+      message: 'Failed to send the otp',
+    };
+  }
+  return {
+    success: true,
+    message: 'Otp sent to your email',
+  };
+}

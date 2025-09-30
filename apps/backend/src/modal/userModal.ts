@@ -41,7 +41,8 @@ async function getUserModal() {
 
   return getuser;
 }
-async function searchUserName(data: { username: string }) {
+async function searchUserName(data: { username?: string }) {
+  console.log('username ', data.username);
   const search = await prisma.user.findUnique({
     where: {
       username: data.username,
@@ -50,7 +51,8 @@ async function searchUserName(data: { username: string }) {
   console.log('search result in the modal:', search);
   return search;
 }
-async function searchUserEmail(data: { email: string }) {
+async function searchUserEmail(data: { email?: string }) {
+  console.log('email', data.email);
   const search = await prisma.user.findUnique({
     where: {
       email: data.email,

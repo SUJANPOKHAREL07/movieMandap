@@ -13,7 +13,7 @@ export const otpService = {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinegufi Account Verification</title>
+    <title>CineGudi Account Verification</title>
     <style>
         /* Reset CSS for email compatibility */
         body, table, td, a {
@@ -139,7 +139,7 @@ export const otpService = {
             <div class="content">
                 <h2>Verify Your Account</h2>
                 <p>Hello ${email},</p>
-                <p>Thank you for creating an account with Cinegufi! To complete your registration and start enjoying our services, please use the following One-Time Password (OTP) to verify your account:</p>
+                <p>Thank you for creating an account with CineGudi! To complete your registration and start enjoying our services, please use the following One-Time Password (OTP) to verify your account:</p>
                 
                 <div class="otp-code">${otp}</div>
                 
@@ -150,13 +150,13 @@ export const otpService = {
                 <p>If the button doesn't work, you can copy and paste the code into the verification screen in our app or website.</p>
                 
                 <div class="warning">
-                    <strong>Security Notice:</strong> If you didn't request this code, please ignore this email or contact our support team immediately at <a href="mailto:support@cinegufi.com">support@cinegufi.com</a>.
+                    <strong>Security Notice:</strong> If you didn't request this code, please ignore this email or contact our support team immediately at <a href="mailto:support@cinegudi.com">support@cinegudi.com</a>.
                 </div>
             </div>
             
             <!-- Footer -->
             <div class="footer">
-                <p>&copy; 2023 Cinegufi. All rights reserved.</p>
+                <p>&copy; 2023 Cinegudi. All rights reserved.</p>
                 <p>123 Movie Lane, Hollywood, CA 90001</p>
                 
                 <div class="social-links">
@@ -165,7 +165,7 @@ export const otpService = {
                     <a href="#">Instagram</a>
                 </div>
                 
-                <p>You're receiving this email because you created an account with Cinegufi.</p>
+                <p>You're receiving this email because you created an account with cinegudi.</p>
                 <p><a href="#">Unsubscribe</a> | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
             </div>
         </div>
