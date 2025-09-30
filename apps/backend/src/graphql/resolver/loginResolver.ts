@@ -14,7 +14,7 @@ export const loginResolver = {
     },
     logoutUser: async (_: any, __: any, context: any) => {
       const auth = await authContextMiddleware(context);
-      console.log('auth ', auth);
+      // console.log('auth ', auth);
       if (auth.token === null) {
         return {
           success: false,
@@ -25,6 +25,21 @@ export const loginResolver = {
         String(auth.user?.userId),
         auth.token
       );
+    },
+    resetPassword: async (
+      _: any,
+      { email, username }: any,
+      { req, res }: TReqRes
+    ) => {
+      console.log('user name and email:', email, username);
+      // console.log(typeof username);
+      if (typeof username !== 'string' && typeof email !== 'string') {
+        return {
+          success: false,
+          message: 'Email or Username should be the string',
+        };
+      }
+      return await loginService.resetPassword({ req, res }, email, username);
     },
   },
 };
