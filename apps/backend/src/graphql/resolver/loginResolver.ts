@@ -57,5 +57,19 @@ export const loginResolver = {
       console.log('otp in the resolver', otp);
       return await loginService.verifyOtp(otp, req);
     },
+    updateNewPassword: async (
+      _: any,
+      { newPassword, confirmPassword }: any,
+      { req, res }: TReqRes
+    ) => {
+      if (
+        typeof newPassword !== 'string' ||
+        typeof confirmPassword !== 'string'
+      )
+        throw new Error('new password and confirm password must be the string');
+      if (newPassword !== confirmPassword)
+        throw new Error('new password and confirm password not match');
+      return await loginService.updateNewPassword(newPassword, req);
+    },
   },
 };

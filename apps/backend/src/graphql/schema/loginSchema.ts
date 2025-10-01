@@ -17,5 +17,6 @@ export const LoginTypeDefs = gql`
     resetPassword(email: String, username: String): Response!
     resendResetPasswordOtp(email: String, username: String): Response!
     verifyResetPasswordOtp(otp: String!): Response!
+    updateNewPassword(newPassword: String!, confirmPassword: String!): Response!
   }
 `;

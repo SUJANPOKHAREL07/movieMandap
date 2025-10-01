@@ -98,6 +98,7 @@ export const loginService = {
   resetPassword,
   resendOtp,
   verifyOtp,
+  updateNewPassword,
 };
 
 // reset password
@@ -163,5 +164,21 @@ async function verifyOtp(otp: string, req: any) {
   return {
     success: true,
     message: 'Otp verified',
+  };
+}
+async function updateNewPassword(newPassword: string, req: any) {
+  const data = await resetPasswordService.resetPassword(
+    newPassword,
+    req.session
+  );
+  if (data.success !== true) {
+    return {
+      success: false,
+      message: 'Failed to update new password',
+    };
+  }
+  return {
+    success: true,
+    message: 'Passoword updated',
   };
 }
