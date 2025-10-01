@@ -41,5 +41,8 @@ export const loginResolver = {
       }
       return await loginService.resetPassword({ req, res }, email, username);
     },
+    resendOtp: async (_: any, { email, username }: any, { req }: TReqRes) => {
+      return await loginService.resendOtp(req);
+    },
   },
 };

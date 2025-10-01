@@ -8,6 +8,7 @@ function generateOtp(): string {
 export const resetPasswordService = {
   async sendOtp(email: string, session: any) {
     console.log('email in the send opt--', email);
+    // console.log('session in the send otp--', session);
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error('User not found');
 
@@ -156,5 +157,10 @@ export const resetPasswordService = {
         `
     );
     return { message: 'OTP sent successfully', success: true };
+  },
+  async resendOtp(session: any) {
+    if (!session.resetEmail) throw new Error('No email in session');
+    const send = this.sendOtp(session.resetEmail, session);
+    return send;
   },
 };

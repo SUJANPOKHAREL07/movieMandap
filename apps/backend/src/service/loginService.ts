@@ -92,7 +92,12 @@ async function logoutService(
     message: 'logout success',
   };
 }
-export const loginService = { loginUser, logoutService, resetPassword };
+export const loginService = {
+  loginUser,
+  logoutService,
+  resetPassword,
+  resendOtp,
+};
 
 // reset password
 
@@ -116,6 +121,8 @@ async function resetPassword(
   if (user === null) {
     throw new Error('No user found');
   }
+  req.session.email = user.email;
+  // console.log('session email save--', req.session.email);
   const data = await resetPasswordService.sendOtp(user.email, req.session);
   if (data.success !== true) {
     return {
@@ -126,5 +133,19 @@ async function resetPassword(
   return {
     success: true,
     message: 'Otp sent to your email',
+  };
+}
+async function resendOtp(req: any) {
+  console.log('Session data in the session', req.ession);
+  const send = await resetPasswordService.resendOtp(req.session);
+  if (send.success !== true) {
+    return {
+      success: false,
+      message: 'Failed to send agian the email',
+    };
+  }
+  return {
+    success: true,
+    message: 'otp resend',
   };
 }
