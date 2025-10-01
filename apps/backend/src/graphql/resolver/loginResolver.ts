@@ -41,8 +41,21 @@ export const loginResolver = {
       }
       return await loginService.resetPassword({ req, res }, email, username);
     },
-    resendOtp: async (_: any, { email, username }: any, { req }: TReqRes) => {
+    resendResetPasswordOtp: async (
+      _: any,
+      { email, username }: any,
+      { req }: TReqRes
+    ) => {
       return await loginService.resendOtp(req);
+    },
+    verifyResetPasswordOtp: async (
+      _: any,
+      { otp }: any,
+      { req, res }: TReqRes
+    ) => {
+      if (typeof otp !== 'string') throw new Error('Otp must be in string ');
+      console.log('otp in the resolver', otp);
+      return await loginService.verifyOtp(otp, req);
     },
   },
 };

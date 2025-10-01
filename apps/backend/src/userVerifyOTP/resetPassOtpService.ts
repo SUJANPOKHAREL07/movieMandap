@@ -163,4 +163,25 @@ export const resetPasswordService = {
     const send = this.sendOtp(session.resetEmail, session);
     return send;
   },
+
+  async verifyOtp(otp: string, session: any) {
+    if (!session.resetEmail) throw new Error('Session expired');
+    console.log('Otp in  the verification', otp);
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.resetEmail },
+    });
+    console.log('user to verify the otp', user);
+    console.log('user to verify the otp', user?.resetOtp);
+    console.log('user to verify the otp', typeof user?.resetOtp);
+    if (!user || !user.resetOtp || !user.resetOtpExpired)
+      throw new Error('Invalid request');
+
+    if (user.resetOtp !== otp) throw new Error('Invalid OTP');
+    if (Date.now() > Number(user.resetOtpExpired))
+      throw new Error('OTP expired');
+
+    session.otpVerified = true;
+    return { message: 'OTP verified successfully', success: true };
+  },
 };
