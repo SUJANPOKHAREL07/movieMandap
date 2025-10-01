@@ -1,5 +1,6 @@
 import prisma from '../prisma/client';
 import { sendMail } from '../userVerifyOTP/nodeMailer';
+import { hashPassword } from '../utils/passwordHashing';
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -166,14 +167,10 @@ export const resetPasswordService = {
 
   async verifyOtp(otp: string, session: any) {
     if (!session.resetEmail) throw new Error('Session expired');
-    console.log('Otp in  the verification', otp);
 
     const user = await prisma.user.findUnique({
       where: { email: session.resetEmail },
     });
-    console.log('user to verify the otp', user);
-    console.log('user to verify the otp', user?.resetOtp);
-    console.log('user to verify the otp', typeof user?.resetOtp);
     if (!user || !user.resetOtp || !user.resetOtpExpired)
       throw new Error('Invalid request');
 
@@ -183,5 +180,27 @@ export const resetPasswordService = {
 
     session.otpVerified = true;
     return { message: 'OTP verified successfully', success: true };
+  },
+
+  async resetPassword(newPassword: string, session: any) {
+    if (!session.resetEmail) throw new Error('Session expired');
+    if (!session.otpVerified) throw new Error('OTP not verified');
+
+    const hashed = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { email: session.resetEmail },
+      data: {
+        password: hashed,
+        resetOtp: '',
+        resetOtpExpired: null,
+      },
+    });
+
+    // clear session
+    session.resetEmail = null;
+    session.otpVerified = false;
+
+    return { message: 'Password reset successfully', success: true };
   },
 };
