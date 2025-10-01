@@ -97,6 +97,7 @@ export const loginService = {
   logoutService,
   resetPassword,
   resendOtp,
+  verifyOtp,
 };
 
 // reset password
@@ -147,5 +148,20 @@ async function resendOtp(req: any) {
   return {
     success: true,
     message: 'otp resend',
+  };
+}
+async function verifyOtp(otp: string, req: any) {
+  console.log('otp entered by the user', otp);
+  console.log('otp entered by the user-SESSION DATA', req.session);
+  const verify = await resetPasswordService.verifyOtp(otp, req.session);
+  if (verify.success !== true) {
+    return {
+      message: 'Failed to veify the otp',
+      success: false,
+    };
+  }
+  return {
+    success: true,
+    message: 'Otp verified',
   };
 }
