@@ -15,5 +15,7 @@ export const LoginTypeDefs = gql`
     loginUser(email: String, username: String, password: String!): Response!
     logoutUser: Response!
     resetPassword(email: String, username: String): Response!
+    resendResetPassowrdOtp(email: String, username: String): Response!
+    verifyResetPassowrdOtp(email: String, username: String): Response!
   }
 `;
