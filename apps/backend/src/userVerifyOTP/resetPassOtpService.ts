@@ -27,8 +27,13 @@ export const resetPasswordService = {
 
     await sendMail(
       email,
-      'Password Reset OTP',
-      ` <title>Password Reset OTP</title>
+      'Reset Password OTP',
+      `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset OTP - Cinegudi</title>
     <style>
         /* Reset CSS for email compatibility */
         body, table, td, a {
@@ -52,39 +57,65 @@ export const resetPasswordService = {
             max-width: 600px;
             margin: 0 auto;
         }
+        
         /* Main styles */
         body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
             color: #333333;
         }
         .email-container {
             width: 100%;
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
         }
         .email-content {
             background-color: #ffffff;
             margin: 20px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         .logo {
             text-align: center;
             padding: 20px 0;
         }
-        .otp-code {
+        .logo h1 {
+            color: #6a11cb;
+            margin: 0;
             font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header-icon div {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        .otp-code {
+            font-size: 42px;
             font-weight: bold;
             text-align: center;
-            letter-spacing: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            background-color: #f8f9fa;
-            border-radius: 6px;
+            letter-spacing: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 10px;
             color: #1a1a1a;
+            border: 1px dashed #6a11cb;
         }
         .footer {
             text-align: center;
@@ -92,11 +123,44 @@ export const resetPasswordService = {
             color: #666666;
             padding: 20px;
         }
-       
         .support {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eeeeee;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+        .security-note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .expiry-notice {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0d6efd;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .social-links {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 8px;
+            color: #6a11cb;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -108,41 +172,62 @@ export const resetPasswordService = {
                     <!-- Logo Section -->
                     <tr>
                         <td class="logo">
-                            <h1>VutunTung</h1>
+                            <h1>Cinegudi</h1>
                         </td>
                     </tr>
                     
                     <!-- Email Content -->
                     <tr>
                         <td class="email-content">
-                            <h2>Your One-Time Password (OTP)</h2>
-                           <p>Hello ${email}</p>
+                            <!-- Header Icon -->
+                            <div class="header-icon">
+                                <div>🔒</div>
+                            </div>
+                            
+                            <h2 style="text-align: center; color: #333; margin-bottom: 5px;">Password Reset Request</h2>
+                            <p style="text-align: center; color: #666; margin-top: 0;">Hello ${email}</p>
                       
-                            <p>You requested a one-time password to reset your account password. Use the following code to complete your verification:</p>
+                            <p>We received a request to reset your Cinegudi account password. Use the One-Time Password (OTP) below to verify your identity and create a new password.</p>
                             
                             <!-- OTP Code Display -->
                             <div class="otp-code">${otp}</div>
                             
-                            <p>This code will expire in <strong>10 minutes</strong>. For security reasons, please do not share this code with anyone.</p>
+                            <div class="expiry-notice">
+                                <p><strong>This code will expire in 10 minutes.</strong> If you don't use it before then, you'll need to request a new OTP.</p>
+                            </div>
                             
-                            <p>If you didn't request this code, please ignore this email or contact support if you have concerns.</p>
+                            <div class="security-note">
+                                <p><strong>Security Tip:</strong> Never share your OTP with anyone. Cinegudi will never ask for your password or OTP via email, phone, or text message.</p>
+                            </div>
                             
+                            <p style="text-align: center;">
+                                <a href="#" class="btn">Reset Password</a>
+                            </p>
                             
+                            <p>If you didn't request this password reset, please ignore this email or contact our support team immediately if you're concerned about your account's security.</p>
+                            
+                            <!-- Social Links -->
+                            <div class="social-links">
+                                <a href="#">Website</a> • 
+                                <a href="#">Facebook</a> • 
+                                <a href="#">Twitter</a> • 
+                                <a href="#">Instagram</a>
+                            </div>
                         </td>
                     </tr>
                     
                     <!-- Support Section -->
                     <tr>
                         <td class="support">
-                            <p>Need help? Contact our support team at <a href="mailto:support@vutungtung.com">support@vutungtun.com</a></p>
+                            <p>Need help? Contact our support team at <a href="mailto:support@cinegudi.com">support@cinegudi.com</a> or visit our Help Center.</p>
                         </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
                         <td class="footer">
-                            <p>© 2023 VutungTung All rights reserved.</p>
-                            <p>123 Business Street, City, State 12345</p>
+                            <p>© 2023 Cinegudi. All rights reserved.</p>
+                            <p>123 Entertainment Avenue, Film City, FC 12345</p>
                             <p>
                                 <a href="#">Unsubscribe</a> | 
                                 <a href="#">Privacy Policy</a> | 
@@ -155,7 +240,7 @@ export const resetPasswordService = {
         </tr>
     </table>
 </body>
-        `
+</html>`
     );
     return { message: 'OTP sent successfully', success: true };
   },
