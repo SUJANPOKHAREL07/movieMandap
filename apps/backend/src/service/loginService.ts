@@ -115,6 +115,21 @@ async function resetPassword(
   if (typeof email === 'undefined') {
     user = await userModal.searchUserName({ username });
     console.log('user name and email-inside if:', user.email);
+    if (user === null) {
+      throw new Error('No user found');
+    }
+    req.session.email = user.email;
+    const data = await resetPasswordService.sendOtp(user.email, req.session);
+    if (data.success !== true) {
+      return {
+        success: false,
+        message: 'Failed to send the otp',
+      };
+    }
+    return {
+      success: true,
+      message: 'Otp sent to your email',
+    };
   }
 
   user = await userModal.searchUserEmail({ email });
