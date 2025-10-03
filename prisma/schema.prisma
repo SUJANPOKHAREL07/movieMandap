@@ -8,7 +8,7 @@ datasource db {
 }
 
 model user {
-    id              String    @id @default(cuid())
+    id              Int       @id @default(autoincrement())
     username        String    @unique
     email           String    @unique
     password        String
@@ -34,8 +34,8 @@ enum Role {
 }
 
 model login {
-    id            String   @id @default(cuid())
-    userId        String
+    id            Int      @id @default(autoincrement())
+    userId        Int
     useremail     String
     password      String
     role          Role
@@ -46,20 +46,23 @@ model login {
 }
 
 model Movie {
-    id            String      @id @default(cuid())
-    title         String
-    originalTitle String?
-    overview      String?
-    releaseDate   DateTime?
-    runtime       Int?
-    posterPath    String?
-    trailerLink   String?
-    budget        Int?
-    revenue       Int?
-    status        movieStatus @default(IN_PRODUCTION)
-    tagline       String?
-    adult         Boolean     @default(false)
+    id                     Int                      @id @default(autoincrement())
+    title                  String                   @unique
+    originalTitle          String?
+    overview               String?
+    releaseDate            DateTime?
+    runtime                Int?
+    posterPath             String?
+    trailerLink            String?
+    budget                 Int?
+    revenue                Int?
+    status                 movieStatus              @default(IN_PRODUCTION)
+    tagline                String?
+    adult                  Boolean                  @default(false)
+    MovieGenre             MovieGenre[]
+    MovieProductionCompany MovieProductionCompany[]
 
+    @@unique([id, title])
     @@map("movies")
 }
 
@@ -70,4 +73,60 @@ enum movieStatus {
     PLANNED
     CANCELLED
     RUMORED
+}
+
+model Genre {
+    id         String       @id @default(uuid())
+    name       String       @unique
+    MovieGenre MovieGenre[]
+
+    @@unique([id, name])
+    @@map("generes")
+}
+
+model MovieGenre {
+    id        String @id @default(uuid())
+    movieId   Int
+    generesId String
+
+    movie Movie @relation(fields: [movieId], references: [id])
+    genre Genre @relation(fields: [generesId], references: [id])
+
+    @@unique([movieId, generesId])
+    @@map("movie_genere")
+}
+
+model ProductionCompany {
+    id                     Int                      @id @default(autoincrement())
+    name                   String
+    logoPath               String?
+    originCOuntry          String?
+    MovieProductionCompany MovieProductionCompany[]
+
+    @@unique([id, name])
+    @@map("production_companies")
+}
+
+model MovieProductionCompany {
+    id           String            @id @default(uuid())
+    movieId      Int
+    productionId Int
+    movie        Movie             @relation(references: [id], fields: [movieId])
+    company      ProductionCompany @relation(references: [id], fields: [productionId])
+
+    @@unique([movieId, productionId])
+    @@map("movie_production_companies")
+}
+
+// people worked in the movie
+model Person {
+    id         String    @id @default(uuid())
+    name       String
+    birthDay   DateTime
+    deathDay   DateTime?
+    birthPlace String?
+    socialPath String?
+    adult      Boolean   @default(true)
+
+    @@map("peoples")
 }
