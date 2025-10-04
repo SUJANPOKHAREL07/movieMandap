@@ -8,21 +8,28 @@ datasource db {
 }
 
 model user {
-    id              Int       @id @default(autoincrement())
-    username        String    @unique
-    email           String    @unique
+    id              Int             @id @default(autoincrement())
+    username        String          @unique
+    email           String          @unique
     password        String
-    createdAt       DateTime  @default(now())
-    udpatedAt       DateTime  @default(now()) @updatedAt
-    verified        Boolean   @default(false)
-    otpVerify       String?   @default("")
+    createdAt       DateTime        @default(now())
+    udpatedAt       DateTime        @default(now()) @updatedAt
+    verified        Boolean         @default(false)
+    otpVerify       String?         @default("")
     otpExpired      DateTime?
     updateOtp       String?
     updateOtpExpire DateTime?
-    resetOtp        String?   @default("")
+    resetOtp        String?         @default("")
     resetOtpExpired DateTime?
-    role            Role      @default(user)
+    role            Role            @default(user)
     login           login[]
+    Review          Review[]
+    Like            Like[]
+    Comment         Comment[]
+    WatchlistItem   WatchlistItem[]
+    followers       Follow[]        @relation("Follower")
+    following       Follow[]        @relation("Following")
+    Follow          Follow[]
 
     @@unique([email, id])
 }
@@ -61,6 +68,10 @@ model Movie {
     adult                  Boolean                  @default(false)
     MovieGenre             MovieGenre[]
     MovieProductionCompany MovieProductionCompany[]
+    crewMember             crewMember[]
+    CastMember             CastMember[]
+    Review                 Review[]
+    WatchlistItem          WatchlistItem[]
 
     @@unique([id, title])
     @@map("movies")
@@ -108,7 +119,7 @@ model ProductionCompany {
 }
 
 model MovieProductionCompany {
-    id           String            @id @default(uuid())
+    id           Int               @id @default(autoincrement())
     movieId      Int
     productionId Int
     movie        Movie             @relation(references: [id], fields: [movieId])
@@ -120,13 +131,127 @@ model MovieProductionCompany {
 
 // people worked in the movie
 model Person {
-    id         String    @id @default(uuid())
+    id         Int          @id @default(autoincrement())
     name       String
     birthDay   DateTime
     deathDay   DateTime?
     birthPlace String?
     socialPath String?
-    adult      Boolean   @default(true)
+    adult      Boolean      @default(true)
+    crewMember crewMember[]
+    CastMember CastMember[]
 
     @@map("peoples")
+}
+
+model crewMember {
+    id         Int    @id @default(autoincrement())
+    movieId    Int
+    personId   Int
+    department String
+    job        String
+
+    movie  Movie  @relation(references: [id], fields: [movieId])
+    person Person @relation(references: [id], fields: [personId])
+
+    @@unique([movieId, personId, job])
+    @@map("crew_member")
+}
+
+model CastMember {
+    id        Int    @id @default(autoincrement())
+    movieId   Int
+    personId  Int
+    character String
+    // order Int
+    creditId  Int
+
+    movie  Movie  @relation(references: [id], fields: [movieId])
+    person Person @relation(references: [id], fields: [personId])
+
+    @@map("cast_member")
+}
+
+model Review {
+    id         Int      @id @default(autoincrement())
+    title      String
+    content    String
+    rating     Ratings  @default(Good_To_Watch)
+    isSpoiler  Boolean  @default(false)
+    creadtedAt DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    userId     Int
+    movieId    Int
+
+    user    user      @relation(references: [id], fields: [userId])
+    movie   Movie     @relation(references: [id], fields: [movieId])
+    Like    Like[]
+    Comment Comment[]
+
+    // likes Like[]
+    // comments Comment[]
+    @@map("reviews")
+}
+
+enum Ratings {
+    Worst
+    Bearable
+    Good_To_Watch
+    Worthy
+    Absolute_Cinema
+}
+
+model Like {
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    reviewId  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user   user   @relation(references: [id], fields: [userId])
+    review Review @relation(references: [id], fields: [reviewId])
+
+    @@map("likes")
+}
+
+model Comment {
+    id        Int      @id @default(autoincrement())
+    content   String
+    userId    Int
+    reviewId  Int
+    parentId  Int?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user    user      @relation(references: [id], fields: [userId], onDelete: Cascade)
+    review  Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+    parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+    replies Comment[] @relation("CommentReplies")
+
+    @@map("comments")
+}
+
+model WatchlistItem {
+    id      Int      @id @default(autoincrement())
+    userId  Int
+    movieId Int
+    addedAt DateTime @default(now())
+    note    String?
+
+    user  user  @relation(references: [id], fields: [userId], onDelete: Cascade)
+    movie Movie @relation(references: [id], fields: [movieId], onDelete: Cascade)
+
+    @@map("watchlist_items")
+}
+
+model Follow {
+    id          Int      @id @default(autoincrement())
+    followerId  Int
+    followingId Int
+    createdAt   DateTime @default(now())
+
+    follower  user  @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+    following user  @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+    user      user? @relation(fields: [userId], references: [id])
+    userId    Int?
 }
