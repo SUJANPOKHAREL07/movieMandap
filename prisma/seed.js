@@ -71,21 +71,21 @@ async function main() {
       data: {
         name: "Warner Bros. Pictures",
         logoPath: "/warner_bros_logo.png",
-        originCOuntry: "US"
+        originCountry: "US"
       }
     }),
     prisma.productionCompany.create({
       data: {
         name: "Legendary Pictures",
         logoPath: "/legendary_logo.png",
-        originCOuntry: "US"
+        originCountry: "US"
       }
     }),
     prisma.productionCompany.create({
       data: {
         name: "Castle Rock Entertainment",
         logoPath: "/castle_rock_logo.png",
-        originCOuntry: "US"
+        originCountry: "US"
       }
     })
   ]);
@@ -173,9 +173,9 @@ async function main() {
 
   // Create Movie-Production Company relationships
   await Promise.all([
-    prisma.movieProductionCompany.create({ data: { movieId: movies[0].id, productionId: companies[0].id } }),
-    prisma.movieProductionCompany.create({ data: { movieId: movies[0].id, productionId: companies[1].id } }),
-    prisma.movieProductionCompany.create({ data: { movieId: movies[1].id, productionId: companies[2].id } })
+    prisma.movieProductionCompany.create({ data: { movieId: movies[0].id, conpanyId: companies[0].id } }),
+    prisma.movieProductionCompany.create({ data: { movieId: movies[0].id, conpanyId: companies[1].id } }),
+    prisma.movieProductionCompany.create({ data: { movieId: movies[1].id, conpanyId: companies[2].id } })
   ]);
 
   // Create Crew Members
@@ -205,7 +205,7 @@ async function main() {
         movieId: movies[0].id,
         personId: people[0].id, // Leonardo DiCaprio
         character: "Cobb",
-        creditId: 1
+        creditId: "1"
       }
     }),
     prisma.castMember.create({
@@ -213,7 +213,7 @@ async function main() {
         movieId: movies[1].id,
         personId: people[2].id, // Tim Robbins
         character: "Andy Dufresne",
-        creditId: 2
+        creditId: "2"
       }
     }),
     prisma.castMember.create({
@@ -221,7 +221,7 @@ async function main() {
         movieId: movies[1].id,
         personId: people[3].id, // Morgan Freeman
         character: "Ellis Boyd 'Red' Redding",
-        creditId: 3
+        creditId: "3"
       }
     })
   ]);
