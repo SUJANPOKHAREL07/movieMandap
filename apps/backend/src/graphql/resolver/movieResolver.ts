@@ -36,5 +36,24 @@ export const movieResolver = {
       const posterPath = await uploadFile(poster);
       return await movieService.createMovie(data, posterPath);
     },
+    createGenre: async (_: any, { name }: any, context: any) => {
+      if (typeof name !== 'string') return 'Name must be string';
+      const auth = await authContextMiddleware(context);
+      console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      const userRole = auth.user?.role;
+      if (userRole === 'user') {
+        return {
+          success: false,
+          message: 'User are not allowed to create',
+        };
+      }
+      return await movieService.createGenre(name);
+    },
   },
 };

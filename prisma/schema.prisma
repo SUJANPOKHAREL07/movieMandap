@@ -87,18 +87,19 @@ enum movieStatus {
 }
 
 model Genre {
-    id         String       @id @default(uuid())
+    id         Int          @id @default(autoincrement())
     name       String       @unique
     MovieGenre MovieGenre[]
 
     @@unique([id, name])
-    @@map("generes")
+    @@map("genres")
 }
 
 model MovieGenre {
-    id        String @id @default(uuid())
+    id Int @id @default(autoincrement())
+
     movieId   Int
-    generesId String
+    generesId Int
 
     movie Movie @relation(fields: [movieId], references: [id])
     genre Genre @relation(fields: [generesId], references: [id])
@@ -111,7 +112,7 @@ model ProductionCompany {
     id                     Int                      @id @default(autoincrement())
     name                   String
     logoPath               String?
-    originCOuntry          String?
+    originCountry          String?
     MovieProductionCompany MovieProductionCompany[]
 
     @@unique([id, name])
@@ -119,13 +120,13 @@ model ProductionCompany {
 }
 
 model MovieProductionCompany {
-    id           Int               @id @default(autoincrement())
-    movieId      Int
-    productionId Int
-    movie        Movie             @relation(references: [id], fields: [movieId])
-    company      ProductionCompany @relation(references: [id], fields: [productionId])
+    id        Int               @id @default(autoincrement())
+    movieId   Int
+    conpanyId Int
+    movie     Movie             @relation(references: [id], fields: [movieId])
+    company   ProductionCompany @relation(references: [id], fields: [conpanyId])
 
-    @@unique([movieId, productionId])
+    @@unique([movieId, conpanyId])
     @@map("movie_production_companies")
 }
 
@@ -141,7 +142,7 @@ model Person {
     crewMember crewMember[]
     CastMember CastMember[]
 
-    @@map("peoples")
+    @@map("people")
 }
 
 model crewMember {
@@ -158,17 +159,19 @@ model crewMember {
     @@map("crew_member")
 }
 
+// actot actress
 model CastMember {
     id        Int    @id @default(autoincrement())
     movieId   Int
     personId  Int
     character String
     // order Int
-    creditId  Int
+    creditId  String
 
     movie  Movie  @relation(references: [id], fields: [movieId])
     person Person @relation(references: [id], fields: [personId])
 
+    @@unique([movieId, personId, character])
     @@map("cast_member")
 }
 
@@ -188,6 +191,7 @@ model Review {
     Like    Like[]
     Comment Comment[]
 
+    @@unique([userId, movieId])
     @@map("reviews")
 }
 
@@ -209,6 +213,7 @@ model Like {
     user   user   @relation(references: [id], fields: [userId])
     review Review @relation(references: [id], fields: [reviewId])
 
+    @@unique([userId, reviewId])
     @@map("likes")
 }
 
@@ -239,6 +244,7 @@ model WatchlistItem {
     user  user  @relation(references: [id], fields: [userId], onDelete: Cascade)
     movie Movie @relation(references: [id], fields: [movieId], onDelete: Cascade)
 
+    @@unique([userId, movieId])
     @@map("watchlist_items")
 }
 
@@ -252,4 +258,6 @@ model Follow {
     following user  @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
     user      user? @relation(fields: [userId], references: [id])
     userId    Int?
+
+    @@unique([followerId, followingId])
 }

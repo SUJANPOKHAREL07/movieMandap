@@ -40,4 +40,26 @@ const createMovie = async (
     throw new Error('Failed to create the movie');
   }
 };
-export const movieService = { getAllMovie, createMovie };
+const createGenre = async (name: string) => {
+  try {
+    const checkExist = await movieModal.checkGenereExist(name);
+    if (checkExist !== null) {
+      throw new Error('Genere already exist');
+    }
+    const createGenre = await movieModal.createGenre(name);
+    if (!createGenre) {
+      return {
+        success: false,
+        message: 'Failed to create the genre',
+      };
+    }
+    return {
+      success: true,
+      message: 'Genre created',
+    };
+  } catch (err) {
+    console.log('creaet genere error --', err);
+    throw new Error('Unexpected error occur');
+  }
+};
+export const movieService = { getAllMovie, createMovie, createGenre };

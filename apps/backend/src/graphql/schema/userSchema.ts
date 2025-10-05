@@ -6,6 +6,11 @@ export const userTypeDefs = gql`
     username: String!
     email: String!
   }
+  enum Role {
+    user
+    moderator
+    admin
+  }
 
   type MutationResponse {
     success: Boolean!
@@ -21,7 +26,7 @@ export const userTypeDefs = gql`
       username: String!
       email: String!
       password: String!
-      role: String
+      role: Role!
     ): MutationResponse!
     verifyOtp(otp: String!): MutationResponse!
     resendOtp(email: String!): MutationResponse!

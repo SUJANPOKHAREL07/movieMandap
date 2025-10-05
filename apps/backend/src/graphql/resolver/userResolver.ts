@@ -34,7 +34,7 @@ export const userResolvers = {
           message: 'Token missing in header',
         };
       }
-      const userId = String(auth.user?.userId);
+      const userId = Number(auth.user?.userId);
       const user = newUsername;
       console.log('user name in the resolver', user);
       return await userService.updateUserDetail(user, userId);
