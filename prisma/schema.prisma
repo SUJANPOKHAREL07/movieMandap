@@ -188,8 +188,6 @@ model Review {
     Like    Like[]
     Comment Comment[]
 
-    // likes Like[]
-    // comments Comment[]
     @@map("reviews")
 }
 
