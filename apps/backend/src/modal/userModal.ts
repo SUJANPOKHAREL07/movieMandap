@@ -78,7 +78,7 @@ async function deleteUserModal(email: string) {
     message: 'User deleted ',
   };
 }
-async function updateUserModal(userId: string, newUsername: string) {
+async function updateUserModal(userId: number, newUsername: string) {
   try {
     return await prisma.user.update({
       where: {

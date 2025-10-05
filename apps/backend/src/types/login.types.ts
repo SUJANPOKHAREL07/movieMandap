@@ -6,6 +6,6 @@ export interface TLogin {
   password: string;
 }
 export interface TLoad {
-  userId: string;
+  userId: number;
   role: Role;
 }

@@ -2,6 +2,9 @@
   "name": "@cine-gudi/source",
   "version": "0.0.0",
   "license": "MIT",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "scripts": {
     "start": "nx run backend:serve",
     "build:backend": "nx build backend",
@@ -14,7 +17,9 @@
     "prisma:studio": "prisma studio",
     "prisma:all": "npx prisma migrate dev --name init && npx prisma db push && npx prisma generate",
     "db:push": "npx prisma db push",
-    "prisma:reset": "npx prisma migrate reset",
+    "db:reset": "npx prisma migrate reset",
+    "db:seed": "npx prisma db seed",
+    "db:studio": " npx prisma studio",
     "clean": "yarn cache clean",
     "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\""
   },

@@ -29,11 +29,10 @@ export const movieTypeDefs = gql`
     adult: Boolean!
   }
 
-  type movieResponse {
+  type MutationResponse {
     success: Boolean!
     message: String!
   }
-
   type Query {
     getMovie: [Movie]
   }
@@ -51,6 +50,7 @@ export const movieTypeDefs = gql`
       tagline: String!
       adult: Boolean!
       trailerLink: String
-    ): movieResponse
+    ): MutationResponse
+    createGenre(name: String!): MutationResponse
   }
 `;

@@ -91,7 +91,7 @@ const resendOtpController = async (email: string, req: any) => {
   await otpService.resendOtp(req.session);
   return { success: true, message: 'OTP resent' };
 };
-const updateUserDetail = async (username: string, userId: string) => {
+const updateUserDetail = async (username: string, userId: number) => {
   const check = await userModal.searchUserName({ username });
   if (check !== null) {
     return {

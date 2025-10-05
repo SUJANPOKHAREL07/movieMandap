@@ -3,6 +3,8 @@ import { TGetMovie } from '../types/movie.types';
 export const movieModal = {
   getAllMovie,
   createMovie,
+  createGenre,
+  checkGenereExist,
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
@@ -24,6 +26,20 @@ async function createMovie(data: any, poster: string) {
       tagline: data.tagline,
       adult: data.adult,
       trailerLink: data.trailerLink,
+    },
+  });
+}
+async function createGenre(name: string) {
+  return await prisma.genre.create({
+    data: {
+      name: name,
+    },
+  });
+}
+async function checkGenereExist(name: string) {
+  return await prisma.genre.findUnique({
+    where: {
+      name: name,
     },
   });
 }

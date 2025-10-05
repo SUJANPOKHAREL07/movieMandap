@@ -87,7 +87,7 @@ enum movieStatus {
 }
 
 model Genre {
-    id         String       @id @default(uuid())
+    id         Int          @id @default(autoincrement())
     name       String       @unique
     MovieGenre MovieGenre[]
 
@@ -96,9 +96,10 @@ model Genre {
 }
 
 model MovieGenre {
-    id        String @id @default(uuid())
+    id Int @id @default(autoincrement())
+
     movieId   Int
-    generesId String
+    generesId Int
 
     movie Movie @relation(fields: [movieId], references: [id])
     genre Genre @relation(fields: [generesId], references: [id])
@@ -158,6 +159,7 @@ model crewMember {
     @@map("crew_member")
 }
 
+// actot actress
 model CastMember {
     id        Int    @id @default(autoincrement())
     movieId   Int

@@ -25,7 +25,7 @@ async function checkLoginCred(data: { email?: string; username?: string }) {
   return log;
 }
 async function loginUser(data: {
-  userId: string;
+  userId: number;
   em: string;
   password: string;
   refresh_token: string;
@@ -69,7 +69,7 @@ async function checkToken(token: string) {
   });
   return data;
 }
-async function logout(token: string, userId: string) {
+async function logout(token: string, userId: number) {
   const user = await prisma.login.deleteMany({
     where: {
       refresh_token: token,
