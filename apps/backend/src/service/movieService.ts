@@ -62,4 +62,23 @@ const createGenre = async (name: string) => {
     throw new Error('Unexpected error occur');
   }
 };
-export const movieService = { getAllMovie, createMovie, createGenre };
+const getGenre = async () => {
+  try {
+    const data = await movieModal.getGenre();
+    if (!data) {
+      return {
+        success: false,
+        message: 'No Genre found',
+      };
+    }
+    return {
+      success: true,
+      message: 'All Genre',
+      data: data,
+    };
+  } catch (err) {
+    console.log('Failed to get genre', err);
+    throw new Error('Failed to get the genre');
+  }
+};
+export const movieService = { getAllMovie, createMovie, createGenre, getGenre };

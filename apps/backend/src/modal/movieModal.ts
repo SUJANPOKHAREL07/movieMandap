@@ -2,9 +2,13 @@ import prisma from '../prisma/client';
 import { TGetMovie } from '../types/movie.types';
 export const movieModal = {
   getAllMovie,
+  getMovieByName,
   createMovie,
   createGenre,
   checkGenereExist,
+  getGenre,
+  getgnreByName,
+  movieGenre,
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
@@ -29,6 +33,13 @@ async function createMovie(data: any, poster: string) {
     },
   });
 }
+async function getMovieByName(title: string) {
+  return await prisma.movie.findUnique({
+    where: {
+      title: title,
+    },
+  });
+}
 async function createGenre(name: string) {
   return await prisma.genre.create({
     data: {
@@ -40,6 +51,22 @@ async function checkGenereExist(name: string) {
   return await prisma.genre.findUnique({
     where: {
       name: name,
+    },
+  });
+}
+async function getGenre() {
+  return await prisma.genre.findMany();
+}
+async function getgnreByName(name: string) {
+  return await prisma.genre.findUnique({
+    where: { name: name },
+  });
+}
+async function movieGenre(movieId: number, genreId: number) {
+  return await prisma.movieGenre.create({
+    data: {
+      generesId: genreId,
+      movieId: movieId,
     },
   });
 }
