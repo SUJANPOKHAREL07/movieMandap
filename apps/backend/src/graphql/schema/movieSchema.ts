@@ -33,8 +33,13 @@ export const movieTypeDefs = gql`
     success: Boolean!
     message: String!
   }
+  type Genre {
+    id: Int!
+    name: String!
+  }
   type Query {
     getMovie: [Movie]
+    getGenre: [Genre]
   }
 
   type Mutation {

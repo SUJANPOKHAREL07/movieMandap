@@ -14,6 +14,10 @@ export const movieResolver = {
       console.log('resolver data of the movies', data.data);
       return data.data;
     },
+    getGenre: async () => {
+      const data = await movieService.getGenre();
+      return data.data;
+    },
   },
   Mutation: {
     createMovie: async (_: any, args: TMovieInput, context: any) => {
