@@ -1,6 +1,7 @@
 import prisma from '../prisma/client';
-import { TGetMovie } from '../types/movie.types';
+import { TGetMovie, TMovieGenre } from '../types/movie.types';
 export const movieModal = {
+  getAllMovieData,
   getAllMovie,
   getMovieByName,
   createMovie,
@@ -8,7 +9,7 @@ export const movieModal = {
   checkGenereExist,
   getGenre,
   getgnreByName,
-  movieGenre,
+  createMovieGenre,
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
@@ -54,15 +55,59 @@ async function checkGenereExist(name: string) {
     },
   });
 }
+async function getAllMovieData() {
+  const data = await prisma.movie.findMany({
+    include: {
+      CastMember: {
+        include: {
+          // Include the person details for cast members
+          person: true,
+        },
+      },
+      MovieGenre: {
+        include: {
+          genre: true, // Include the genre details
+        },
+      },
+      crewMember: {
+        include: {
+          person: true, // Include person details for crew members
+        },
+      },
+      MovieProductionCompany: {
+        include: {
+          company: true, // Include company details
+        },
+      },
+      Review: {
+        include: {
+          user: {
+            select: {
+              username: true,
+            },
+          },
+          Comment: true,
+        },
+      },
+    },
+  });
+
+  return data;
+}
 async function getGenre() {
   return await prisma.genre.findMany();
 }
-async function getgnreByName(name: string) {
-  return await prisma.genre.findUnique({
-    where: { name: name },
+async function getgnreByName({ genreName }: TMovieGenre) {
+  const dataMap = genreName.map(async (m) => {
+    const data = m.name;
+
+    return await prisma.genre.findUnique({
+      where: { name: data },
+    });
   });
+  return await Promise.all(dataMap);
 }
-async function movieGenre(movieId: number, genreId: number) {
+async function createMovieGenre(movieId: number, genreId: number) {
   return await prisma.movieGenre.create({
     data: {
       generesId: genreId,

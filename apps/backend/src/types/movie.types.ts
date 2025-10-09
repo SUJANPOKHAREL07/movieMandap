@@ -53,3 +53,10 @@ export interface TMovieResponse {
   message: string;
   data?: TGetMovie[] | undefined;
 }
+export interface TMovieGenre {
+  movieName: string;
+  genreName: TGenre[];
+}
+export interface TGenre {
+  name: string;
+}

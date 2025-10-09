@@ -1,6 +1,11 @@
 // import path from 'path';
 import { movieModal } from '../modal/movieModal';
-import { TGetMovie, TMovieInput, TMovieResponse } from '../types/movie.types';
+import {
+  TGetMovie,
+  TMovieGenre,
+  TMovieInput,
+  TMovieResponse,
+} from '../types/movie.types';
 import { TResponse } from '../types/user.types';
 // import fs from 'fs';
 // import { randomUUID } from 'crypto';
@@ -81,4 +86,76 @@ const getGenre = async () => {
     throw new Error('Failed to get the genre');
   }
 };
-export const movieService = { getAllMovie, createMovie, createGenre, getGenre };
+
+const createMovieGenre = async ({ movieName, genreName }: TMovieGenre) => {
+  try {
+    const doesMovieExist = await movieModal.getMovieByName(movieName);
+    if (!doesMovieExist) {
+      return {
+        success: false,
+        message: 'No movie found',
+      };
+    }
+
+    const doesGenreExist = await movieModal.getgnreByName({
+      movieName,
+      genreName,
+    });
+    if (doesGenreExist == null) {
+      return {
+        success: false,
+        message: 'No genre found',
+      };
+    }
+    const genreId = Number(
+      doesGenreExist.map((m) => {
+        return m?.id;
+      })
+    );
+    const data = await movieModal.createMovieGenre(doesMovieExist.id, genreId);
+    if (!data) {
+      throw new Error('Failed to register the movie genre');
+    }
+    return {
+      success: true,
+      message: 'Movie genre register',
+    };
+  } catch (err) {
+    console.log('error in the catch--', err);
+    throw new Error('Failed to enter the movie genre');
+  }
+};
+const getAllMovieData = async () => {
+  try {
+    const data = await movieModal.getAllMovieData();
+
+    if (!data || data.length === 0) {
+      return {
+        success: false,
+        message: 'No data found',
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: 'All movie data',
+      data: data,
+    };
+  } catch (error) {
+    console.error('Error in getAllMovieData service:', error);
+    return {
+      success: false,
+      message: 'Error fetching movie data',
+      data: [],
+    };
+  }
+};
+export const movieService = {
+  getAllMovie,
+  createMovie,
+  createGenre,
+  getGenre,
+  createMovieGenre,
+  getAllMovieData,
+};
