@@ -18,6 +18,26 @@ export const movieResolver = {
       const data = await movieService.getGenre();
       return data.data;
     },
+    getAllMovieData: async () => {
+      const res = await movieService.getAllMovieData();
+      console.log(
+        'service response for getAllMovieData ---',
+        JSON.stringify(res, null, 2)
+      );
+
+      const movies = Array.isArray(res?.data) ? res.data : res?.data ?? [];
+      console.log('normalized movies array length ->', movies?.length);
+
+      // Log a sample movie to see the structure
+      // if (movies.length > 0) {
+      //   console.log(
+      //     'Sample movie structure:',
+      //     JSON.stringify(movies[0], null, 2)
+      //   );
+      // }
+
+      return movies;
+    },
   },
   Mutation: {
     createMovie: async (_: any, args: TMovieInput, context: any) => {
