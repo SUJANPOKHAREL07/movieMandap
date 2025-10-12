@@ -25,7 +25,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: 'https://studio.apollographql.com',
+    origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
     credentials: true,
   })
 );
