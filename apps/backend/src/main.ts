@@ -25,7 +25,11 @@ app.use(
 );
 app.use(
   cors({
+<<<<<<< HEAD
     origin: ['https://studio.apollographql.com', 'http://localhost:3000'],
+=======
+    origin: ['http://localhost:3000', 'https://studio.apollographql.com'],
+>>>>>>> e3f1e0a6aea4c0330da0a41ffe371552585e062f
     credentials: true,
   })
 );
