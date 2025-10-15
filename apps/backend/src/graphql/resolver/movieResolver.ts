@@ -54,8 +54,9 @@ export const movieResolver = {
     },
     createGenre: async (_: any, { name }: any, context: any) => {
       if (typeof name !== 'string') return 'Name must be string';
+      console.log('token to create the genre---', context.token);
       const auth = await authContextMiddleware(context);
-      console.log('auth ', auth);
+      // console.log('auth ', auth);
       if (auth.token === null) {
         return {
           success: false,
