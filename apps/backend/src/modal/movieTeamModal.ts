@@ -19,11 +19,14 @@ async function registerProductionCompany(
   });
 }
 
-async function registerMovieProductionCompany(data: TMovieProductionCompany) {
+async function registerMovieProductionCompany({
+  movieId,
+  companyId,
+}: TMovieProductionCompany) {
   return await prisma.movieProductionCompany.create({
     data: {
-      movieId: data.movieId,
-      conpanyId: data.companyId,
+      movieId: movieId,
+      conpanyId: companyId,
     },
   });
 }
@@ -65,4 +68,30 @@ export const movieTeamModalCreate = {
   registerMoviePerson,
   registerCrewMember,
   registerCastMember,
+};
+async function findMovieByName(moviename: string) {
+  return await prisma.movie.findFirst({
+    where: {
+      title: moviename,
+    },
+  });
+}
+async function findComanyByName(companyname: string) {
+  return await prisma.productionCompany.findFirst({
+    where: {
+      name: companyname,
+    },
+  });
+}
+async function findPersonByName(personname: string) {
+  return await prisma.person.findFirst({
+    where: {
+      name: personname,
+    },
+  });
+}
+export const searchMovieTeam = {
+  findMovieByName,
+  findComanyByName,
+  findPersonByName,
 };

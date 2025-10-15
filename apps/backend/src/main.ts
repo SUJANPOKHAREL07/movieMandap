@@ -38,13 +38,11 @@ async function startServer() {
       resolvers,
       context: async ({ req, res }: TReqRes) => {
         const auth = await authContextMiddleware({ req, res });
-        const queryParams = req.query ?? {};
         return {
           req,
           res,
           user: auth.user,
           token: auth.token,
-          params: queryParams,
         };
       },
     }

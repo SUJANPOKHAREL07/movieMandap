@@ -75,12 +75,12 @@ export const movieTypeDefs = gql`
     releaseDate: Date
     runtime: Int!
     posterPath: String
-    trailerLink: String!
-    budget: Int!
-    revenue: Int!
-    status: MovieStatus!
-    tagline: String!
-    adult: Boolean!
+    trailerLink: String
+    budget: Int
+    revenue: Int
+    status: MovieStatus
+    tagline: String
+    adult: Boolean
     # Change these to arrays to match Prisma response:
     MovieGenre: [MovieGenre] # Array
     MovieProductionCompany: [MovieProductionCompany] # Array
