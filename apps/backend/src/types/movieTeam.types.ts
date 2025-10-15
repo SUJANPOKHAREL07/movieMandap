@@ -1,7 +1,10 @@
+import { TFile } from './movie.types';
+
 export interface TMovieTeamProductionCompanyCreate {
   name: string;
-  logoPath: string;
+  logoPath?: string;
   originCountry: string;
+  logo?: TFile;
 }
 export interface TMovieProductionCompany {
   movieId: number;

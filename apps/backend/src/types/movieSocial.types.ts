@@ -18,7 +18,7 @@ export interface TCreateComment {
   reviewId: number;
   parentId?: number;
 }
-export interface TWatchListItemt {
+export interface TWatchListItem {
   userId: number;
   movieId: number;
   addedAt: Date;

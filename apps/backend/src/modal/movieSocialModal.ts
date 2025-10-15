@@ -4,7 +4,7 @@ import {
   TCreateLike,
   TCreateReview,
   TFollow,
-  TWatchListItemt,
+  TWatchListItem,
 } from '../types/movieSocial.types';
 
 async function createReview(data: TCreateReview) {
@@ -37,7 +37,7 @@ async function createComment(data: TCreateComment) {
     },
   });
 }
-async function createWatchList(data: TWatchListItemt) {
+async function createWatchList(data: TWatchListItem) {
   return await prisma.watchlistItem.create({
     data: {
       userId: data.userId,
