@@ -1,13 +1,40 @@
-import { movieSocialModalCreate } from '../modal/movieSocialModal';
+import { Ratings } from '@prisma/client';
+import {
+  movieSocialModalCreate,
+  movieSocialModalGet,
+} from '../modal/movieSocialModal';
 import {
   TCreateComment,
   TCreateLike,
-  TCreateReview,
   TWatchListItem,
 } from '../types/movieSocial.types';
+import { searchMovieTeam } from '../modal/movieTeamModal';
 
-const createReview = async (data: TCreateReview) => {
+const createReview = async (
+  title: string,
+  content: string,
+  isSpoiler: boolean,
+  rating: Ratings,
+  movieName: string,
+  userId: number
+) => {
   try {
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'No movie found',
+      };
+    }
+    const movieId = Number(movie.id);
+    const data = {
+      title,
+      content,
+      isSpoiler,
+      rating,
+      movieId,
+      userId,
+    };
     const review = await movieSocialModalCreate.createReview(data);
     if (!review) {
       return {
@@ -92,3 +119,39 @@ export const movieSocialCreate = {
   createComment,
   createWatchList,
 };
+const getAllReviewOfMovie = async (movieName: string) => {
+  try {
+    // console.log('Movie name in the service:', movieName);
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'Failed find the movie',
+        data: [],
+      };
+    }
+    // console.log('Movie details---', movie);
+    const movieId = Number(movie.id);
+    // console.log('move id get', movieId);
+    const getReview = await movieSocialModalGet.getReviewOfMovieByID(movieId);
+    if (!getReview) {
+      return {
+        success: false,
+        message: 'No review found',
+        data: [],
+      };
+    }
+    // const getLikeCount = await movieSocialModalGet.countReviewLike();
+    return {
+      success: true,
+      message: '----All Review----',
+      data: getReview,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Unexpected Error:Failed to get the review',
+    };
+  }
+};
+export const MovieSocialGet = { getAllReviewOfMovie };
