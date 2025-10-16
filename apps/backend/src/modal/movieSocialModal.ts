@@ -63,3 +63,80 @@ export const movieSocialModalCreate = {
   createLike,
   createWatchList,
 };
+async function getReviewOfMovieByID(movieId: number) {
+  const data = await prisma.review.findMany({
+    where: {
+      movieId: movieId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+      Comment: {
+        where: {
+          parentId: null, // Only get top-level comments
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          replies: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      },
+      Like: true, // Include likes to count them
+      _count: {
+        select: {
+          Like: true,
+          Comment: true,
+        },
+      },
+    },
+    orderBy: {
+      creadtedAt: 'asc',
+    },
+  });
+
+  console.log('Fetched review data:', JSON.stringify(data, null, 2));
+  return data;
+}
+
+// Helper function to get like count for a specific review
+async function getReviewLikeCount(reviewId: number) {
+  return await prisma.like.count({
+    where: {
+      reviewId: reviewId,
+    },
+  });
+}
+
+// Helper function to get comment count for a specific review
+async function getReviewCommentCount(reviewId: number) {
+  return await prisma.comment.count({
+    where: {
+      reviewId: reviewId,
+    },
+  });
+}
+export const movieSocialModalGet = {
+  getReviewOfMovieByID,
+  getReviewCommentCount,
+  getReviewLikeCount,
+};
