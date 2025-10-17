@@ -68,5 +68,6 @@ export const movieSocialTypeDef = gql`
       movieName: String!
     ): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
+    updateWatchListStatus(movieName: String): MutationResponse
   }
 `;

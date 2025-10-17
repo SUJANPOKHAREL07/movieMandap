@@ -150,3 +150,17 @@ export const movieSocialModalGet = {
   getReviewLikeCount,
   getAllWatchList,
 };
+async function updateWatchListItem(movieId: number, userId: number) {
+  return await prisma.watchlistItem.updateMany({
+    where: {
+      movieId: movieId,
+      userId: userId,
+    },
+    data: {
+      status: 'Watched',
+    },
+  });
+}
+export const movieSocialModalUpdate = {
+  updateWatchListItem,
+};

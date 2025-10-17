@@ -2,6 +2,7 @@ import { Ratings } from '@prisma/client';
 import {
   movieSocialModalCreate,
   movieSocialModalGet,
+  movieSocialModalUpdate,
 } from '../modal/movieSocialModal';
 import { TCreateComment, TCreateLike } from '../types/movieSocial.types';
 import { searchMovieTeam } from '../modal/movieTeamModal';
@@ -188,3 +189,35 @@ const getAllWatchList = async (userId: number) => {
   }
 };
 export const MovieSocialGet = { getAllReviewOfMovie, getAllWatchList };
+const updateMovieWatchList = async (movieName: string, userId: number) => {
+  try {
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'No Movie found',
+      };
+    }
+    const movieId = Number(movie.id);
+    const updateStatus = await movieSocialModalUpdate.updateWatchListItem(
+      movieId,
+      userId
+    );
+    if (!updateStatus) {
+      return {
+        success: false,
+        message: 'Failed to update the status',
+      };
+    }
+    return {
+      success: true,
+      message: 'Status Updated',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialUpdate = { updateMovieWatchList };

@@ -2,6 +2,7 @@ import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import {
   movieSocialCreate,
   MovieSocialGet,
+  MovieSocialUpdate,
 } from '../../service/movieSocialService';
 
 export const movieSocialResolver = {
@@ -117,6 +118,14 @@ export const movieSocialResolver = {
       }
       const userId = Number(auth.user?.userId);
       return await movieSocialCreate.createWatchList(movieName, userId, note);
+    },
+    updateWatchListStatus: async (_: any, { movieName }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      return await MovieSocialUpdate.updateMovieWatchList(movieName, userId);
     },
   },
 };
