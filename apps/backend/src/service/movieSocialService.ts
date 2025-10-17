@@ -1,13 +1,11 @@
 import { Ratings } from '@prisma/client';
 import {
+  movieSocialModalDelete,
   movieSocialModalCreate,
   movieSocialModalGet,
+  movieSocialModalUpdate,
 } from '../modal/movieSocialModal';
-import {
-  TCreateComment,
-  TCreateLike,
-  TWatchListItem,
-} from '../types/movieSocial.types';
+import { TCreateComment, TCreateLike } from '../types/movieSocial.types';
 import { searchMovieTeam } from '../modal/movieTeamModal';
 
 const createReview = async (
@@ -73,6 +71,26 @@ const createLike = async (data: TCreateLike) => {
     };
   }
 };
+const createDisLike = async (data: TCreateLike) => {
+  try {
+    const like = await movieSocialModalCreate.createDislike(data);
+    if (!like) {
+      return {
+        success: false,
+        message: 'Failed to register DisLike',
+      };
+    }
+    return {
+      success: true,
+      message: 'DisLike register',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Failed to DisLike the review',
+    };
+  }
+};
 const createComment = async (data: TCreateComment) => {
   try {
     const comment = await movieSocialModalCreate.createComment(data);
@@ -89,12 +107,25 @@ const createComment = async (data: TCreateComment) => {
   } catch (err) {
     return {
       success: false,
-      message: 'Unexpected Error:Failed to register Commen',
+      message: 'Unexpected Error:Failed to register Comment',
     };
   }
 };
-const createWatchList = async (data: TWatchListItem) => {
+const createWatchList = async (
+  movieName: string,
+  userId: number,
+  note: string
+) => {
   try {
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'No movie found',
+      };
+    }
+    const movieId = Number(movie.id);
+    const data = { movieId, userId, note };
     const watchList = await movieSocialModalCreate.createWatchList(data);
     if (!watchList) {
       return {
@@ -103,7 +134,7 @@ const createWatchList = async (data: TWatchListItem) => {
       };
     }
     return {
-      success: false,
+      success: true,
       message: 'Watch list created',
     };
   } catch (err) {
@@ -118,6 +149,7 @@ export const movieSocialCreate = {
   createLike,
   createComment,
   createWatchList,
+  createDisLike,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {
@@ -154,4 +186,116 @@ const getAllReviewOfMovie = async (movieName: string) => {
     };
   }
 };
-export const MovieSocialGet = { getAllReviewOfMovie };
+const getAllWatchList = async (userId: number) => {
+  try {
+    const watchList = await movieSocialModalGet.getAllWatchList(userId);
+    if (!watchList) {
+      return {
+        success: false,
+        message: 'No watchlist found',
+        data: [],
+      };
+    }
+    console.log('watch list item--', watchList);
+    return {
+      success: true,
+      message: '---All WatchList Item---',
+      data: watchList,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Unexpected error : Failed to fetch the watchlist items',
+      data: [],
+    };
+  }
+};
+export const MovieSocialGet = { getAllReviewOfMovie, getAllWatchList };
+const updateMovieWatchList = async (movieName: string, userId: number) => {
+  try {
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'No Movie found',
+      };
+    }
+    const movieId = Number(movie.id);
+    const updateStatus = await movieSocialModalUpdate.updateWatchListItem(
+      movieId,
+      userId
+    );
+    if (!updateStatus) {
+      return {
+        success: false,
+        message: 'Failed to update the status',
+      };
+    }
+    return {
+      success: true,
+      message: 'Status Updated',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+
+export const MovieSocialUpdate = { updateMovieWatchList };
+const deleteLike = async (likeId: number) => {
+  try {
+    const isLiked = await movieSocialModalGet.getLikedOrNot(likeId);
+    if (!isLiked) {
+      return {
+        success: false,
+        message: 'No like found',
+      };
+    }
+    const removeLike = await movieSocialModalDelete.deleteLike(likeId);
+    if (!removeLike) {
+      return {
+        success: false,
+        message: 'Failed to remove the like',
+      };
+    }
+    return {
+      success: true,
+      message: 'Like removed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const deleteDisLike = async (disLikeId: number) => {
+  try {
+    const isLiked = await movieSocialModalGet.getDisLikedOrNot(disLikeId);
+    if (!isLiked) {
+      return {
+        success: false,
+        message: 'No like found',
+      };
+    }
+    const removeLike = await movieSocialModalDelete.deleteDisLike(disLikeId);
+    if (!removeLike) {
+      return {
+        success: false,
+        message: 'Failed to remove the DisLike',
+      };
+    }
+    return {
+      success: true,
+      message: 'DisLike removed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialDelete = { deleteLike, deleteDisLike };

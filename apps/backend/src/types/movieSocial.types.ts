@@ -21,8 +21,7 @@ export interface TCreateComment {
 export interface TWatchListItem {
   userId: number;
   movieId: number;
-  addedAt: Date;
-  note: string;
+  note?: string;
 }
 export interface TFollow {
   followerId: number;

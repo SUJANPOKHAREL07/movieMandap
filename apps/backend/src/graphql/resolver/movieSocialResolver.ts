@@ -1,7 +1,9 @@
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import {
   movieSocialCreate,
+  MovieSocialDelete,
   MovieSocialGet,
+  MovieSocialUpdate,
 } from '../../service/movieSocialService';
 
 export const movieSocialResolver = {
@@ -42,12 +44,31 @@ export const movieSocialResolver = {
               replies: comment.replies || [],
             }))
           : [],
-        likesCount: review._count?.likes || 0,
+        likesCount: review._count?.Like || 0,
+        disLikesCount: review._count?.Dislike || 0,
+
         commentsCount: review._count?.Comment || 0,
         creadtedAt: review.creadtedAt,
       }));
-
+      console.log('data of review in the resolver', transformedReviews);
       return transformedReviews;
+    },
+    getAllWatchList: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getAllWatchList(userId);
+      if (data.success !== true) {
+        throw new Error(data.message);
+      }
+
+      console.log('data in the resolver', data.data);
+      const watchData = data.data;
+      console.log('watch data ----', watchData);
+
+      return watchData;
     },
   },
   Mutation: {
@@ -88,6 +109,78 @@ export const movieSocialResolver = {
         movieName,
         userId
       );
+    },
+    createWatchList: async (_: any, { movieName, note }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      //   console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      const userId = Number(auth.user?.userId);
+      return await movieSocialCreate.createWatchList(movieName, userId, note);
+    },
+    updateWatchListStatus: async (_: any, { movieName }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      return await MovieSocialUpdate.updateMovieWatchList(movieName, userId);
+    },
+    createLike: async (_: any, { reviewId }: any, context: any) => {
+      if (typeof reviewId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = {
+        reviewId,
+        userId,
+      };
+      return await movieSocialCreate.createLike(data);
+    },
+    deleteLike: async (_: any, { likeId }: any, context: any) => {
+      if (typeof likeId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+
+      return await MovieSocialDelete.deleteLike(likeId);
+    },
+    createDisLike: async (_: any, { reviewId }: any, context: any) => {
+      if (typeof reviewId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = {
+        reviewId,
+        userId,
+      };
+      return await movieSocialCreate.createDisLike(data);
+    },
+    deleteDisLike: async (_: any, { disLikeId }: any, context: any) => {
+      if (typeof disLikeId !== 'number') {
+        throw new Error('dislike Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+
+      return await MovieSocialDelete.deleteDisLike(disLikeId);
     },
   },
 };
