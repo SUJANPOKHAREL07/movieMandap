@@ -1,6 +1,7 @@
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import {
   movieSocialCreate,
+  MovieSocialDelete,
   MovieSocialGet,
   MovieSocialUpdate,
 } from '../../service/movieSocialService';
@@ -43,7 +44,7 @@ export const movieSocialResolver = {
               replies: comment.replies || [],
             }))
           : [],
-        likesCount: review._count?.likes || 0,
+        likesCount: review._count?.Like || 0,
         commentsCount: review._count?.Comment || 0,
         creadtedAt: review.creadtedAt,
       }));
@@ -126,6 +127,32 @@ export const movieSocialResolver = {
       }
       const userId = Number(auth.user?.userId);
       return await MovieSocialUpdate.updateMovieWatchList(movieName, userId);
+    },
+    createLike: async (_: any, { reviewId }: any, context: any) => {
+      if (typeof reviewId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = {
+        reviewId,
+        userId,
+      };
+      return await movieSocialCreate.createLike(data);
+    },
+    deleteLike: async (_: any, { likeId }: any, context: any) => {
+      if (typeof likeId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+
+      return await MovieSocialDelete.deleteLike(likeId);
     },
   },
 };

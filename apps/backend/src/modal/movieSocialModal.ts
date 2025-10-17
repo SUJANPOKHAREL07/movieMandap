@@ -144,11 +144,21 @@ async function getAllWatchList(userId: number) {
     },
   });
 }
+async function getLikedOrNot(likeId: number) {
+  const data = await prisma.like.findUnique({
+    where: {
+      id: likeId,
+    },
+  });
+  console.log(data);
+  return data;
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
   getReviewLikeCount,
   getAllWatchList,
+  getLikedOrNot,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({
@@ -161,6 +171,15 @@ async function updateWatchListItem(movieId: number, userId: number) {
     },
   });
 }
+
 export const movieSocialModalUpdate = {
   updateWatchListItem,
 };
+async function deleteLike(likeId: number) {
+  return await prisma.like.delete({
+    where: {
+      id: likeId,
+    },
+  });
+}
+export const movieSocialModalDelete = { deleteLike };

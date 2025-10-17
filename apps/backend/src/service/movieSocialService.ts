@@ -1,5 +1,6 @@
 import { Ratings } from '@prisma/client';
 import {
+  movieSocialModalDelete,
   movieSocialModalCreate,
   movieSocialModalGet,
   movieSocialModalUpdate,
@@ -220,4 +221,33 @@ const updateMovieWatchList = async (movieName: string, userId: number) => {
     };
   }
 };
+
 export const MovieSocialUpdate = { updateMovieWatchList };
+const deleteLike = async (likeId: number) => {
+  try {
+    const isLiked = await movieSocialModalGet.getLikedOrNot(likeId);
+    if (!isLiked) {
+      return {
+        success: false,
+        message: 'No like found',
+      };
+    }
+    const removeLike = await movieSocialModalDelete.deleteLike(likeId);
+    if (!removeLike) {
+      return {
+        success: false,
+        message: 'Failed to remove the like',
+      };
+    }
+    return {
+      success: true,
+      message: 'Like removed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialDelete = { deleteLike };
