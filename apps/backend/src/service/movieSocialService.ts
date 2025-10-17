@@ -71,6 +71,26 @@ const createLike = async (data: TCreateLike) => {
     };
   }
 };
+const createDisLike = async (data: TCreateLike) => {
+  try {
+    const like = await movieSocialModalCreate.createDislike(data);
+    if (!like) {
+      return {
+        success: false,
+        message: 'Failed to register DisLike',
+      };
+    }
+    return {
+      success: true,
+      message: 'DisLike register',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Failed to DisLike the review',
+    };
+  }
+};
 const createComment = async (data: TCreateComment) => {
   try {
     const comment = await movieSocialModalCreate.createComment(data);
@@ -87,7 +107,7 @@ const createComment = async (data: TCreateComment) => {
   } catch (err) {
     return {
       success: false,
-      message: 'Unexpected Error:Failed to register Commen',
+      message: 'Unexpected Error:Failed to register Comment',
     };
   }
 };
@@ -129,6 +149,7 @@ export const movieSocialCreate = {
   createLike,
   createComment,
   createWatchList,
+  createDisLike,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {
@@ -250,4 +271,31 @@ const deleteLike = async (likeId: number) => {
     };
   }
 };
-export const MovieSocialDelete = { deleteLike };
+const deleteDisLike = async (disLikeId: number) => {
+  try {
+    const isLiked = await movieSocialModalGet.getDisLikedOrNot(disLikeId);
+    if (!isLiked) {
+      return {
+        success: false,
+        message: 'No like found',
+      };
+    }
+    const removeLike = await movieSocialModalDelete.deleteDisLike(disLikeId);
+    if (!removeLike) {
+      return {
+        success: false,
+        message: 'Failed to remove the DisLike',
+      };
+    }
+    return {
+      success: true,
+      message: 'DisLike removed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialDelete = { deleteLike, deleteDisLike };

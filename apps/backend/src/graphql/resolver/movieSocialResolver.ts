@@ -45,6 +45,8 @@ export const movieSocialResolver = {
             }))
           : [],
         likesCount: review._count?.Like || 0,
+        disLikesCount: review._count?.Dislike || 0,
+
         commentsCount: review._count?.Comment || 0,
         creadtedAt: review.creadtedAt,
       }));
@@ -153,6 +155,32 @@ export const movieSocialResolver = {
       }
 
       return await MovieSocialDelete.deleteLike(likeId);
+    },
+    createDisLike: async (_: any, { reviewId }: any, context: any) => {
+      if (typeof reviewId !== 'number') {
+        throw new Error('Review Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = {
+        reviewId,
+        userId,
+      };
+      return await movieSocialCreate.createDisLike(data);
+    },
+    deleteDisLike: async (_: any, { disLikeId }: any, context: any) => {
+      if (typeof disLikeId !== 'number') {
+        throw new Error('dislike Id Type must be number');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+
+      return await MovieSocialDelete.deleteDisLike(disLikeId);
     },
   },
 };

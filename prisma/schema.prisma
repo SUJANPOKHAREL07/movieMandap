@@ -30,6 +30,7 @@ model user {
     followers       Follow[]        @relation("Follower")
     following       Follow[]        @relation("Following")
     Follow          Follow[]
+    Dislike         Dislike[]
 
     @@unique([email, id])
 }
@@ -190,6 +191,7 @@ model Review {
     movie   Movie     @relation(references: [id], fields: [movieId])
     Like    Like[]
     Comment Comment[]
+    Dislike Dislike[]
 
     @@unique([userId, movieId])
     @@map("reviews")
@@ -215,6 +217,20 @@ model Like {
 
     @@unique([userId, reviewId])
     @@map("likes")
+}
+
+model Dislike {
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    reviewId  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    user   user   @relation(references: [id], fields: [userId])
+    review Review @relation(references: [id], fields: [reviewId])
+
+    @@unique([userId, reviewId])
+    @@map("dislikes")
 }
 
 model Comment {

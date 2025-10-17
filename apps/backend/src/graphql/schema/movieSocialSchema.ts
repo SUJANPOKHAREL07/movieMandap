@@ -35,6 +35,7 @@ export const movieSocialTypeDef = gql`
     user: User!
     comments: [Comment!]!
     likesCount: Int!
+    disLikesCount: Int!
     commentsCount: Int!
     creadtedAt: String!
   }
@@ -71,5 +72,7 @@ export const movieSocialTypeDef = gql`
     updateWatchListStatus(movieName: String): MutationResponse
     createLike(reviewId: Int): MutationResponse
     deleteLike(likeId: Int): MutationResponse
+    createDisLike(reviewId: Int): MutationResponse
+    deleteDisLike(disLikeId: Int): MutationResponse
   }
 `;

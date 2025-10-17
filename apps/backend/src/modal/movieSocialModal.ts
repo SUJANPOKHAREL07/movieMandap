@@ -27,6 +27,14 @@ async function createLike(data: TCreateLike) {
     },
   });
 }
+async function createDislike(data: TCreateLike) {
+  return await prisma.dislike.create({
+    data: {
+      userId: data.userId,
+      reviewId: data.reviewId,
+    },
+  });
+}
 async function createComment(data: TCreateComment) {
   return await prisma.comment.create({
     data: {
@@ -61,6 +69,7 @@ export const movieSocialModalCreate = {
   createReview,
   createLike,
   createWatchList,
+  createDislike,
 };
 async function getReviewOfMovieByID(movieId: number) {
   const data = await prisma.review.findMany({
@@ -104,6 +113,7 @@ async function getReviewOfMovieByID(movieId: number) {
       _count: {
         select: {
           Like: true,
+          Dislike: true,
           Comment: true,
         },
       },
@@ -153,12 +163,22 @@ async function getLikedOrNot(likeId: number) {
   console.log(data);
   return data;
 }
+async function getDisLikedOrNot(disLikeId: number) {
+  const data = await prisma.dislike.findUnique({
+    where: {
+      id: disLikeId,
+    },
+  });
+  console.log(data);
+  return data;
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
   getReviewLikeCount,
   getAllWatchList,
   getLikedOrNot,
+  getDisLikedOrNot,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({
@@ -182,4 +202,11 @@ async function deleteLike(likeId: number) {
     },
   });
 }
-export const movieSocialModalDelete = { deleteLike };
+async function deleteDisLike(disLikeId: number) {
+  return await prisma.dislike.delete({
+    where: {
+      id: disLikeId,
+    },
+  });
+}
+export const movieSocialModalDelete = { deleteLike, deleteDisLike };
