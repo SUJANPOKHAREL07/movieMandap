@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ThemeToggle from '@/components/Theme-Toggle';
+import NavBar from '@/components/NavBar';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,17 +17,17 @@ export default function LoginPage() {
     if (email === 'admin@demo.com' && password === '123456') {
       setError('');
       alert('✅ Login successful!');
-      router.push('/dashboard'); // redirect after login
+      router.push('/dashboard');
     } else {
       setError('Invalid email or password.');
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background text-foreground transition-all">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-lg">
-        <ThemeToggle />
-        <h1 className="mb-6 text-center text-2xl font-bold">Login</h1>
+    <div className="flex flex-col p-5 min-h-screen items-center justify-center bg-background text-foreground transition-all">
+      <NavBar />
+      <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-lg">
+        <h1 className="mb-6 text-center text-2xl font-bold">Admin Dashboard</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -67,7 +67,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full border rounded-xl  bg-yellow-500 px-3 py-2 font-semibold text-primary-foreground hover:opacity-90 transition"
+            className="w-full rounded-xl  bg-[#2b2a27] dark:bg-orange-600 px-3 py-2 font-semibold text-white  hover:opacity-90 transition"
           >
             Sign In
           </button>

@@ -5,7 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { MdOutlineLightMode } from 'react-icons/md';
 import { FaRegMoon } from 'react-icons/fa';
 
-const ThemeToggle = () => {
+interface ThemeToggleProps {
+  showLabel?: boolean;
+}
+
+const ThemeToggle = ({ showLabel = false }: ThemeToggleProps) => {
   const { theme, setTheme } = useTheme();
   const [mounted, setmounted] = useState(false);
 
@@ -18,9 +22,14 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="p-2 bg-red-400  rounded-xl duration-300 transition-all"
+      className=" flex gap-4 rounded-xl duration-300 transition-all"
     >
-      {theme === 'dark' ? <MdOutlineLightMode /> : <FaRegMoon />}
+      {theme === 'dark' ? <MdOutlineLightMode size={20} /> : <FaRegMoon size={20}/>}
+      {showLabel && (
+        <span className="text-sm font-medium">
+          {theme === "dark" ? 'Light Mode' : 'Dark Mode'}
+        </span>
+      )}
     </button>
   );
 };
