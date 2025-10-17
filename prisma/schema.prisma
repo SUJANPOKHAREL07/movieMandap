@@ -235,17 +235,22 @@ model Comment {
 }
 
 model WatchlistItem {
-    id      Int      @id @default(autoincrement())
+    id      Int         @id @default(autoincrement())
     userId  Int
     movieId Int
-    addedAt DateTime @default(now())
+    addedAt DateTime    @default(now())
     note    String?
-
-    user  user  @relation(references: [id], fields: [userId], onDelete: Cascade)
-    movie Movie @relation(references: [id], fields: [movieId], onDelete: Cascade)
+    status  watchStatus @default(Yet_To_Watch)
+    user    user        @relation(references: [id], fields: [userId], onDelete: Cascade)
+    movie   Movie       @relation(references: [id], fields: [movieId], onDelete: Cascade)
 
     @@unique([userId, movieId])
     @@map("watchlist_items")
+}
+
+enum watchStatus {
+    Watched
+    Yet_To_Watch
 }
 
 model Follow {

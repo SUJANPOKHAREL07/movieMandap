@@ -42,7 +42,6 @@ async function createWatchList(data: TWatchListItem) {
     data: {
       userId: data.userId,
       movieId: data.movieId,
-      addedAt: data.addedAt,
       note: data.note,
     },
   });
@@ -135,8 +134,19 @@ async function getReviewCommentCount(reviewId: number) {
     },
   });
 }
+async function getAllWatchList(userId: number) {
+  return await prisma.watchlistItem.findMany({
+    where: {
+      userId: userId,
+    },
+    include: {
+      movie: true,
+    },
+  });
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
   getReviewLikeCount,
+  getAllWatchList,
 };

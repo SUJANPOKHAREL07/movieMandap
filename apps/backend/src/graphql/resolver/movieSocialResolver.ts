@@ -46,8 +46,25 @@ export const movieSocialResolver = {
         commentsCount: review._count?.Comment || 0,
         creadtedAt: review.creadtedAt,
       }));
-
+      console.log('data of review in the resolver', transformedReviews);
       return transformedReviews;
+    },
+    getAllWatchList: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getAllWatchList(userId);
+      if (data.success !== true) {
+        throw new Error(data.message);
+      }
+
+      console.log('data in the resolver', data.data);
+      const watchData = data.data;
+      console.log('watch data ----', watchData);
+
+      return watchData;
     },
   },
   Mutation: {
@@ -88,6 +105,18 @@ export const movieSocialResolver = {
         movieName,
         userId
       );
+    },
+    createWatchList: async (_: any, { movieName, note }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      //   console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      const userId = Number(auth.user?.userId);
+      return await movieSocialCreate.createWatchList(movieName, userId, note);
     },
   },
 };

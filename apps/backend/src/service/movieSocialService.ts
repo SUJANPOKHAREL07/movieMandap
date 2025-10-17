@@ -3,11 +3,7 @@ import {
   movieSocialModalCreate,
   movieSocialModalGet,
 } from '../modal/movieSocialModal';
-import {
-  TCreateComment,
-  TCreateLike,
-  TWatchListItem,
-} from '../types/movieSocial.types';
+import { TCreateComment, TCreateLike } from '../types/movieSocial.types';
 import { searchMovieTeam } from '../modal/movieTeamModal';
 
 const createReview = async (
@@ -93,8 +89,21 @@ const createComment = async (data: TCreateComment) => {
     };
   }
 };
-const createWatchList = async (data: TWatchListItem) => {
+const createWatchList = async (
+  movieName: string,
+  userId: number,
+  note: string
+) => {
   try {
+    const movie = await searchMovieTeam.findMovieByName(movieName);
+    if (!movie) {
+      return {
+        success: false,
+        message: 'No movie found',
+      };
+    }
+    const movieId = Number(movie.id);
+    const data = { movieId, userId, note };
     const watchList = await movieSocialModalCreate.createWatchList(data);
     if (!watchList) {
       return {
@@ -103,7 +112,7 @@ const createWatchList = async (data: TWatchListItem) => {
       };
     }
     return {
-      success: false,
+      success: true,
       message: 'Watch list created',
     };
   } catch (err) {
@@ -154,4 +163,28 @@ const getAllReviewOfMovie = async (movieName: string) => {
     };
   }
 };
-export const MovieSocialGet = { getAllReviewOfMovie };
+const getAllWatchList = async (userId: number) => {
+  try {
+    const watchList = await movieSocialModalGet.getAllWatchList(userId);
+    if (!watchList) {
+      return {
+        success: false,
+        message: 'No watchlist found',
+        data: [],
+      };
+    }
+    console.log('watch list item--', watchList);
+    return {
+      success: true,
+      message: '---All WatchList Item---',
+      data: watchList,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: 'Unexpected error : Failed to fetch the watchlist items',
+      data: [],
+    };
+  }
+};
+export const MovieSocialGet = { getAllReviewOfMovie, getAllWatchList };
