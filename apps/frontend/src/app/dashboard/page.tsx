@@ -27,7 +27,7 @@ const Dashboard = () => {
             className={`w-full text-left px-6 py-2 flex items-center gap-3 transition ${
               activeTab === 'dashboard'
                 ? 'bg-orange-500/10 text-orange-400 border-l-4 border-orange-500'
-                : 'hover:bg-orange-500/5'
+                : 'hover:bg-orange-500/10'
             }`}
           >
             <LayoutDashboard />
@@ -38,7 +38,7 @@ const Dashboard = () => {
             className={`w-full text-left px-6 py-2 flex items-center gap-3 transition ${
               activeTab === 'movies'
                 ? 'bg-orange-500/10 text-orange-400 border-l-4 border-orange-500'
-                : 'hover:bg-orange-500/5'
+                : 'hover:bg-orange-500/10'
             }`}
           >
             <Clapperboard /> Movies
@@ -50,7 +50,7 @@ const Dashboard = () => {
 
           <button
             // onClick={() => router.push('/app')}
-            className="flex items-center gap-2 text-orange-400 hover:text-orange-500 transition"
+            className="flex items-center gap-2 text-orange-500 hover:text-orange-400 transition"
           >
             <LogOut /> Logout
           </button>
