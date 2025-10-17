@@ -9,6 +9,10 @@ export const movieSocialTypeDef = gql`
     Worthy
     Absolute_Cinema
   }
+  enum watchStatus {
+    Watched
+    Yet_To_Watch
+  }
 
   type Comment {
     id: Int!
@@ -31,12 +35,24 @@ export const movieSocialTypeDef = gql`
     user: User!
     comments: [Comment!]!
     likesCount: Int!
+    disLikesCount: Int!
     commentsCount: Int!
     creadtedAt: String!
+  }
+  type Movie {
+    title: String
+    posterPath: String
+    adult: Boolean
+  }
+  type WatchList {
+    note: String
+    status: watchStatus
+    movie: Movie!
   }
 
   type Query {
     getAllReviewOfMovie(movieName: String!): [Review!]!
+    getAllWatchList: [WatchList]
   }
 
   type MutationResponse {
@@ -52,5 +68,11 @@ export const movieSocialTypeDef = gql`
       isSpoiler: Boolean!
       movieName: String!
     ): MutationResponse
+    createWatchList(movieName: String!, note: String): MutationResponse
+    updateWatchListStatus(movieName: String): MutationResponse
+    createLike(reviewId: Int): MutationResponse
+    deleteLike(likeId: Int): MutationResponse
+    createDisLike(reviewId: Int): MutationResponse
+    deleteDisLike(disLikeId: Int): MutationResponse
   }
 `;
