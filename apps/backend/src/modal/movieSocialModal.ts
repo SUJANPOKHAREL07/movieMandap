@@ -182,6 +182,20 @@ async function getIsUserFollow(followerId: number, followingId: number) {
   // console.log('in the modal', data);
   return data;
 }
+async function getFollowing(followerId: number) {
+  return await prisma.follow.count({
+    where: {
+      followerId: followerId,
+    },
+  });
+}
+async function getFollower(followingId: number) {
+  return await prisma.follow.count({
+    where: {
+      followingId: followingId,
+    },
+  });
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
@@ -190,6 +204,8 @@ export const movieSocialModalGet = {
   getLikedOrNot,
   getDisLikedOrNot,
   getIsUserFollow,
+  getFollowing,
+  getFollower,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({

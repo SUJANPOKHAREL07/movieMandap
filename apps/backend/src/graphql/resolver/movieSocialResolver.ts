@@ -70,6 +70,24 @@ export const movieSocialResolver = {
 
       return watchData;
     },
+    getFollowing: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getFollowing(userId);
+      return data.data;
+    },
+    getFollower: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getFollower(userId);
+      return data.data;
+    },
   },
   Mutation: {
     createReview: async (

@@ -247,7 +247,59 @@ const getAllWatchList = async (userId: number) => {
     };
   }
 };
-export const MovieSocialGet = { getAllReviewOfMovie, getAllWatchList };
+const getFollowing = async (userId: number) => {
+  try {
+    const data = await movieSocialModalGet.getFollowing(userId);
+
+    if (!data) {
+      return {
+        success: false,
+        message: 'No followig data found',
+        data: data,
+      };
+    }
+    return {
+      success: true,
+      message: 'following',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+      data: [],
+    };
+  }
+};
+const getFollower = async (userId: number) => {
+  try {
+    const data = await movieSocialModalGet.getFollower(userId);
+    if (!data) {
+      return {
+        success: false,
+        message: 'Follower',
+        data: data,
+      };
+    }
+    return {
+      success: false,
+      message: 'follower',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+      data: [],
+    };
+  }
+};
+export const MovieSocialGet = {
+  getAllReviewOfMovie,
+  getAllWatchList,
+  getFollowing,
+  getFollower,
+};
 const updateMovieWatchList = async (movieName: string, userId: number) => {
   try {
     const movie = await searchMovieTeam.findMovieByName(movieName);
