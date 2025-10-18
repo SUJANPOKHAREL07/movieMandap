@@ -55,11 +55,11 @@ async function createWatchList(data: TWatchListItem) {
   });
 }
 async function createFollow(data: TFollow) {
+  console.log(data);
   return await prisma.follow.create({
     data: {
       followerId: data.followerId,
       followingId: data.followingId,
-      userId: data.userId,
     },
   });
 }
@@ -172,6 +172,30 @@ async function getDisLikedOrNot(disLikeId: number) {
   console.log(data);
   return data;
 }
+async function getIsUserFollow(followerId: number, followingId: number) {
+  const data = await prisma.follow.findFirst({
+    where: {
+      followerId: followerId,
+      followingId: followingId,
+    },
+  });
+  // console.log('in the modal', data);
+  return data;
+}
+async function getFollowing(followerId: number) {
+  return await prisma.follow.count({
+    where: {
+      followerId: followerId,
+    },
+  });
+}
+async function getFollower(followingId: number) {
+  return await prisma.follow.count({
+    where: {
+      followingId: followingId,
+    },
+  });
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
@@ -179,6 +203,9 @@ export const movieSocialModalGet = {
   getAllWatchList,
   getLikedOrNot,
   getDisLikedOrNot,
+  getIsUserFollow,
+  getFollowing,
+  getFollower,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({
@@ -209,4 +236,15 @@ async function deleteDisLike(disLikeId: number) {
     },
   });
 }
-export const movieSocialModalDelete = { deleteLike, deleteDisLike };
+async function deleteFollow(followId: number) {
+  return await prisma.follow.delete({
+    where: {
+      id: followId,
+    },
+  });
+}
+export const movieSocialModalDelete = {
+  deleteLike,
+  deleteDisLike,
+  deleteFollow,
+};

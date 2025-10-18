@@ -70,6 +70,24 @@ export const movieSocialResolver = {
 
       return watchData;
     },
+    getFollowing: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getFollowing(userId);
+      return data.data;
+    },
+    getFollower: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      const data = await MovieSocialGet.getFollower(userId);
+      return data.data;
+    },
   },
   Mutation: {
     createReview: async (
@@ -181,6 +199,32 @@ export const movieSocialResolver = {
       }
 
       return await MovieSocialDelete.deleteDisLike(disLikeId);
+    },
+    createFollow: async (_: any, { toFollowId }: any, context: any) => {
+      console.log('this user get new follwer', toFollowId);
+      if (typeof toFollowId !== 'number') {
+        throw new Error('Id must be number----');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      console.log(userId);
+      return await movieSocialCreate.createFollow(userId, toFollowId);
+    },
+    unFollow: async (_: any, { notToFollowId }: any, context: any) => {
+      console.log('this user will loose one follower', notToFollowId);
+      if (typeof notToFollowId !== 'number') {
+        throw new Error('Id must be number----');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      console.log(userId);
+      return await MovieSocialDelete.deleteFollowData(userId, notToFollowId);
     },
   },
 };

@@ -53,6 +53,8 @@ export const movieSocialTypeDef = gql`
   type Query {
     getAllReviewOfMovie(movieName: String!): [Review!]!
     getAllWatchList: [WatchList]
+    getFollowing: Int
+    getFollower: Int
   }
 
   type MutationResponse {
@@ -69,10 +71,12 @@ export const movieSocialTypeDef = gql`
       movieName: String!
     ): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
+    createFollow(toFollowId: Int): MutationResponse
     updateWatchListStatus(movieName: String): MutationResponse
     createLike(reviewId: Int): MutationResponse
     deleteLike(likeId: Int): MutationResponse
     createDisLike(reviewId: Int): MutationResponse
     deleteDisLike(disLikeId: Int): MutationResponse
+    unFollow(notToFollowId: Int): MutationResponse
   }
 `;

@@ -101,11 +101,19 @@ async function updateVerification(email: string) {
   });
   return data;
 }
+async function searchUserById(userId: number) {
+  return await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+}
 export const userModal = {
   createUserModal,
   pendingUser,
   getUserModal,
   searchUserName,
+  searchUserById,
   searchUserEmail,
   deleteUserModal,
   updateUserModal,

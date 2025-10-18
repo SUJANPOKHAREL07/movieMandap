@@ -7,6 +7,7 @@ import {
 } from '../modal/movieSocialModal';
 import { TCreateComment, TCreateLike } from '../types/movieSocial.types';
 import { searchMovieTeam } from '../modal/movieTeamModal';
+// import { userModal } from '../modal/userModal';
 
 const createReview = async (
   title: string,
@@ -144,12 +145,48 @@ const createWatchList = async (
     };
   }
 };
+export const createFollow = async (followerId: number, followingId: number) => {
+  try {
+    const alreadyFollow = await movieSocialModalGet.getIsUserFollow(
+      followerId,
+      followingId
+    );
+
+    if (alreadyFollow !== null) {
+      return {
+        success: false,
+        message: 'Already followed',
+      };
+    }
+    const data = {
+      followerId,
+      followingId,
+    };
+    const follow = await movieSocialModalCreate.createFollow(data);
+    if (!follow) {
+      return {
+        success: false,
+        message: 'Failed to createt the follow',
+      };
+    }
+    return {
+      success: true,
+      message: 'Following',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
 export const movieSocialCreate = {
   createReview,
   createLike,
   createComment,
   createWatchList,
   createDisLike,
+  createFollow,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {
@@ -210,7 +247,59 @@ const getAllWatchList = async (userId: number) => {
     };
   }
 };
-export const MovieSocialGet = { getAllReviewOfMovie, getAllWatchList };
+const getFollowing = async (userId: number) => {
+  try {
+    const data = await movieSocialModalGet.getFollowing(userId);
+
+    if (!data) {
+      return {
+        success: false,
+        message: 'No followig data found',
+        data: data,
+      };
+    }
+    return {
+      success: true,
+      message: 'following',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+      data: [],
+    };
+  }
+};
+const getFollower = async (userId: number) => {
+  try {
+    const data = await movieSocialModalGet.getFollower(userId);
+    if (!data) {
+      return {
+        success: false,
+        message: 'Follower',
+        data: data,
+      };
+    }
+    return {
+      success: false,
+      message: 'follower',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+      data: [],
+    };
+  }
+};
+export const MovieSocialGet = {
+  getAllReviewOfMovie,
+  getAllWatchList,
+  getFollowing,
+  getFollower,
+};
 const updateMovieWatchList = async (movieName: string, userId: number) => {
   try {
     const movie = await searchMovieTeam.findMovieByName(movieName);
@@ -298,4 +387,39 @@ const deleteDisLike = async (disLikeId: number) => {
     };
   }
 };
-export const MovieSocialDelete = { deleteLike, deleteDisLike };
+const deleteFollowData = async (followerId: number, followingId: number) => {
+  try {
+    const doesFollow = await movieSocialModalGet.getIsUserFollow(
+      followerId,
+      followingId
+    );
+    if (!doesFollow) {
+      return {
+        success: false,
+        message: 'Follow first',
+      };
+    }
+    const followId = Number(doesFollow.id);
+    const unfollow = await movieSocialModalDelete.deleteFollow(followId);
+    if (!unfollow) {
+      return {
+        success: false,
+        message: 'Failed to unfollow',
+      };
+    }
+    return {
+      success: true,
+      message: 'User is Unfollowed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialDelete = {
+  deleteLike,
+  deleteDisLike,
+  deleteFollowData,
+};
