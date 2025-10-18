@@ -7,6 +7,7 @@ import {
 } from '../modal/movieSocialModal';
 import { TCreateComment, TCreateLike } from '../types/movieSocial.types';
 import { searchMovieTeam } from '../modal/movieTeamModal';
+// import { userModal } from '../modal/userModal';
 
 const createReview = async (
   title: string,
@@ -144,12 +145,48 @@ const createWatchList = async (
     };
   }
 };
+export const createFollow = async (followerId: number, followingId: number) => {
+  try {
+    const alreadyFollow = await movieSocialModalGet.getIsUserFollow(
+      followerId,
+      followingId
+    );
+
+    if (alreadyFollow !== null) {
+      return {
+        success: false,
+        message: 'Already followed',
+      };
+    }
+    const data = {
+      followerId,
+      followingId,
+    };
+    const follow = await movieSocialModalCreate.createFollow(data);
+    if (!follow) {
+      return {
+        success: false,
+        message: 'Failed to createt the follow',
+      };
+    }
+    return {
+      success: true,
+      message: 'Following',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
 export const movieSocialCreate = {
   createReview,
   createLike,
   createComment,
   createWatchList,
   createDisLike,
+  createFollow,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {

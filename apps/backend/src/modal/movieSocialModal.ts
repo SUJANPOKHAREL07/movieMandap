@@ -55,11 +55,11 @@ async function createWatchList(data: TWatchListItem) {
   });
 }
 async function createFollow(data: TFollow) {
+  console.log(data);
   return await prisma.follow.create({
     data: {
       followerId: data.followerId,
       followingId: data.followingId,
-      userId: data.userId,
     },
   });
 }
@@ -172,6 +172,16 @@ async function getDisLikedOrNot(disLikeId: number) {
   console.log(data);
   return data;
 }
+async function getIsUserFollow(followerId: number, followingId: number) {
+  const data = await prisma.follow.findFirst({
+    where: {
+      followerId: followerId,
+      followingId: followingId,
+    },
+  });
+  // console.log('in the modal', data);
+  return data;
+}
 export const movieSocialModalGet = {
   getReviewOfMovieByID,
   getReviewCommentCount,
@@ -179,6 +189,7 @@ export const movieSocialModalGet = {
   getAllWatchList,
   getLikedOrNot,
   getDisLikedOrNot,
+  getIsUserFollow,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({

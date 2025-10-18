@@ -69,6 +69,7 @@ export const movieSocialTypeDef = gql`
       movieName: String!
     ): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
+    createFollow(toFollowId: Int): MutationResponse
     updateWatchListStatus(movieName: String): MutationResponse
     createLike(reviewId: Int): MutationResponse
     deleteLike(likeId: Int): MutationResponse
