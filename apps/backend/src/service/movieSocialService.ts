@@ -335,4 +335,39 @@ const deleteDisLike = async (disLikeId: number) => {
     };
   }
 };
-export const MovieSocialDelete = { deleteLike, deleteDisLike };
+const deleteFollowData = async (followerId: number, followingId: number) => {
+  try {
+    const doesFollow = await movieSocialModalGet.getIsUserFollow(
+      followerId,
+      followingId
+    );
+    if (!doesFollow) {
+      return {
+        success: false,
+        message: 'Follow first',
+      };
+    }
+    const followId = Number(doesFollow.id);
+    const unfollow = await movieSocialModalDelete.deleteFollow(followId);
+    if (!unfollow) {
+      return {
+        success: false,
+        message: 'Failed to unfollow',
+      };
+    }
+    return {
+      success: true,
+      message: 'User is Unfollowed',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialDelete = {
+  deleteLike,
+  deleteDisLike,
+  deleteFollowData,
+};

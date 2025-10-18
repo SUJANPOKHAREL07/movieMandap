@@ -195,5 +195,18 @@ export const movieSocialResolver = {
       console.log(userId);
       return await movieSocialCreate.createFollow(userId, toFollowId);
     },
+    unFollow: async (_: any, { notToFollowId }: any, context: any) => {
+      console.log('this user will loose one follower', notToFollowId);
+      if (typeof notToFollowId !== 'number') {
+        throw new Error('Id must be number----');
+      }
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) {
+        throw new Error('Token missing in header');
+      }
+      const userId = Number(auth.user?.userId);
+      console.log(userId);
+      return await MovieSocialDelete.deleteFollowData(userId, notToFollowId);
+    },
   },
 };

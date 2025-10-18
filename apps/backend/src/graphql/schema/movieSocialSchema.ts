@@ -75,5 +75,6 @@ export const movieSocialTypeDef = gql`
     deleteLike(likeId: Int): MutationResponse
     createDisLike(reviewId: Int): MutationResponse
     deleteDisLike(disLikeId: Int): MutationResponse
+    unFollow(notToFollowId: Int): MutationResponse
   }
 `;

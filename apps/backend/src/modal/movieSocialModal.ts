@@ -220,4 +220,15 @@ async function deleteDisLike(disLikeId: number) {
     },
   });
 }
-export const movieSocialModalDelete = { deleteLike, deleteDisLike };
+async function deleteFollow(followId: number) {
+  return await prisma.follow.delete({
+    where: {
+      id: followId,
+    },
+  });
+}
+export const movieSocialModalDelete = {
+  deleteLike,
+  deleteDisLike,
+  deleteFollow,
+};
