@@ -9,7 +9,9 @@ import { movieTeamRegister } from '../../service/movieTeamService';
 
 export const movieTeamResolver = {
   Upload: GraphQLUpload,
-  Query: {},
+  Query: {
+    
+  },
   Mutation: {
     registerProductionCompany: async (
       _: any,

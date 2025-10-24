@@ -52,7 +52,11 @@ export const movieTypeDefs = gql`
     creditId: String
     person: Person # Add this to include person details
   }
-
+  type ReviewCount {
+    Comment: Int
+    Like: Int
+    Dislike: Int
+  }
   type Review {
     id: Int
     title: String
@@ -63,6 +67,7 @@ export const movieTypeDefs = gql`
     updatedAt: Date
     userId: Int
     movieId: Int
+    _count: ReviewCount
     user: User # Add this to include user details
     comments: [Comment] # Add this if you have comments
   }

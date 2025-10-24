@@ -81,11 +81,14 @@ async function getAllMovieData() {
       },
       Review: {
         include: {
-          user: {
+          _count: {
             select: {
-              username: true,
+              Comment: true,
+              Like: true,
+              Dislike: true,
             },
           },
+          user: true,
           Comment: true,
         },
       },
