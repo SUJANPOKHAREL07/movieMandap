@@ -140,7 +140,7 @@ export const movieTypeDefs = gql`
       originalTitle: String
       releaseDate: Date
       runtime: Int!
-      poster: Upload!
+      poster: Upload
       budget: Int!
       revenue: Int
       status: MovieStatus!
@@ -148,6 +148,20 @@ export const movieTypeDefs = gql`
       adult: Boolean!
       trailerLink: String
     ): MutationResponse
+    updateMovie(
+      title: String
+      originalTitle: String
+      releaseDate: Date
+      runtime: Int
+      poster: Upload
+      budget: Int
+      revenue: Int
+      status: MovieStatus
+      tagline: String
+      adult: Boolean
+      trailerLink: String
+    ): MutationResponse
+    deleteMovie(title: String): MutationResponse
     createGenre(name: String!): MutationResponse
   }
 `;

@@ -3,10 +3,10 @@ import path from 'path';
 import { v4 as uuid } from 'uuid';
 import { TFile } from '../types/movie.types';
 
-export async function uploadFile(file: TFile | undefined) {
-  if (typeof file === 'undefined') {
-    throw new Error('Type didnpt match');
-  }
+export async function uploadFile(file: TFile) {
+  // if (typeof file === 'undefined') {
+  //   throw new Error('Type didnot match');
+  // }
   const { createReadStream, filename } = await file;
   console.log('Inside the file upload');
   const stream = createReadStream();

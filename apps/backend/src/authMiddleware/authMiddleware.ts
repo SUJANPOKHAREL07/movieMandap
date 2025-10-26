@@ -2,7 +2,6 @@
 import { JWT } from './jwtToken';
 
 export const authContextMiddleware = async ({ req, res }: any) => {
-
   // console.log('refresh token ----', req.headers.refresh_token);
   // console.log('access token ----', req.headers.access_token);
 

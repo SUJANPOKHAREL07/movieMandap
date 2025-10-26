@@ -10,6 +10,8 @@ export const movieModal = {
   getGenre,
   getgnreByName,
   createMovieGenre,
+  updateMovie,
+  deleteMovie,
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
@@ -115,6 +117,34 @@ async function createMovieGenre(movieId: number, genreId: number) {
     data: {
       generesId: genreId,
       movieId: movieId,
+    },
+  });
+}
+async function updateMovie(data: any, poster: string) {
+  return await prisma.movie.update({
+    where: {
+      title: data.title,
+    },
+    data: {
+      title: data.title,
+      originalTitle: data.originalTitle,
+      overview: data.overview,
+      releaseDate: data.releaseDate,
+      runtime: data.runtime,
+      posterPath: poster,
+      budget: data.budget,
+      revenue: data.revenue,
+      status: data.status,
+      tagline: data.tagline,
+      adult: data.adult,
+      trailerLink: data.trailerLink,
+    },
+  });
+}
+async function deleteMovie(title: string) {
+  return await prisma.movie.delete({
+    where: {
+      title: title,
     },
   });
 }

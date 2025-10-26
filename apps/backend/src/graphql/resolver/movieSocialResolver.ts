@@ -167,7 +167,9 @@ export const movieSocialResolver = {
       if (typeof likeId !== 'number') {
         throw new Error('Review Id Type must be number');
       }
+      console.log('context data--->', context);
       const auth = await authContextMiddleware(context);
+      console.log('auth token--', auth);
       if (auth.token === null) {
         throw new Error('Token missing in header');
       }

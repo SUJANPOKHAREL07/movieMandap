@@ -12,29 +12,24 @@ import { TReqRes, TResponse } from '../types/user.types';
 import { resetPasswordService } from '../userVerifyOTP/resetPassOtpService';
 import { comparePassword } from '../utils/passwordHashing';
 
-async function loginUser(
-  email: string,
-  password: string,
-  username: string,
-  req: any,
-  res: any
-) {
+async function loginUser(email: string, password: string, username: string) {
   if (!email && !username) {
     throw new Error('Email or User name is required');
   }
-  const token = req.headers.refresh_token;
+  // const token = req.headers.refresh_token;
 
   const searchUser = await loginModal.checkLoginCred({ email, username });
   if (searchUser === null) {
     return { success: false, message: 'SignUp first' };
   }
-  const alreadyloggedIn = await loginModal.alreadyLoggedIn(token);
-  if (alreadyloggedIn !== null) {
-    return {
-      success: false,
-      message: 'User already logged in ',
-    };
-  }
+  // const alreadyloggedIn = await loginModal.alreadyLoggedIn(token);
+  // console.log('Already login--->', alreadyloggedIn);
+  // if (alreadyloggedIn !== null) {
+  //   return {
+  //     success: false,
+  //     message: 'User already logged in ',
+  //   };
+  // }
   const compare = await comparePassword(password, searchUser.password);
   if (compare == false) {
     return { success: false, message: "Passowrd didn't match" };

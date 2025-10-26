@@ -28,6 +28,20 @@ export interface TMovieInput {
   trailerLink: string | null;
   poster?: TFile;
 }
+export interface TMovieUpdate {
+  title?: string | null;
+  originalTitle?: string | null;
+  overview?: string | null;
+  releaseDate?: Date | null;
+  runtime?: number | null;
+  budget?: bigint | null;
+  revenue?: bigint | null;
+  status: movieStatus;
+  tagline?: string | null;
+  adult?: boolean | null;
+  trailerLink?: string | null;
+  poster?: TFile;
+}
 export interface TFile {
   filename?: string;
   mimetype?: string;
