@@ -5,6 +5,7 @@ import {
   TMovieGenre,
   TMovieInput,
   TMovieResponse,
+  TMovieUpdate,
 } from '../types/movie.types';
 import { TResponse } from '../types/user.types';
 // import fs from 'fs';
@@ -151,6 +152,36 @@ const getAllMovieData = async () => {
     };
   }
 };
+const updateMovie = async (data: TMovieUpdate, poster: string) => {
+  try {
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed: No data provided to update',
+        data: data,
+      };
+    }
+    const update = await movieModal.updateMovie(data, poster);
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the movie data',
+        data: [],
+      };
+    }
+    return {
+      success: true,
+      message: 'Movie data updated successfully',
+      data: [update],
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+      data: [],
+    };
+  }
+};
 export const movieService = {
   getAllMovie,
   createMovie,
@@ -158,4 +189,5 @@ export const movieService = {
   getGenre,
   createMovieGenre,
   getAllMovieData,
+  updateMovie,
 };

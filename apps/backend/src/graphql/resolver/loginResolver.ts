@@ -8,9 +8,17 @@ export const loginResolver = {
     loginUser: async (
       _: any,
       { email, password, username }: TLogin,
-      { req, res }: TReqRes
+      context: any
     ) => {
-      return await loginService.loginUser(email, password, username, req, res);
+      const auth = await authContextMiddleware(context);
+      // console.log('auth ', auth);
+      if (auth.token !== null) {
+        return {
+          success: false,
+          message: 'User already loggedin',
+        };
+      }
+      return await loginService.loginUser(email, password, username);
     },
     logoutUser: async (_: any, __: any, context: any) => {
       const auth = await authContextMiddleware(context);

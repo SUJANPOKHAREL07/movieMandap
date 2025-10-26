@@ -9,9 +9,7 @@ import { movieTeamRegister } from '../../service/movieTeamService';
 
 export const movieTeamResolver = {
   Upload: GraphQLUpload,
-  Query: {
-    
-  },
+  Query: {},
   Mutation: {
     registerProductionCompany: async (
       _: any,
@@ -37,7 +35,10 @@ export const movieTeamResolver = {
       }
       const { logo, ...data } = args;
       console.log('data in the resolver down---', args);
-      const logoPath = await uploadFile(logo);
+      let logoPath = '';
+      if (typeof logo !== 'undefined') {
+        logoPath = await uploadFile(logo);
+      }
       console.log('logo path ----', logoPath);
       const finaldata = { logoPath, ...data };
       console.log('Final data ---', finaldata);
