@@ -79,6 +79,27 @@ export const movieResolver = {
       }
       return await movieService.updateMovie(data, posterPath);
     },
+    deleteMovie: async (_: any, { title }: any, context: any) => {
+      if (typeof title !== 'string') {
+        throw new Error('Title must be string');
+      }
+      const auth = await authContextMiddleware(context);
+      // console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      const userRole = auth.user?.role;
+      if (userRole === 'user') {
+        return {
+          success: false,
+          message: 'User are not allowed to delete',
+        };
+      }
+      return await movieService.deleteMovie(title);
+    },
 
     createGenre: async (_: any, { name }: any, context: any) => {
       if (typeof name !== 'string') return 'Name must be string';

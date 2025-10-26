@@ -70,7 +70,7 @@ export const movieTeamModalCreate = {
   registerCastMember,
 };
 async function findMovieByName(moviename: string) {
-  return await prisma.movie.findFirst({
+  return await prisma.movie.findUnique({
     where: {
       title: moviename,
     },

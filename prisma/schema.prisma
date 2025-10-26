@@ -48,7 +48,7 @@ model login {
     password      String
     role          Role
     refresh_token String   @db.Text()
-    user          user?    @relation(fields: [useremail, userId], references: [email, id])
+    user          user?    @relation(fields: [useremail, userId], references: [email, id], onDelete: Cascade)
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 }
@@ -102,8 +102,8 @@ model MovieGenre {
     movieId   Int
     generesId Int
 
-    movie Movie @relation(fields: [movieId], references: [id])
-    genre Genre @relation(fields: [generesId], references: [id])
+    movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+    genre Genre @relation(fields: [generesId], references: [id], onDelete: Cascade)
 
     @@unique([movieId, generesId])
     @@map("movie_genere")
@@ -124,8 +124,8 @@ model MovieProductionCompany {
     id        Int               @id @default(autoincrement())
     movieId   Int
     conpanyId Int
-    movie     Movie             @relation(references: [id], fields: [movieId])
-    company   ProductionCompany @relation(references: [id], fields: [conpanyId])
+    movie     Movie             @relation(references: [id], fields: [movieId], onDelete: Cascade)
+    company   ProductionCompany @relation(references: [id], fields: [conpanyId], onDelete: Cascade)
 
     @@unique([movieId, conpanyId])
     @@map("movie_production_companies")
@@ -153,8 +153,8 @@ model crewMember {
     department String
     job        String
 
-    movie  Movie  @relation(references: [id], fields: [movieId])
-    person Person @relation(references: [id], fields: [personId])
+    movie  Movie  @relation(references: [id], fields: [movieId], onDelete: Cascade)
+    person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
 
     @@unique([movieId, personId, job])
     @@map("crew_member")
@@ -169,8 +169,8 @@ model CastMember {
     // order Int
     creditId  String
 
-    movie  Movie  @relation(references: [id], fields: [movieId])
-    person Person @relation(references: [id], fields: [personId])
+    movie  Movie  @relation(references: [id], fields: [movieId], onDelete: Cascade)
+    person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
 
     @@unique([movieId, personId, character])
     @@map("cast_member")
@@ -187,8 +187,8 @@ model Review {
     userId     Int
     movieId    Int
 
-    user    user      @relation(references: [id], fields: [userId])
-    movie   Movie     @relation(references: [id], fields: [movieId])
+    user    user      @relation(references: [id], fields: [userId], onDelete: Cascade)
+    movie   Movie     @relation(references: [id], fields: [movieId], onDelete: Cascade)
     Like    Like[]
     Comment Comment[]
     Dislike Dislike[]
@@ -212,8 +212,8 @@ model Like {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    user   user   @relation(references: [id], fields: [userId])
-    review Review @relation(references: [id], fields: [reviewId])
+    user   user   @relation(references: [id], fields: [userId], onDelete: Cascade)
+    review Review @relation(references: [id], fields: [reviewId], onDelete: Cascade)
 
     @@unique([userId, reviewId])
     @@map("likes")
@@ -226,8 +226,8 @@ model Dislike {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    user   user   @relation(references: [id], fields: [userId])
-    review Review @relation(references: [id], fields: [reviewId])
+    user   user   @relation(references: [id], fields: [userId], onDelete: Cascade)
+    review Review @relation(references: [id], fields: [reviewId], onDelete: Cascade)
 
     @@unique([userId, reviewId])
     @@map("dislikes")
@@ -277,7 +277,7 @@ model Follow {
 
     follower  user  @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
     following user  @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
-    user      user? @relation(fields: [userId], references: [id])
+    user      user? @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    Int?
 
     @@unique([followerId, followingId])

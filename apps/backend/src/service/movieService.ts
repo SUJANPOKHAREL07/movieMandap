@@ -1,5 +1,6 @@
 // import path from 'path';
 import { movieModal } from '../modal/movieModal';
+import { searchMovieTeam } from '../modal/movieTeamModal';
 import {
   TGetMovie,
   TMovieGenre,
@@ -182,6 +183,35 @@ const updateMovie = async (data: TMovieUpdate, poster: string) => {
     };
   }
 };
+const deleteMovie = async (moviename: string) => {
+  try {
+    console.log('Movie data', moviename);
+    const searchMovie = await searchMovieTeam.findMovieByName(moviename);
+    console.log('Movie data', searchMovie);
+    if (!searchMovie) {
+      return {
+        success: false,
+        message: 'Failed :No movie found',
+      };
+    }
+    const deleteData = await movieModal.deleteMovie(moviename);
+    if (!deleteData) {
+      return {
+        success: false,
+        message: 'Failed to delete the moive data',
+      };
+    }
+    return {
+      success: true,
+      message: 'Movie data is deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
 export const movieService = {
   getAllMovie,
   createMovie,
@@ -190,4 +220,5 @@ export const movieService = {
   createMovieGenre,
   getAllMovieData,
   updateMovie,
+  deleteMovie,
 };

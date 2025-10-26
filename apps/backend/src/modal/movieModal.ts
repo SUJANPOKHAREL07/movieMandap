@@ -11,6 +11,7 @@ export const movieModal = {
   getgnreByName,
   createMovieGenre,
   updateMovie,
+  deleteMovie,
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
@@ -137,6 +138,13 @@ async function updateMovie(data: any, poster: string) {
       tagline: data.tagline,
       adult: data.adult,
       trailerLink: data.trailerLink,
+    },
+  });
+}
+async function deleteMovie(title: string) {
+  return await prisma.movie.delete({
+    where: {
+      title: title,
     },
   });
 }

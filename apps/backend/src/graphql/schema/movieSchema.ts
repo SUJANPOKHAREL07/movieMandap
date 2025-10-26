@@ -161,6 +161,7 @@ export const movieTypeDefs = gql`
       adult: Boolean
       trailerLink: String
     ): MutationResponse
+    deleteMovie(title: String): MutationResponse
     createGenre(name: String!): MutationResponse
   }
 `;
