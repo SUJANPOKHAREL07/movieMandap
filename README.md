@@ -1,90 +1,156 @@
-# CineGudi
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+# 🎬 CineGudi
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+CineGudi is a full-stack movie web application built with a **monorepo structure using Nx**.  
+It aims to provide a clean and scalable foundation for managing movie-related features such as authentication, data management, and UI presentation.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Finish your CI setup
+## 🚀 Tech Stack
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/k8a1FcEa8P)
+- **Monorepo Management:** Nx  
+- **Language:** TypeScript  
+- **Frontend:** React (planned/under development)  
+- **Backend:** Node.js + Express  
+- **Database:** Prisma ORM + PostgreSQL  
+- **Package Manager:** Yarn  
+- **Testing:** Jest  
+- **Linting & Formatting:** ESLint + Prettier  
 
+---
 
-## Generate a library
-
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
-
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## 🗂 Project Structure
 
 ```
-npx nx release
+cinegudi/
+│
+├── apps/                 # Application entry points
+│   └── (frontend/backend apps)
+│
+├── packages/             # Shared libraries and modules
+│
+├── prisma/               # Database schema and migrations
+│
+├── .github/workflows/    # CI/CD pipelines
+├── .vscode/              # Editor configuration
+│
+├── nx.json               # Nx configuration
+├── tsconfig.json         # TypeScript root configuration
+├── jest.config.ts        # Jest test configuration
+├── package.json
+├── yarn.lock
+└── README.md
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+---
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## ⚙️ Getting Started
 
-## Keep TypeScript project references up to date
+### 1️⃣ Prerequisites
+- Node.js (>= 18)
+- Yarn
+- PostgreSQL (running locally or remote)
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+### 2️⃣ Clone the Repository
+```bash
+git clone https://github.com/SUJANPOKHAREL07/cinegudi.git
+cd cinegudi
+```
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+### 3️⃣ Install Dependencies
+```bash
+yarn install
+```
 
-```sh
+### 4️⃣ Set Up Environment Variables
+Create a `.env` file in the project root:
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/cinegudi
+JWT_SECRET=your_secret_key
+```
+
+### 5️⃣ Run Database Migrations
+```bash
+npx prisma migrate dev
+```
+
+### 6️⃣ Start the Development Server
+```bash
+yarn nx serve <app-name>
+```
+
+Replace `<app-name>` with your specific app (e.g., `api`, `web`, etc.).
+
+---
+
+## 🧪 Running Tests
+```bash
+yarn nx test <project-name>
+```
+
+Run linting:
+```bash
+yarn nx lint <project-name>
+```
+
+---
+
+## 🏗 Build for Production
+```bash
+yarn nx build <app-name>
+```
+
+---
+
+## 🧠 Nx Workspace Commands
+
+Visualize dependencies:
+```bash
+npx nx graph
+```
+
+Check and sync TypeScript project references:
+```bash
 npx nx sync
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+---
 
-```sh
-npx nx sync:check
-```
+## 🧩 Recommended Tools
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+- **Nx Console** (VS Code Extension) – run Nx commands visually  
+- **Prisma Studio** – inspect your database via GUI:
+  ```bash
+  npx prisma studio
+  ```
 
+---
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🤝 Contributing
 
-## Install Nx Console
+Contributions are welcome!
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+1. Fork this repository  
+2. Create a new branch:  
+   ```bash
+   git checkout -b feature/your-feature
+   ```  
+3. Commit changes and push:  
+   ```bash
+   git commit -m "Add your feature"
+   git push origin feature/your-feature
+   ```  
+4. Create a Pull Request  
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Useful links
+## 📜 License
 
-Learn more:
+This project is open-source and available under the **MIT License**.
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### 👤 Author
+**Sujan Pokharel**  
+Bachelor’s in Computer Applications (BCA) — Crimson College of Technology  
+Tech enthusiast passionate about full-stack development and clean architecture.
