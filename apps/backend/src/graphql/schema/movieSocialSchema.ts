@@ -70,6 +70,14 @@ export const movieSocialTypeDef = gql`
       isSpoiler: Boolean!
       movieName: String!
     ): MutationResponse
+    updateReview(
+      reviewId: Int!
+      title: String
+      content: String
+      rating: Ratings
+      isSpoiler: Boolean
+    ): MutationResponse
+    deleteReview(reviewId: Int): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
     createFollow(toFollowId: Int): MutationResponse
     updateWatchListStatus(movieName: String): MutationResponse

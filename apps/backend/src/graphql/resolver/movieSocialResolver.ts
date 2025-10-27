@@ -128,6 +128,44 @@ export const movieSocialResolver = {
         userId
       );
     },
+    deleteReview: async (_: any, { reviewId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      //   console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      if (typeof reviewId !== 'number') {
+        return {
+          success: false,
+          message: 'Id must be number',
+        };
+      }
+      return await MovieSocialDelete.deleteReview(reviewId);
+    },
+    updateReview: async (
+      _: any,
+      { reviewId, title, content, rating, isSpoiler }: any,
+      context: any
+    ) => {
+      const auth = await authContextMiddleware(context);
+      //   console.log('auth ', auth);
+      if (auth.token === null) {
+        return {
+          success: false,
+          message: 'Token missing in header',
+        };
+      }
+      return await MovieSocialUpdate.updateReview(
+        reviewId,
+        title,
+        content,
+        rating,
+        isSpoiler
+      );
+    },
     createWatchList: async (_: any, { movieName, note }: any, context: any) => {
       const auth = await authContextMiddleware(context);
       //   console.log('auth ', auth);

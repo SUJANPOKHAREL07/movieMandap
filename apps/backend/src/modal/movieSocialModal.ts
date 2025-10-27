@@ -1,3 +1,4 @@
+import { Ratings } from '@prisma/client';
 import prisma from '../prisma/client';
 import {
   TCreateComment,
@@ -218,10 +219,36 @@ async function updateWatchListItem(movieId: number, userId: number) {
     },
   });
 }
-
+async function updateReview(
+  reviewId: number,
+  title?: string,
+  content?: string,
+  rating?: Ratings,
+  isSpoiler?: boolean
+) {
+  return await prisma.review.update({
+    where: {
+      id: reviewId,
+    },
+    data: {
+      rating: rating,
+      title: title,
+      content: content,
+      isSpoiler: isSpoiler,
+    },
+  });
+}
 export const movieSocialModalUpdate = {
   updateWatchListItem,
+  updateReview,
 };
+async function deleteReview(reviewId: number) {
+  return await prisma.review.delete({
+    where: {
+      id: reviewId,
+    },
+  });
+}
 async function deleteLike(likeId: number) {
   return await prisma.like.delete({
     where: {
@@ -247,4 +274,5 @@ export const movieSocialModalDelete = {
   deleteLike,
   deleteDisLike,
   deleteFollow,
+  deleteReview,
 };
