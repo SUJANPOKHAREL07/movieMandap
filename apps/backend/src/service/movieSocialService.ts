@@ -52,6 +52,26 @@ const createReview = async (
     };
   }
 };
+const deleteReview = async (reviewId: number) => {
+  try {
+    const del = movieSocialModalDelete.deleteReview(reviewId);
+    if (!del) {
+      return {
+        success: false,
+        message: 'No review found',
+      };
+    }
+    return {
+      success: true,
+      message: 'Review deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
 const createLike = async (data: TCreateLike) => {
   try {
     const like = await movieSocialModalCreate.createLike(data);
@@ -331,8 +351,41 @@ const updateMovieWatchList = async (movieName: string, userId: number) => {
     };
   }
 };
-
-export const MovieSocialUpdate = { updateMovieWatchList };
+const updateReview = async (
+  reviewId: number,
+  title?: string,
+  content?: string,
+  rating?: Ratings,
+  isSpoiler?: boolean
+) => {
+  try {
+    const update = await movieSocialModalUpdate.updateReview(
+      reviewId,
+      title,
+      content,
+      rating,
+      isSpoiler
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the review',
+        data: [],
+      };
+    }
+    return {
+      success: true,
+      message: 'Updated the review',
+      data: [update],
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const MovieSocialUpdate = { updateMovieWatchList, updateReview };
 const deleteLike = async (likeId: number) => {
   try {
     const isLiked = await movieSocialModalGet.getLikedOrNot(likeId);
@@ -422,4 +475,5 @@ export const MovieSocialDelete = {
   deleteLike,
   deleteDisLike,
   deleteFollowData,
+  deleteReview,
 };

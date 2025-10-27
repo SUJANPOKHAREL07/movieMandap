@@ -69,11 +69,10 @@ async function checkToken(token: string) {
   });
   return data;
 }
-async function logout(token: string, userId: number) {
+async function logout(id: number) {
   const user = await prisma.login.deleteMany({
     where: {
-      refresh_token: token,
-      userId: userId,
+      id: id,
     },
   });
   return user;

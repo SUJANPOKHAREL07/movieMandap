@@ -80,8 +80,13 @@ async function logoutService(
       message: 'No user found',
     };
   }
-  // @ts-ignore
-  const logout = await LogoutModal.logout(token, userId);
+  const logout = await LogoutModal.logout(tokenExist.id);
+  if (!logout) {
+    return {
+      success: false,
+      message: 'Failed to logout ',
+    };
+  }
   return {
     success: true,
     message: 'logout success',
