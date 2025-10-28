@@ -1,5 +1,5 @@
 
-# 🎬 CineGudi
+# 🎬 Movie Mandap
 
 CineGudi is a full-stack movie web application built with a **monorepo structure using Nx**.  
 It aims to provide a clean and scalable foundation for managing movie-related features such as authentication, data management, and UI presentation.
