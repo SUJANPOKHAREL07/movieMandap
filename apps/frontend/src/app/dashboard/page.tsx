@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Clapperboard, LayoutDashboard, LogOut } from 'lucide-react';
 import ThemeToggle from '@/components/Theme-Toggle';
+import Movies from '@/components/movies/movies';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'movies'>(
@@ -69,15 +70,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {activeTab === 'movies' && (
-          <div>
-            <h1 className="text-3xl font-bold mb-4">Movies Management</h1>
-            <p className="text-muted-foreground">
-              Manage all your movie listings, add new films, and edit existing
-              ones here.
-            </p>
-          </div>
-        )}
+        {activeTab === 'movies' && <Movies />}
       </main>
     </div>
   );

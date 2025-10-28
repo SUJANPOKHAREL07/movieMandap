@@ -1,0 +1,113 @@
+[
+  {
+    "title": "The Shadow Within",
+    "originalTitle": "Shadow Within",
+    "overview": "A detective uncovers a hidden world of crime and corruption while battling his own inner demons.",
+    "releaseDate": "2025-05-16T00:00:00Z",
+    "runtime": 128,
+    "posterPath": "/uploads/shadow-within.jpg",
+    "trailerLink": "https://www.youtube.com/watch?v=shadowwithin",
+    "budget": 65000000,
+    "revenue": 210000000,
+    "status": "RELEASED",
+    "tagline": "Every light casts a shadow.",
+    "adult": false,
+    "MovieGenre": [
+      { "genre": { "name": "Thriller" } },
+      { "genre": { "name": "Crime" } },
+      { "genre": { "name": "Mystery" } }
+    ],
+    "MovieProductionCompany": [
+      { "company": { "name": "Silverline Studios", "originCountry": "US" } }
+    ]
+  },
+  {
+    "title": "Beyond the Horizon",
+    "originalTitle": "Horizonte",
+    "overview": "A young pilot embarks on a daring mission across uncharted skies to save a stranded crew.",
+    "releaseDate": "2024-11-02T00:00:00Z",
+    "runtime": 145,
+    "posterPath": "/uploads/beyond-horizon.jpg",
+    "trailerLink": "https://www.youtube.com/watch?v=beyondhorizon",
+    "budget": 90000000,
+    "revenue": 320000000,
+    "status": "RELEASED",
+    "tagline": "Courage has no limits.",
+    "adult": false,
+    "MovieGenre": [
+      { "genre": { "name": "Adventure" } },
+      { "genre": { "name": "Drama" } }
+    ],
+    "MovieProductionCompany": [
+      { "company": { "name": "SkyMotion Pictures", "originCountry": "US" } },
+      { "company": { "name": "Lumbini Films", "originCountry": "NP" } }
+    ]
+  },
+  {
+    "title": "Whisper of Time",
+    "originalTitle": "Whisper of Time",
+    "overview": "A watchmaker discovers a mysterious clock that lets him glimpse fragments of the future.",
+    "releaseDate": "2023-09-10T00:00:00Z",
+    "runtime": 115,
+    "posterPath": "/uploads/whisper-time.jpg",
+    "trailerLink": "https://www.youtube.com/watch?v=whispertime",
+    "budget": 45000000,
+    "revenue": 180000000,
+    "status": "RELEASED",
+    "tagline": "Time speaks to those who listen.",
+    "adult": false,
+    "MovieGenre": [
+      { "genre": { "name": "Fantasy" } },
+      { "genre": { "name": "Sci-Fi" } }
+    ],
+    "MovieProductionCompany": [
+      { "company": { "name": "Timeworks Studios", "originCountry": "CA" } }
+    ]
+  },
+  {
+    "title": "Rise of the Forgotten",
+    "originalTitle": "Forgotten Empire",
+    "overview": "Centuries after a fallen kingdom vanished, a young warrior rises to reclaim her ancestors' lost throne.",
+    "releaseDate": "2025-07-19T00:00:00Z",
+    "runtime": 152,
+    "posterPath": "/uploads/rise-forgotten.jpg",
+    "trailerLink": "https://www.youtube.com/watch?v=forgottenempire",
+    "budget": 120000000,
+    "revenue": 410000000,
+    "status": "RELEASED",
+    "tagline": "Legends never truly die.",
+    "adult": false,
+    "MovieGenre": [
+      { "genre": { "name": "Action" } },
+      { "genre": { "name": "Fantasy" } },
+      { "genre": { "name": "Adventure" } }
+    ],
+    "MovieProductionCompany": [
+      { "company": { "name": "BluePeak Entertainment", "originCountry": "GB" } },
+      { "company": { "name": "EpicVision Films", "originCountry": "IN" } }
+    ]
+  },
+  {
+    "title": "Echoes of Silence",
+    "originalTitle": "Silent Echoes",
+    "overview": "A musician loses his hearing and rediscovers music through vibration, memory, and emotion.",
+    "releaseDate": "2024-03-28T00:00:00Z",
+    "runtime": 132,
+    "posterPath": "/uploads/echoes-silence.jpg",
+    "trailerLink": "https://www.youtube.com/watch?v=echoessilence",
+    "budget": 30000000,
+    "revenue": 95000000,
+    "status": "RELEASED",
+    "tagline": "When sound fades, the soul sings.",
+    "adult": false,
+    "MovieGenre": [
+      { "genre": { "name": "Drama" } },
+      { "genre": { "name": "Romance" } },
+      { "genre": { "name": "Music" } }
+    ],
+    "MovieProductionCompany": [
+      { "company": { "name": "Harmony Pictures", "originCountry": "US" } },
+      { "company": { "name": "Kathmandu Motion Works", "originCountry": "NP" } }
+    ]
+  }
+]
