@@ -20,6 +20,47 @@ export const movieTeamTypeDefs = gql`
     socialPath: String
     adult: Boolean!
   }
+  type ProductionCompany {
+    name: String
+    logoPath: String
+    originCountry: String
+    id: Int
+  }
+  type MovieProductionCompany {
+    id: Int
+    movieId: Int
+    conpanyId: Int
+  }
+  type MoviePerson {
+    name: String
+    id: Int
+    birthDay: Date
+    deathDay: Date
+    birthPlace: String
+    socialPath: String
+    adult: Boolean
+  }
+  type CrewMember {
+    id: Int
+    movieId: Int
+    department: String
+    job: String
+    personId: Int
+  }
+  type CastMember {
+    id: Int
+    movieId: Int
+    personId: Int
+    character: String
+    creditId: String
+  }
+  type Query {
+    getAllProductionCompany: [ProductionCompany]
+    getAllMovieProductionCompany: [MovieProductionCompany]
+    getAllCastMember: [CastMember]
+    getAllCrewMember: [CrewMember]
+    getAllMoviePerson: [MoviePerson]
+  }
   type Mutation {
     registerProductionCompany(
       name: String!

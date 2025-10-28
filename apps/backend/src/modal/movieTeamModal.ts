@@ -238,19 +238,43 @@ export const searchMovieTeam = {
   findPersonByName,
 };
 async function getAllProductionCopany() {
-  return await prisma.productionCompany.findMany();
+  return await prisma.productionCompany.findMany({
+    include: {
+      MovieProductionCompany: true,
+    },
+  });
 }
 async function getAllMovieProductionCompany() {
-  return await prisma.movieProductionCompany.findMany();
+  return await prisma.movieProductionCompany.findMany({
+    include: {
+      company: true,
+      movie: true,
+    },
+  });
 }
 async function getAllMoviePerson() {
-  return await prisma.person.findMany();
+  return await prisma.person.findMany({
+    include: {
+      CastMember: true,
+      crewMember: true,
+    },
+  });
 }
 async function getAllCrewMember() {
-  return await prisma.crewMember.findMany();
+  return await prisma.crewMember.findMany({
+    include: {
+      movie: true,
+      person: true,
+    },
+  });
 }
 async function getAllCastMember() {
-  return await prisma.castMember.findMany();
+  return await prisma.castMember.findMany({
+    include: {
+      movie: true,
+      person: true,
+    },
+  });
 }
 export const movieTeamModalGet = {
   getAllProductionCopany,

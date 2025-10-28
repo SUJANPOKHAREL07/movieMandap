@@ -1,6 +1,7 @@
 import {
   movieTeamModalCreate,
   movieTeamModalDelete,
+  movieTeamModalGet,
   movieTeamModalUpdate,
   searchMovieTeam,
 } from '../modal/movieTeamModal';
@@ -453,4 +454,116 @@ export const movieTeamServiceDelete = {
   deleteMoviePerson,
   deleteMovieProductionCompany,
   deleteProductionCompany,
+};
+const getAllProductionCopany = async () => {
+  try {
+    const data = await movieTeamModalGet.getAllMovieProductionCompany();
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed to fetch the data ',
+      };
+    }
+    return {
+      success: true,
+      message: 'All production company',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+const getAllMovieProductionCopany = async () => {
+  try {
+    const data = await movieTeamModalGet.getAllMovieProductionCompany();
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed to fetch the data ',
+      };
+    }
+    return {
+      success: true,
+      message: 'All movie production company',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+const getAllCastMember = async () => {
+  try {
+    const data = await movieTeamModalGet.getAllCastMember();
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed to fetch the data ',
+      };
+    }
+    return {
+      success: true,
+      message: 'All movie production company',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+const getAllCrewMember = async () => {
+  try {
+    const data = await movieTeamModalGet.getAllCrewMember();
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed to fetch the data ',
+      };
+    }
+    return {
+      success: true,
+      message: 'All movie production company',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+const getAllMoviePerson = async () => {
+  try {
+    const data = await movieTeamModalGet.getAllMoviePerson();
+    if (!data) {
+      return {
+        success: false,
+        message: 'Failed to fetch the data ',
+      };
+    }
+    return {
+      success: true,
+      message: 'All movie production company',
+      data: data,
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+export const movieTeamServiceGet = {
+  getAllCastMember,
+  getAllCrewMember,
+  getAllMoviePerson,
+  getAllMovieProductionCopany,
+  getAllProductionCopany,
 };

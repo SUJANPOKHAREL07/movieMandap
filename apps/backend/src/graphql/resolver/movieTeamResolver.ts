@@ -9,12 +9,34 @@ import { uploadFile } from '../../utils/uploadHandling';
 import {
   movieTeamRegister,
   movieTeamServiceDelete,
+  movieTeamServiceGet,
   movieTeamServiceUpdate,
 } from '../../service/movieTeamService';
 
 export const movieTeamResolver = {
   Upload: GraphQLUpload,
-  Query: {},
+  Query: {
+    getAllProductionCompany: async () => {
+      const data = await movieTeamServiceGet.getAllProductionCopany();
+      return data.data;
+    },
+    getAllMovieProductionCompany: async () => {
+      const data = await movieTeamServiceGet.getAllMovieProductionCopany();
+      return data.data;
+    },
+    getAllCastMember: async () => {
+      const data = await movieTeamServiceGet.getAllCastMember();
+      return data.data;
+    },
+    getAllCrewMember: async () => {
+      const data = await movieTeamServiceGet.getAllCrewMember();
+      return data.data;
+    },
+    getAllMoviePerson: async () => {
+      const data = await movieTeamServiceGet.getAllMoviePerson();
+      return data.data;
+    },
+  },
   Mutation: {
     registerProductionCompany: async (
       _: any,
