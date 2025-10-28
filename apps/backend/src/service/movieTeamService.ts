@@ -1,6 +1,12 @@
-import { movieTeamModalCreate, searchMovieTeam } from '../modal/movieTeamModal';
+import {
+  movieTeamModalCreate,
+  movieTeamModalDelete,
+  movieTeamModalUpdate,
+  searchMovieTeam,
+} from '../modal/movieTeamModal';
 import {
   TMovieTeamProductionCompanyCreate,
+  TMovieTeamProductionCompanyUpdate,
   TPersonCreate,
 } from '../types/movieTeam.types';
 
@@ -178,4 +184,273 @@ export const movieTeamRegister = {
   registerPerson,
   registerCrewMember,
   registerCastMember,
+};
+const updateProductionComany = async (
+  data: TMovieTeamProductionCompanyUpdate
+) => {
+  try {
+    const update = await movieTeamModalUpdate.updateProductionComany(
+      data.id,
+      data.logoPath,
+      data.name,
+      data.originCountry
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the production company data',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company data updated',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const updateMovieProductionComapny = async (
+  id: number,
+  companyId?: number,
+  movieId?: number
+) => {
+  try {
+    const update = await movieTeamModalUpdate.updateMovieProductionComapny(
+      id,
+      companyId,
+      movieId
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the movie productioin company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Updated the movie production company data',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const updateMoviePerson = async (
+  id: number,
+  adult?: boolean,
+  birthPlace?: string,
+  name?: string,
+  deathDay?: Date,
+  birthDay?: Date,
+  socialPath?: string
+) => {
+  try {
+    const update = await movieTeamModalUpdate.updateMoviePerson(
+      id,
+      adult,
+      birthPlace,
+      name,
+      deathDay,
+      birthDay,
+      socialPath
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the person data',
+      };
+    }
+    return {
+      success: false,
+      message: 'Person data updated',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const updateCrewMember = async (
+  id: number,
+  department?: string,
+  job?: string,
+  personId?: number,
+  movieId?: number
+) => {
+  try {
+    const update = await movieTeamModalUpdate.updateCrewMember(
+      id,
+      department,
+      job,
+      personId,
+      movieId
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the crew member',
+      };
+    }
+    return {
+      success: true,
+      message: 'Crew member data updated',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const updateCastMember = async (
+  id: number,
+  character?: string,
+  creditId?: string,
+  movieId?: number,
+  personId?: number
+) => {
+  try {
+    const update = await movieTeamModalUpdate.updateCastMember(
+      id,
+      character,
+      creditId,
+      movieId,
+      personId
+    );
+    if (!update) {
+      return {
+        success: false,
+        message: 'Failed to update the cast member data',
+      };
+    }
+    return {
+      success: true,
+      message: 'Update the cast member data ',
+    };
+  } catch (err) {
+    return {
+      success: true,
+      message: err,
+    };
+  }
+};
+export const movieTeamServiceUpdate = {
+  updateCastMember,
+  updateCrewMember,
+  updateMoviePerson,
+  updateMovieProductionComapny,
+  updateProductionComany,
+};
+const deleteProductionCompany = async (id: number) => {
+  try {
+    const del = await movieTeamModalDelete.deleteProductionCompany(id);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the production company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const deleteMovieProductionCompany = async (id: number) => {
+  try {
+    const del = await movieTeamModalDelete.deleteMovieProductionCompany(id);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the production company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const deleteMoviePerson = async (id: number) => {
+  try {
+    const del = await movieTeamModalDelete.deleteMoviePerson(id);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the production company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const deleteCastMember = async (id: number) => {
+  try {
+    const del = await movieTeamModalDelete.deleteCastMember(id);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the production company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+const deleteCrewMember = async (id: number) => {
+  try {
+    const del = await movieTeamModalDelete.deleteCrewMember(id);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the production company',
+      };
+    }
+    return {
+      success: true,
+      message: 'Production company deleted',
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err,
+    };
+  }
+};
+export const movieTeamServiceDelete = {
+  deleteCastMember,
+  deleteCrewMember,
+  deleteMoviePerson,
+  deleteMovieProductionCompany,
+  deleteProductionCompany,
 };
