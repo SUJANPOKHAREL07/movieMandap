@@ -1,5 +1,5 @@
 import { userModal } from '../modal/userModal';
-import { TCreateUser } from '../types/user.types';
+import { TCreateUser, TResponse } from '../types/user.types';
 import { otpService } from '../userVerifyOTP/otpService';
 import { hashPassword } from '../utils/passwordHashing';
 
@@ -17,41 +17,57 @@ const getUserController = async () => {
 const createUserController = async (
   { email, username, password, role }: TCreateUser,
   req: any
-) => {
-  if (!username || !email || !password) {
-    throw new Error('All fields are required');
+): Promise<TResponse> => {
+  try {
+    if (!username || !email || !password) {
+      throw new Error('All fields are required');
+    }
+    console.log('user data:', email, username, password, role);
+    const searchNameExist = await userModal.searchUserName({ username });
+    const searchEmailExist = await userModal.searchUserEmail({ email });
+
+    if (searchNameExist || searchEmailExist) {
+      throw new Error('User already registered');
+    }
+
+    // ✅ Await hashing
+    const passwordHashed = await hashPassword(password);
+
+    // ✅ Await pending user creation
+    const pendingUserData = await userModal.pendingUser({
+      username,
+      email,
+      password: passwordHashed,
+      role,
+    });
+    console.log('pending user data::::', pendingUserData);
+    // ✅ Save into session
+    req.session.pendingUserData = pendingUserData;
+    console.log('session pending user data::', req.session.pendingUserData);
+    req.session.email = email;
+    await new Promise<void>((resolve, reject) =>
+      req.session.save((err: any) => (err ? reject(err) : resolve()))
+    );
+
+    // ✅ Send OTP
+    const sendOtp = await otpService.sendOtp(email, req.session);
+    // return(success:true,message:"user registeres")
+    console.log('response of the otp send --', sendOtp);
+    // if (sendOtp.success === true) {
+    //   console.log('insde the if ', sendOtp.success);
+    //   return {
+    //     success: true,
+    //     message: 'Otp Sent to email address',
+    //   };
+    // }
+
+    return { success: true, message: 'OTP sent to email' };
+  } catch (err) {
+    return {
+      success: false,
+      message: `catch error --${err}`,
+    };
   }
-  console.log('user data:', email, username, password, role);
-  const searchNameExist = await userModal.searchUserName({ username });
-  const searchEmailExist = await userModal.searchUserEmail({ email });
-
-  if (searchNameExist || searchEmailExist) {
-    throw new Error('User already registered');
-  }
-
-  // ✅ Await hashing
-  const passwordHashed = await hashPassword(password);
-
-  // ✅ Await pending user creation
-  const pendingUserData = await userModal.pendingUser({
-    username,
-    email,
-    password: passwordHashed,
-    role,
-  });
-  console.log('pending user data::::', pendingUserData);
-  // ✅ Save into session
-  req.session.pendingUserData = pendingUserData;
-  console.log('session pending user data::', req.session.pendingUserData);
-  req.session.email = email;
-  await new Promise<void>((resolve, reject) =>
-    req.session.save((err: any) => (err ? reject(err) : resolve()))
-  );
-
-  // ✅ Send OTP
-  await otpService.sendOtp(email, req.session);
-
-  return { success: true, message: 'OTP sent to email' };
 };
 
 const verifyOtpService = async (otp: string, req: any) => {

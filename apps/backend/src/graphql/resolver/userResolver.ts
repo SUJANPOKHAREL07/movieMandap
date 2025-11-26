@@ -10,14 +10,14 @@ export const userResolvers = {
     createUser: async (_: any, args: TCreateUser, context: TReqRes) => {
       console.log(args);
       // console.log('user context::', context.req);
-      await userService.createUserController(args, context.req);
+      return await userService.createUserController(args, context.req);
     },
 
     verifyOtp: async (_: any, { otp }: any, { req }: TReqRes) => {
-      userService.verifyOtpService(otp, req);
+      return userService.verifyOtpService(otp, req);
     },
     resendOtp: async (_: any, { email }: any, { req }: TReqRes) => {
-      userService.resendOtpController(email, req);
+      return userService.resendOtpController(email, req);
     },
     updateUsername: async (_: any, { newUsername }: any, context: string) => {
       if (typeof newUsername !== 'string') {

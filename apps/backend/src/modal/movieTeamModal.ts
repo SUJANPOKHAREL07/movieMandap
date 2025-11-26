@@ -69,6 +69,148 @@ export const movieTeamModalCreate = {
   registerCrewMember,
   registerCastMember,
 };
+async function updateProductionComany(
+  id: number,
+  logoPath?: string,
+  name?: string,
+  originCountry?: string
+) {
+  return await prisma.productionCompany.update({
+    where: {
+      id: id,
+    },
+    data: {
+      logoPath: logoPath,
+      name: name,
+      originCountry: originCountry,
+    },
+  });
+}
+async function updateMovieProductionComapny(
+  id: number,
+  companyId?: number,
+  movieId?: number
+) {
+  return await prisma.movieProductionCompany.update({
+    where: {
+      id: id,
+    },
+    data: {
+      conpanyId: companyId,
+      movieId: movieId,
+    },
+  });
+}
+async function updateMoviePerson(
+  id: number,
+  adult?: boolean,
+  birthPlace?: string,
+  name?: string,
+  deathDay?: Date,
+  birthDay?: Date,
+  socialPath?: string
+) {
+  return await prisma.person.update({
+    where: {
+      id: id,
+    },
+    data: {
+      adult: adult,
+      birthPlace: birthPlace,
+      name: name,
+      deathDay: deathDay,
+      birthDay: birthDay,
+      socialPath: socialPath,
+    },
+  });
+}
+async function updateCrewMember(
+  id: number,
+  department?: string,
+  job?: string,
+  personId?: number,
+  movieId?: number
+) {
+  return await prisma.crewMember.update({
+    where: {
+      id: id,
+    },
+    data: {
+      department: department,
+      job: job,
+      movieId: movieId,
+      personId: personId,
+    },
+  });
+}
+async function updateCastMember(
+  id: number,
+  character?: string,
+  creditId?: string,
+  movieId?: number,
+  personId?: number
+) {
+  return await prisma.castMember.update({
+    where: {
+      id: id,
+    },
+    data: {
+      character: character,
+      creditId: creditId,
+      movieId: movieId,
+      personId: personId,
+    },
+  });
+}
+export const movieTeamModalUpdate = {
+  updateCastMember,
+  updateCrewMember,
+  updateMoviePerson,
+  updateMovieProductionComapny,
+  updateProductionComany,
+};
+async function deleteProductionCompany(id: number) {
+  return await prisma.productionCompany.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+async function deleteMovieProductionCompany(id: number) {
+  return await prisma.movieProductionCompany.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+async function deleteMoviePerson(id: number) {
+  return await prisma.person.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+async function deleteCastMember(id: number) {
+  return await prisma.castMember.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+async function deleteCrewMember(id: number) {
+  return await prisma.crewMember.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+export const movieTeamModalDelete = {
+  deleteCastMember,
+  deleteCrewMember,
+  deleteMoviePerson,
+  deleteMovieProductionCompany,
+  deleteProductionCompany,
+};
 async function findMovieByName(moviename: string) {
   return await prisma.movie.findUnique({
     where: {
@@ -96,19 +238,43 @@ export const searchMovieTeam = {
   findPersonByName,
 };
 async function getAllProductionCopany() {
-  return await prisma.productionCompany.findMany();
+  return await prisma.productionCompany.findMany({
+    include: {
+      MovieProductionCompany: true,
+    },
+  });
 }
 async function getAllMovieProductionCompany() {
-  return await prisma.movieProductionCompany.findMany();
+  return await prisma.movieProductionCompany.findMany({
+    include: {
+      company: true,
+      movie: true,
+    },
+  });
 }
 async function getAllMoviePerson() {
-  return await prisma.person.findMany();
+  return await prisma.person.findMany({
+    include: {
+      CastMember: true,
+      crewMember: true,
+    },
+  });
 }
 async function getAllCrewMember() {
-  return await prisma.crewMember.findMany();
+  return await prisma.crewMember.findMany({
+    include: {
+      movie: true,
+      person: true,
+    },
+  });
 }
 async function getAllCastMember() {
-  return await prisma.castMember.findMany();
+  return await prisma.castMember.findMany({
+    include: {
+      movie: true,
+      person: true,
+    },
+  });
 }
 export const movieTeamModalGet = {
   getAllProductionCopany,

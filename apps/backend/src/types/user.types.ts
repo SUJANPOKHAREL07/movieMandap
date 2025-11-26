@@ -32,10 +32,10 @@ export interface TUpdateUser {
   message: string;
 }
 
-export interface TResponse {
+export type TResponse = {
   success: Boolean;
   message: string;
-}
+};
 export interface TReqRes {
   req: express.Request;
   res: express.Response;

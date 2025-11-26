@@ -6,6 +6,13 @@ export interface TMovieTeamProductionCompanyCreate {
   originCountry: string;
   logo?: TFile;
 }
+export interface TMovieTeamProductionCompanyUpdate {
+  id: number;
+  name?: string;
+  logoPath?: string;
+  originCountry?: string;
+  logo?: TFile;
+}
 export interface TMovieProductionCompany {
   movieId: number;
   companyId: number;
