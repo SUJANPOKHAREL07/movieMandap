@@ -7,11 +7,23 @@
   },
   "scripts": {
     "start": "nx run backend:serve",
+
+    
+    "dev:backend": "nx run backend:serve",
     "build:backend": "nx build backend",
     "start:backend": "node dist/apps/backend/main.js",
-    "dev:frontend": "nx run frontend:serve",
+
+   
+    "dev:frontend": "nx run frontend:dev",
     "build:frontend": "nx build frontend",
     "start:frontend": "nx start frontend",
+
+  
+    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\"",
+    "build": "yarn build:backend && yarn build:frontend",
+    "start:prod": "concurrently \"yarn start:backend\" \"yarn start:frontend\"",
+
+
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -20,8 +32,7 @@
     "db:reset": "npx prisma migrate reset",
     "db:seed": "npx prisma db seed",
     "db:studio": " npx prisma studio",
-    "clean": "yarn cache clean",
-    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\""
+    "clean": "yarn cache clean"
   },
   "private": true,
   "dependencies": {
@@ -68,6 +79,7 @@
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.38",
     "@testing-library/dom": "10.4.0",
+    "concurrently": "^8.2.0",
     "@testing-library/react": "16.1.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
