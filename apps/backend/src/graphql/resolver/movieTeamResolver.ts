@@ -5,7 +5,7 @@ import {
   TPersonCreate,
 } from '../../types/movieTeam.types';
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
-import { uploadFile } from '../../utils/uploadHandling';
+import { uploadFile } from '../../utils/cloudnary';
 import {
   movieTeamRegister,
   movieTeamServiceDelete,

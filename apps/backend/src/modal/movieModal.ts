@@ -19,22 +19,29 @@ async function getAllMovie(): Promise<TGetMovie[]> {
   return data;
 }
 async function createMovie(data: any, poster: string) {
-  return await prisma.movie.create({
-    data: {
-      title: data.title,
-      originalTitle: data.originalTitle,
-      overview: data.overview,
-      releaseDate: data.releaseDate,
-      runtime: data.runtime,
-      posterPath: poster,
-      budget: data.budget,
-      revenue: data.revenue,
-      status: data.status,
-      tagline: data.tagline,
-      adult: data.adult,
-      trailerLink: data.trailerLink,
-    },
-  });
+  console.log('poster path---', poster);
+  console.log('poster path---', typeof poster);
+  try {
+    return await prisma.movie.create({
+      data: {
+        title: data.title,
+        originalTitle: data.originalTitle,
+        overview: data.overview,
+        releaseDate: data.releaseDate,
+        runtime: data.runtime,
+        posterPath: poster,
+        budget: data.budget,
+        revenue: data.revenue,
+        status: data.status,
+        tagline: data.tagline,
+        adult: data.adult,
+        trailerLink: data.trailerLink,
+      },
+    });
+  } catch (err) {
+    console.log('error in the create movie--catch---', err);
+    return;
+  }
 }
 async function getMovieByName(title: string) {
   return await prisma.movie.findUnique({
