@@ -1,5 +1,6 @@
 import { ThemeProvider } from 'next-themes';
 import './global.css';
+import { ApolloWrapper } from '@/lib/apollo-provider';
 
 export const metadata = {
   title: '',
@@ -16,11 +17,13 @@ export default function RootLayout({
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <ApolloWrapper>
+            {children}
+          </ApolloWrapper>
         </ThemeProvider>
       </body>
     </html>
