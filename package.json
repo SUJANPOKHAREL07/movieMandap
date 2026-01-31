@@ -7,23 +7,15 @@
   },
   "scripts": {
     "start": "nx run backend:serve",
-
-    
     "dev:backend": "nx run backend:serve",
     "build:backend": "nx build backend",
     "start:backend": "node dist/apps/backend/main.js",
-
-   
     "dev:frontend": "nx run frontend:dev",
     "build:frontend": "nx build frontend",
     "start:frontend": "nx start frontend",
-
-  
     "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\"",
     "build": "yarn build:backend && yarn build:frontend",
     "start:prod": "concurrently \"yarn start:backend\" \"yarn start:frontend\"",
-
-
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
@@ -36,6 +28,7 @@
   },
   "private": true,
   "dependencies": {
+    "@apollo/client": "3.8.10",
     "@prisma/client": "^6.16.2",
     "@types/bcrypt": "^6.0.0",
     "@types/express-session": "^1.18.2",
@@ -47,7 +40,7 @@
     "cookie-parser": "^1.4.7",
     "express": "4",
     "express-session": "^1.18.2",
-    "graphql": "^16.11.0",
+    "graphql": "^16.12.0",
     "graphql-upload": "^17.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.546.0",
@@ -62,6 +55,8 @@
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^2.1.1",
     "@eslint/js": "^9.8.0",
+    "@graphql-codegen/cli": "^6.1.1",
+    "@graphql-codegen/client-preset": "^5.2.2",
     "@next/eslint-plugin-next": "^15.2.4",
     "@nx/devkit": "21.5.2",
     "@nx/esbuild": "21.5.2",
@@ -79,7 +74,6 @@
     "@swc/helpers": "~0.5.11",
     "@swc/jest": "~0.2.38",
     "@testing-library/dom": "10.4.0",
-    "concurrently": "^8.2.0",
     "@testing-library/react": "16.1.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.3",
@@ -89,8 +83,10 @@
     "@types/node": "20.19.9",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
+    "@types/uuid": "^11.0.0",
     "autoprefixer": "10.4.13",
     "babel-jest": "^30.0.2",
+    "concurrently": "^8.2.0",
     "esbuild": "^0.19.2",
     "eslint": "^9.8.0",
     "eslint-config-next": "^15.2.4",

@@ -6,12 +6,15 @@
     "next": "~15.2.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "@apollo/client": "^3.8.10",
+    "graphql": "^16.8.0"
   },
   "scripts": {
     "start": "next start",
     "dev": "next dev",
-    "build": "next build"
+    "build": "next build",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "description": "Frontend application for Cine Gudi. Server-rendered Next app that visualizes the backend GraphQL API.",
   "license": "UNLICENSED"

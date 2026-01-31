@@ -26,12 +26,15 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col p-5 min-h-screen items-center justify-center bg-background text-foreground transition-all">
       <NavBar />
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold">Admin Dashboard</h1>
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-2xl backdrop-blur-sm">
+        <div className="mb-8 text-center">
+             <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
+             <p className="text-muted-foreground mt-2">Sign in to access your admin dashboard</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground">
               Email
             </label>
             <input
@@ -39,16 +42,16 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border border-input bg-background/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
               placeholder="admin@demo.com"
               required
             />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-sm font-medium mb-1"
+              className="block text-sm font-medium text-foreground"
             >
               Password
             </label>
@@ -57,24 +60,24 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border border-input bg-background/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
               placeholder="••••••"
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+          {error && <p className="text-sm text-destructive font-medium text-center bg-destructive/10 py-2 rounded-lg">{error}</p>}
 
           <button
             type="submit"
-            className="w-full rounded-xl  bg-orange-600 px-3 py-2 font-semibold text-white  hover:opacity-90 transition"
+            className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg shadow-primary/25"
           >
             Sign In
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Demo Login → <strong>admin@demo.com / 123456</strong>
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Demo Login → <code className="bg-muted px-2 py-1 rounded text-foreground font-mono">admin@demo.com / 123456</code>
         </p>
       </div>
     </div>
