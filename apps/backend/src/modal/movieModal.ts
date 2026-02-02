@@ -15,7 +15,16 @@ export const movieModal = {
 };
 
 async function getAllMovie(): Promise<TGetMovie[]> {
-  const data = await prisma.movie.findMany();
+  const data = await prisma.movie.findMany({
+    include: {
+      MovieGenre: {
+        include: {
+          genre: true,
+        },
+      },
+      Review: true,
+    },
+  });
   return data;
 }
 async function createMovie(data: any, poster: string) {

@@ -86,6 +86,7 @@ export const movieTypeDefs = gql`
     status: MovieStatus
     tagline: String
     adult: Boolean
+    voteAverage: Float
     # Change these to arrays to match Prisma response:
     MovieGenre: [MovieGenre] # Array
     MovieProductionCompany: [MovieProductionCompany] # Array
