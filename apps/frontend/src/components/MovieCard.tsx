@@ -1,7 +1,9 @@
 import React from 'react';
 import { Star, Play } from 'lucide-react';
+import Link from 'next/link';
 
 interface MovieCardProps {
+  id: number;
   title: string;
   image: string;
   rating: number;
@@ -10,6 +12,7 @@ interface MovieCardProps {
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
+  id,
   title,
   image,
   rating,
@@ -17,7 +20,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   category,
 }) => {
   return (
-    <div className="group relative rounded-xl overflow-hidden bg-card border border-border/50 shadow-lg hover:shadow-orange-500/20 transition-all duration-300 hover:-translate-y-1">
+    <Link href={`/browse/${id}`} className="group relative rounded-xl overflow-hidden bg-card border border-border/50 shadow-lg hover:shadow-orange-500/20 transition-all duration-300 hover:-translate-y-1 block">
       {/* Image Container with Overlay */}
       <div className="relative aspect-[2/3] w-full overflow-hidden">
         <img
@@ -49,7 +52,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
             <span className="px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{category}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

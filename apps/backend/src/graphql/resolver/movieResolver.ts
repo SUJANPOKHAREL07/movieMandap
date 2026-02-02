@@ -2,7 +2,7 @@
 import { movieService } from '../../service/movieService';
 // import { TMovieInput } from '../../types/movie.types';
 // import { TReqRes } from '../../types/user.types';
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
+import { GraphQLUpload } from 'graphql-upload';
 import { uploadFile } from '../../utils/cloudnary';
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { TMovieInput } from '../../types/movie.types';
@@ -120,6 +120,35 @@ export const movieResolver = {
         };
       }
       return await movieService.createGenre(name);
+    },
+  },
+  Movie: {
+    voteAverage: (parent: any) => {
+      if (!parent.Review || parent.Review.length === 0) return 0;
+      const total = parent.Review.reduce((acc: number, review: any) => {
+        let ratingValue = 0;
+        switch (review.rating) {
+          case 'Worst':
+            ratingValue = 1;
+            break;
+          case 'Bearable':
+            ratingValue = 2;
+            break;
+          case 'Good_To_Watch':
+            ratingValue = 3;
+            break;
+          case 'Worthy':
+            ratingValue = 4;
+            break;
+          case 'Absolute_Cinema':
+            ratingValue = 5;
+            break;
+          default:
+            ratingValue = 0;
+        }
+        return acc + ratingValue;
+      }, 0);
+      return Number((total / parent.Review.length).toFixed(1));
     },
   },
 };

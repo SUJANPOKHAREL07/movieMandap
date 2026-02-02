@@ -7,7 +7,7 @@ import { resolvers } from './graphql/resolver/resolver';
 import cors from 'cors';
 import { TReqRes } from './types/user.types';
 import { authContextMiddleware } from './authMiddleware/authMiddleware';
-import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
+import { graphqlUploadExpress } from 'graphql-upload';
 import path from 'path';
 // import { JWT } from './authMiddleware/jwtToken';
 
@@ -25,7 +25,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: ['https://studio.apollographql.com', 'http://localhost:3000'],
+    origin: ['https://studio.apollographql.com', 'http://localhost:3001'],
     credentials: true,
   })
 );

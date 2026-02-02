@@ -3,6 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
+import { useMutation, gql } from '@apollo/client';
+
+const LOGIN_MUTATION = gql`
+  mutation LoginUser($email: String, $username: String, $password: String!) {
+    loginUser(email: $email, username: $username, password: $password) {
+      success
+      message
+    }
+  }
+`;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,16 +20,36 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
+    onCompleted: (data) => {
+      if (data.loginUser.success) {
+        // Successful login
+        router.push('/browse');
+      } else {
+        // Failed login (handled by backend logic, e.g., wrong credentials)
+        setError(data.loginUser.message || 'Login failed');
+      }
+    },
+    onError: (err) => {
+      setError(err.message || 'An error occurred during login');
+    },
+  });
 
-    // 🧪 Demo validation only
-    if (email === 'admin@demo.com' && password === '123456') {
-      setError('');
-      alert('✅ Login successful!');
-      router.push('/dashboard');
-    } else {
-      setError('Invalid email or password.');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      await loginUser({
+        variables: {
+          email: email, // Assuming email is used as identifier based on form
+          username: '', // Schema requires arguments, sending empty if not used or maybe email acts as username?
+          // Backend service usually checks either. Let's send email as email.
+          password: password,
+        },
+      });
+    } catch (e) {
+      // Error handled in onError
     }
   };
 
@@ -29,7 +59,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-2xl backdrop-blur-sm">
         <div className="mb-8 text-center">
              <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-             <p className="text-muted-foreground mt-2">Sign in to access your admin dashboard</p>
+             <p className="text-muted-foreground mt-2">Sign in to access your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -43,7 +73,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-input bg-background/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-              placeholder="admin@demo.com"
+              placeholder="user@example.com"
               required
             />
           </div>
@@ -70,14 +100,19 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg shadow-primary/25"
+            disabled={loading}
+            className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            Sign In
+            {loading ? (
+               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            ) : (
+               'Sign In'
+            )}
           </button>
         </form>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Demo Login → <code className="bg-muted px-2 py-1 rounded text-foreground font-mono">admin@demo.com / 123456</code>
+          Don't have an account? <span className="text-primary cursor-pointer hover:underline">Sign up</span>
         </p>
       </div>
     </div>

@@ -9,20 +9,31 @@ export const loginModal = {
 };
 
 async function checkLoginCred(data: { email?: string; username?: string }) {
-  const log = await prisma.user.findUnique({
-    where: {
-      email: data.email,
-      username: data.username,
-    },
-    select: {
-      username: true,
-      id: true,
-      email: true,
-      password: true,
-      role: true,
-    },
-  });
-  return log;
+  if (data.email) {
+    return await prisma.user.findUnique({
+      where: { email: data.email },
+      select: {
+        username: true,
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+      },
+    });
+  }
+  if (data.username) {
+    return await prisma.user.findUnique({
+      where: { username: data.username },
+      select: {
+        username: true,
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+      },
+    });
+  }
+  return null;
 }
 async function loginUser(data: {
   userId: number;

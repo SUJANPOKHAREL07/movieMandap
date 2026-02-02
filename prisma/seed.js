@@ -1,5 +1,6 @@
 // prisma/seed.js
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function main() {
@@ -28,7 +29,7 @@ async function main() {
       data: {
         username: "john_doe",
         email: "john@example.com",
-        password: "$2b$10$hashedpassword123", // In real app, use bcrypt
+        password: bcrypt.hashSync("password123", 10),
         role: "user",
         verified: true,
         createdAt: new Date("2024-01-15T10:00:00Z")
@@ -38,7 +39,7 @@ async function main() {
       data: {
         username: "movie_lover",
         email: "alice@example.com",
-        password: "$2b$10$hashedpassword456",
+        password: bcrypt.hashSync("password123", 10),
         role: "user",
         verified: true,
         createdAt: new Date("2024-01-20T14:30:00Z")
@@ -48,7 +49,7 @@ async function main() {
       data: {
         username: "cinema_mod",
         email: "mod@example.com",
-        password: "$2b$10$hashedpassword789",
+        password: bcrypt.hashSync("password123", 10),
         role: "moderator",
         verified: true,
         createdAt: new Date("2024-01-10T09:15:00Z")
