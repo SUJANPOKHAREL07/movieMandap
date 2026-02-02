@@ -2,7 +2,7 @@
 import { movieService } from '../../service/movieService';
 // import { TMovieInput } from '../../types/movie.types';
 // import { TReqRes } from '../../types/user.types';
-import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
+import { GraphQLUpload } from 'graphql-upload';
 import { uploadFile } from '../../utils/cloudnary';
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { TMovieInput } from '../../types/movie.types';
