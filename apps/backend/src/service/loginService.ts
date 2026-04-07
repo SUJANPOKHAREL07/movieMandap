@@ -59,7 +59,12 @@ async function loginUser(email: string, password: string, username: string) {
       message: 'Failed to login',
     };
   }
-  return { success: true, message: 'Success Login' };
+  return {
+    success: true,
+    message: 'Success Login',
+    accessToken: access_token,
+    refreshToken: refresh_token,
+  };
 }
 async function logoutService(
   userId: string,

@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
@@ -10,6 +12,7 @@ const LOGIN_MUTATION = gql`
     loginUser(email: $email, username: $username, password: $password) {
       success
       message
+      accessToken
     }
   }
 `;
@@ -23,6 +26,9 @@ export default function LoginPage() {
   const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       if (data.loginUser.success) {
+        if (data.loginUser.accessToken) {
+          localStorage.setItem('accessToken', data.loginUser.accessToken);
+        }
         // Successful login
         router.push('/browse');
       } else {
@@ -42,9 +48,7 @@ export default function LoginPage() {
     try {
       await loginUser({
         variables: {
-          email: email, // Assuming email is used as identifier based on form
-          username: '', // Schema requires arguments, sending empty if not used or maybe email acts as username?
-          // Backend service usually checks either. Let's send email as email.
+          email: email,
           password: password,
         },
       });
@@ -58,8 +62,8 @@ export default function LoginPage() {
       <NavBar />
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-2xl backdrop-blur-sm">
         <div className="mb-8 text-center">
-             <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-             <p className="text-muted-foreground mt-2">Sign in to access your dashboard</p>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
+          <p className="text-muted-foreground mt-2">Sign in to access your dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -104,15 +108,16 @@ export default function LoginPage() {
             className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
-               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : (
-               'Sign In'
+              'Sign In'
             )}
           </button>
         </form>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Don't have an account? <span className="text-primary cursor-pointer hover:underline">Sign up</span>
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-primary hover:underline font-medium">Sign up</Link>
         </p>
       </div>
     </div>

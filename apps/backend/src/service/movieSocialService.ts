@@ -45,10 +45,17 @@ const createReview = async (
       success: true,
       message: 'review posted',
     };
-  } catch (err) {
+  } catch (err: any) {
+    console.error('Create Review Error:', err);
+    if (err.code === 'P2002') {
+      return {
+        success: false,
+        message: 'You have already reviewed this movie! Only one review per user is allowed.',
+      };
+    }
     return {
       success: false,
-      message: 'Unexpected error: Failed to crete the review',
+      message: 'Unexpected error: Failed to create the review',
     };
   }
 };

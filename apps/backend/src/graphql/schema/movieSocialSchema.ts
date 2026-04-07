@@ -70,6 +70,11 @@ export const movieSocialTypeDef = gql`
       isSpoiler: Boolean!
       movieName: String!
     ): MutationResponse
+    createComment(
+      content: String!
+      reviewId: Int!
+      parentId: Int
+    ): MutationResponse
     updateReview(
       reviewId: Int!
       title: String

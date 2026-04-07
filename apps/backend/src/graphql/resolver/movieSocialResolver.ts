@@ -38,11 +38,11 @@ export const movieSocialResolver = {
         user: review.user, // This should now be populated
         comments: review.Comment
           ? review.Comment.map((comment: any) => ({
-              id: comment.id,
-              content: comment.content,
-              user: comment.user,
-              replies: comment.replies || [],
-            }))
+            id: comment.id,
+            content: comment.content,
+            user: comment.user,
+            replies: comment.replies || [],
+          }))
           : [],
         likesCount: review._count?.Like || 0,
         disLikesCount: review._count?.Dislike || 0,
@@ -127,6 +127,18 @@ export const movieSocialResolver = {
         movieName,
         userId
       );
+    },
+    createComment: async (_: any, { content, reviewId, parentId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) throw new Error('Token missing in header');
+
+      const userId = Number(auth.user?.userId);
+      return await movieSocialCreate.createComment({
+        content,
+        reviewId,
+        userId,
+        parentId,
+      });
     },
     deleteReview: async (_: any, { reviewId }: any, context: any) => {
       const auth = await authContextMiddleware(context);

@@ -9,6 +9,8 @@ export const LoginTypeDefs = gql`
   type Response {
     success: Boolean!
     message: String!
+    accessToken: String
+    refreshToken: String
   }
 
   type Mutation {
