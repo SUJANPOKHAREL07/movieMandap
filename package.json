@@ -13,7 +13,7 @@
     "dev:frontend": "nx run frontend:dev",
     "build:frontend": "nx build frontend",
     "start:frontend": "nx start frontend",
-    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend\"",
+    "dev": "NX_DAEMON=false concurrently \"yarn dev:backend\" \"yarn dev:frontend\"",
     "build": "yarn build:backend && yarn build:frontend",
     "start:prod": "concurrently \"yarn start:backend\" \"yarn start:frontend\"",
     "prisma:generate": "npx prisma generate",

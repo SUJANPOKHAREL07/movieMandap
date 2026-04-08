@@ -59,13 +59,26 @@ const createReview = async (
     };
   }
 };
-const deleteReview = async (reviewId: number) => {
+const deleteReview = async (reviewId: number, userId: number) => {
   try {
-    const del = movieSocialModalDelete.deleteReview(reviewId);
-    if (!del) {
+    const review = await movieSocialModalGet.getReviewById(reviewId);
+    if (!review) {
       return {
         success: false,
         message: 'No review found',
+      };
+    }
+    if (review.userId !== userId) {
+      return {
+        success: false,
+        message: 'Unauthorized: You can only delete your own reviews',
+      };
+    }
+    const del = await movieSocialModalDelete.deleteReview(reviewId);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the review',
       };
     }
     return {
@@ -75,7 +88,7 @@ const deleteReview = async (reviewId: number) => {
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
@@ -359,6 +372,7 @@ const updateMovieWatchList = async (movieName: string, userId: number) => {
   }
 };
 const updateReview = async (
+  userId: number,
   reviewId: number,
   title?: string,
   content?: string,
@@ -366,6 +380,21 @@ const updateReview = async (
   isSpoiler?: boolean
 ) => {
   try {
+    const review = await movieSocialModalGet.getReviewById(reviewId);
+    if (!review) {
+      return {
+        success: false,
+        message: 'No review found',
+        data: [],
+      };
+    }
+    if (review.userId !== userId) {
+      return {
+        success: false,
+        message: 'Unauthorized: You can only edit your own reviews',
+        data: [],
+      };
+    }
     const update = await movieSocialModalUpdate.updateReview(
       reviewId,
       title,
@@ -388,11 +417,31 @@ const updateReview = async (
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
-export const MovieSocialUpdate = { updateMovieWatchList, updateReview };
+
+const updateComment = async (userId: number, commentId: number, content: string) => {
+  try {
+    const comment = await movieSocialModalGet.getCommentById(commentId);
+    if (!comment) {
+      return { success: false, message: 'No comment found' };
+    }
+    if (comment.userId !== userId) {
+      return { success: false, message: 'Unauthorized: You can only edit your own comments' };
+    }
+    const update = await movieSocialModalUpdate.updateComment(commentId, content);
+    if (!update) {
+      return { success: false, message: 'Failed to update the comment' };
+    }
+    return { success: true, message: 'Comment updated successfully' };
+  } catch (err) {
+    return { success: false, message: 'Unexpected error occurred' };
+  }
+};
+
+export const MovieSocialUpdate = { updateMovieWatchList, updateReview, updateComment };
 const deleteLike = async (likeId: number) => {
   try {
     const isLiked = await movieSocialModalGet.getLikedOrNot(likeId);
@@ -474,13 +523,29 @@ const deleteFollowData = async (followerId: number, followingId: number) => {
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
+
+const deleteComment = async (userId: number, commentId: number) => {
+  try {
+    const comment = await movieSocialModalGet.getCommentById(commentId);
+    if (!comment) return { success: false, message: 'Comment not found' };
+    if (comment.userId !== userId) return { success: false, message: 'Unauthorized' };
+
+    const del = await movieSocialModalDelete.deleteComment(commentId);
+    if (!del) return { success: false, message: 'Failed to delete the comment' };
+    return { success: true, message: 'Comment deleted successfully' };
+  } catch (err) {
+    return { success: false, message: 'Unexpected error occurred' };
+  }
+};
+
 export const MovieSocialDelete = {
   deleteLike,
   deleteDisLike,
   deleteFollowData,
   deleteReview,
+  deleteComment,
 };

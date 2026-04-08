@@ -19,6 +19,8 @@ export const movieSocialTypeDef = gql`
     content: String!
     user: User!
     replies: [Comment]
+    createdAt: String!
+    updatedAt: String!
   }
 
   type User {
@@ -37,7 +39,8 @@ export const movieSocialTypeDef = gql`
     likesCount: Int!
     disLikesCount: Int!
     commentsCount: Int!
-    creadtedAt: String!
+    createdAt: Date!
+    updatedAt: Date!
   }
   type Movie {
     title: String
@@ -82,7 +85,9 @@ export const movieSocialTypeDef = gql`
       rating: Ratings
       isSpoiler: Boolean
     ): MutationResponse
-    deleteReview(reviewId: Int): MutationResponse
+    deleteReview(reviewId: Int!): MutationResponse
+    updateComment(commentId: Int!, content: String!): MutationResponse
+    deleteComment(commentId: Int!): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
     createFollow(toFollowId: Int): MutationResponse
     updateWatchListStatus(movieName: String): MutationResponse

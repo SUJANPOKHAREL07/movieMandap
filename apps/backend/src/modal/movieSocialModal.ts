@@ -145,6 +145,16 @@ async function getReviewCommentCount(reviewId: number) {
     },
   });
 }
+async function getReviewById(reviewId: number) {
+  return await prisma.review.findUnique({
+    where: { id: reviewId },
+  });
+}
+async function getCommentById(commentId: number) {
+  return await prisma.comment.findUnique({
+    where: { id: commentId },
+  });
+}
 async function getAllWatchList(userId: number) {
   return await prisma.watchlistItem.findMany({
     where: {
@@ -207,6 +217,8 @@ export const movieSocialModalGet = {
   getIsUserFollow,
   getFollowing,
   getFollower,
+  getReviewById,
+  getCommentById,
 };
 async function updateWatchListItem(movieId: number, userId: number) {
   return await prisma.watchlistItem.updateMany({
@@ -238,15 +250,30 @@ async function updateReview(
     },
   });
 }
+
+async function updateComment(commentId: number, content: string) {
+  return await prisma.comment.update({
+    where: { id: commentId },
+    data: { content },
+  });
+}
+
 export const movieSocialModalUpdate = {
   updateWatchListItem,
   updateReview,
+  updateComment,
 };
 async function deleteReview(reviewId: number) {
   return await prisma.review.delete({
     where: {
       id: reviewId,
     },
+  });
+}
+
+async function deleteComment(commentId: number) {
+  return await prisma.comment.delete({
+    where: { id: commentId },
   });
 }
 async function deleteLike(likeId: number) {
@@ -275,4 +302,5 @@ export const movieSocialModalDelete = {
   deleteDisLike,
   deleteFollow,
   deleteReview,
+  deleteComment,
 };

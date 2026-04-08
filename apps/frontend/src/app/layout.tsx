@@ -1,6 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 import './global.css';
 import { ApolloWrapper } from '@/lib/apollo-provider';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata = {
   title: 'MovieMandap – Discover & Review Movies',
@@ -21,9 +22,11 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <ApolloWrapper>
-            {children}
-          </ApolloWrapper>
+          <AuthProvider>
+            <ApolloWrapper>
+              {children}
+            </ApolloWrapper>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

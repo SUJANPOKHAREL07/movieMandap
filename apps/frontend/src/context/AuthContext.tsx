@@ -5,6 +5,7 @@ import { fetchGraphQL } from '../lib/graphql';
 
 type AuthContextType = {
   token: string | null;
+  currentUser: { id: number; username: string; email: string } | null;
   login: (
     email: string,
     password: string
@@ -30,10 +31,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
     typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
   );
+  const [currentUser, setCurrentUser] = useState<AuthContextType['currentUser']>(null);
 
   useEffect(() => {
-    if (token) localStorage.setItem('accessToken', token);
-    else localStorage.removeItem('accessToken');
+    if (token) {
+      localStorage.setItem('accessToken', token);
+      fetchGraphQL(`query { getMe { id username email } }`)
+        .then((data) => {
+          if (data?.getMe) setCurrentUser(data.getMe);
+        })
+        .catch(() => setCurrentUser(null));
+    } else {
+      localStorage.removeItem('accessToken');
+      setCurrentUser(null);
+    }
   }, [token]);
 
   async function login(email: string, password: string) {
@@ -60,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
     setToken(null);
+    setCurrentUser(null);
   }
 
   async function register(
@@ -85,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, register }}>
+    <AuthContext.Provider value={{ token, currentUser, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

@@ -41,6 +41,8 @@ export const movieSocialResolver = {
             id: comment.id,
             content: comment.content,
             user: comment.user,
+            createdAt: String(comment.createdAt.getTime()),
+            updatedAt: String(comment.updatedAt.getTime()),
             replies: comment.replies || [],
           }))
           : [],
@@ -48,7 +50,8 @@ export const movieSocialResolver = {
         disLikesCount: review._count?.Dislike || 0,
 
         commentsCount: review._count?.Comment || 0,
-        creadtedAt: review.creadtedAt,
+        createdAt: String(review.creadtedAt.getTime()),
+        updatedAt: String(review.updatedAt.getTime()),
       }));
       console.log('data of review in the resolver', transformedReviews);
       return transformedReviews;
@@ -142,7 +145,6 @@ export const movieSocialResolver = {
     },
     deleteReview: async (_: any, { reviewId }: any, context: any) => {
       const auth = await authContextMiddleware(context);
-      //   console.log('auth ', auth);
       if (auth.token === null) {
         return {
           success: false,
@@ -155,7 +157,8 @@ export const movieSocialResolver = {
           message: 'Id must be number',
         };
       }
-      return await MovieSocialDelete.deleteReview(reviewId);
+      const userId = Number(auth.user?.userId);
+      return await MovieSocialDelete.deleteReview(reviewId, userId);
     },
     updateReview: async (
       _: any,
@@ -163,20 +166,33 @@ export const movieSocialResolver = {
       context: any
     ) => {
       const auth = await authContextMiddleware(context);
-      //   console.log('auth ', auth);
       if (auth.token === null) {
         return {
           success: false,
           message: 'Token missing in header',
         };
       }
+      const userId = Number(auth.user?.userId);
       return await MovieSocialUpdate.updateReview(
+        userId,
         reviewId,
         title,
         content,
         rating,
         isSpoiler
       );
+    },
+    updateComment: async (_: any, { commentId, content }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) return { success: false, message: 'Token missing in header' };
+      const userId = Number(auth.user?.userId);
+      return await MovieSocialUpdate.updateComment(userId, commentId, content);
+    },
+    deleteComment: async (_: any, { commentId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) return { success: false, message: 'Token missing in header' };
+      const userId = Number(auth.user?.userId);
+      return await MovieSocialDelete.deleteComment(userId, commentId);
     },
     createWatchList: async (_: any, { movieName, note }: any, context: any) => {
       const auth = await authContextMiddleware(context);
