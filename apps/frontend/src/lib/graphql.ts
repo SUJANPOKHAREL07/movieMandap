@@ -2,13 +2,15 @@ export async function fetchGraphQL(query: string, variables?: any) {
   const url =
     process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8000/graphql';
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({ query, variables }),
-    // allow server-side fetches to include credentials if needed in the future
   });
 
   const json = await res.json();

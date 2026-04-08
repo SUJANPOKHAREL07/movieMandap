@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import UserNavBar from '@/components/UserNavBar';
-import { Play, Star, Calendar, Clock, ArrowLeft, BookmarkPlus, PenLine, Check, Trash2, Edit2, X } from 'lucide-react';
+import { Play, Star, Calendar, Clock, ArrowLeft, BookmarkPlus, PenLine, Check, Trash2, Edit2, X, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const GET_MOVIES = gql`
@@ -37,6 +37,7 @@ const GET_REVIEWS = gql`
       createdAt
       updatedAt
       user {
+        id
         username
       }
       comments {
@@ -45,6 +46,7 @@ const GET_REVIEWS = gql`
         createdAt
         updatedAt
         user {
+          id
           username
         }
       }
@@ -137,7 +139,8 @@ const RATINGS = [
 
 const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void }) => {
   const { currentUser } = useAuth();
-  const isReviewOwner = currentUser?.username === review.user?.username;
+  const isReviewOwner = currentUser?.id === review.user?.id;
+  // console.log('Ownership Check:', { currentUser: currentUser?.id, reviewUser: review.user?.id, match: isReviewOwner });
 
   // Comment Box State
   const [showCommentBox, setShowCommentBox] = useState(false);
@@ -156,6 +159,10 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editCommentText, setEditCommentText] = useState('');
 
+  // Menu state
+  const [showReviewMenu, setShowReviewMenu] = useState(false);
+  const [activeCommentMenuId, setActiveCommentMenuId] = useState<number | null>(null);
+
   const [addComment, { loading: addingComment }] = useMutation(CREATE_COMMENT, {
     onCompleted: () => {
       setCommentText('');
@@ -164,26 +171,50 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
   });
 
   const [updateReview, { loading: updatingReview }] = useMutation(UPDATE_REVIEW, {
-    onCompleted: () => {
-      setIsEditingReview(false);
-      onRefetch();
-    }
+    onCompleted: (data) => {
+      if (data?.updateReview?.success) {
+        setIsEditingReview(false);
+        onRefetch();
+      } else {
+        alert(data?.updateReview?.message || "Failed to update review");
+      }
+    },
+    onError: (error) => alert(error.message)
   });
 
   const [deleteReview, { loading: deletingReview }] = useMutation(DELETE_REVIEW, {
-    onCompleted: () => onRefetch()
+    onCompleted: (data) => {
+      if (data?.deleteReview?.success) {
+        onRefetch();
+      } else {
+        alert(data?.deleteReview?.message || "Failed to delete review");
+      }
+    },
+    onError: (error) => alert(error.message)
   });
 
   const [updateComment, { loading: updatingComment }] = useMutation(UPDATE_COMMENT, {
-    onCompleted: () => {
-      setEditingCommentId(null);
-      setEditCommentText('');
-      onRefetch();
-    }
+    onCompleted: (data) => {
+      if (data?.updateComment?.success) {
+        setEditingCommentId(null);
+        setEditCommentText('');
+        onRefetch();
+      } else {
+        alert(data?.updateComment?.message || "Failed to update comment");
+      }
+    },
+    onError: (error) => alert(error.message)
   });
 
   const [deleteComment] = useMutation(DELETE_COMMENT, {
-    onCompleted: () => onRefetch()
+    onCompleted: (data) => {
+      if (data?.deleteComment?.success) {
+        onRefetch();
+      } else {
+        alert(data?.deleteComment?.message || "Failed to delete comment");
+      }
+    },
+    onError: (error) => alert(error.message)
   });
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -288,19 +319,40 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {review.isSpoiler && (
-            <span className="text-xs bg-red-500/10 text-red-500 px-2 py-1 rounded border border-red-500/20">Spoiler</span>
+            <span className="text-[10px] uppercase tracking-wider font-bold bg-red-500/10 text-red-500 px-2 py-0.5 rounded border border-red-500/20 mr-1">Spoiler</span>
           )}
           {isReviewOwner && (
-            <>
-              <button onClick={() => setIsEditingReview(true)} className="p-1 text-muted-foreground hover:text-white transition" title="Edit">
-                <Edit2 size={16} />
+            <div className="relative">
+              <button
+                onClick={() => setShowReviewMenu(!showReviewMenu)}
+                className="p-1.5 text-muted-foreground hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                title="Options"
+              >
+                <MoreHorizontal size={20} />
               </button>
-              <button disabled={deletingReview} onClick={handleDeleteReview} className="p-1 text-muted-foreground hover:text-red-500 transition" title="Delete">
-                <Trash2 size={16} />
-              </button>
-            </>
+
+              {showReviewMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowReviewMenu(false)} />
+                  <div className="absolute right-0 mt-2 w-36 bg-card border border-border/50 rounded-xl shadow-2xl z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100">
+                    <button
+                      onClick={() => { setIsEditingReview(true); setShowReviewMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/10 flex items-center gap-2 transition-colors"
+                    >
+                      <Edit2 size={14} /> Edit
+                    </button>
+                    <button
+                      onClick={() => { handleDeleteReview(); setShowReviewMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -322,7 +374,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
           {/* List existing comments */}
           <div className="space-y-4 mb-4">
             {review.comments?.map((comment: any) => {
-              const isCommentOwner = currentUser?.username === comment.user?.username;
+              const isCommentOwner = currentUser?.id === comment.user?.id;
               const isCommentEdited = Number(comment.updatedAt) > Number(comment.createdAt) + 1000;
               const isEditing = editingCommentId === comment.id;
 
@@ -338,9 +390,34 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                         {isCommentEdited && <span className="ml-2 text-xs font-normal italic opacity-50">(edited)</span>}
                       </span>
                       {isCommentOwner && !isEditing && (
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => { setEditingCommentId(comment.id); setEditCommentText(comment.content); }} className="text-xs text-muted-foreground hover:text-white" title="Edit"><Edit2 size={14} /></button>
-                          <button onClick={() => handleDeleteComment(comment.id)} className="text-xs text-muted-foreground hover:text-red-500" title="Delete"><Trash2 size={14} /></button>
+                        <div className="relative">
+                          <button
+                            onClick={() => setActiveCommentMenuId(activeCommentMenuId === comment.id ? null : comment.id)}
+                            className="p-1 text-muted-foreground hover:text-white rounded transition-colors"
+                            title="More"
+                          >
+                            <MoreHorizontal size={14} />
+                          </button>
+
+                          {activeCommentMenuId === comment.id && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => setActiveCommentMenuId(null)} />
+                              <div className="absolute right-0 mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden py-1">
+                                <button
+                                  onClick={() => { setEditingCommentId(comment.id); setEditCommentText(comment.content); setActiveCommentMenuId(null); }}
+                                  className="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-primary/10 flex items-center gap-2 transition-colors"
+                                >
+                                  <Edit2 size={12} /> Edit
+                                </button>
+                                <button
+                                  onClick={() => { handleDeleteComment(comment.id); setActiveCommentMenuId(null); }}
+                                  className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                                >
+                                  <Trash2 size={12} /> Delete
+                                </button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>

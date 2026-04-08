@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation, gql } from '@apollo/client';
 import { Search, Bell, User, LogOut } from 'lucide-react';
 import ThemeToggle from './Theme-Toggle';
+import { useAuth } from '@/context/AuthContext';
 
 const LOGOUT_MUTATION = gql`
   mutation LogoutUser {
@@ -19,6 +20,7 @@ const LOGOUT_MUTATION = gql`
 const UserNavBar = () => {
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
+  const { logout, currentUser } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [logoutUser] = useMutation(LOGOUT_MUTATION);
@@ -36,9 +38,11 @@ const UserNavBar = () => {
   const handleLogout = async () => {
     try {
       await logoutUser();
+      await logout();
     } catch (e) { }
     router.push('/login');
   };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-white/5">
       <div className="max-w-[96rem] mx-auto px-6 h-16 flex items-center justify-between">
@@ -86,7 +90,8 @@ const UserNavBar = () => {
             {showDropdown && (
               <div className="absolute right-0 mt-3 w-48 bg-card border border-border shadow-2xl rounded-xl overflow-hidden animate-in fade-in slide-in-from-top-2">
                 <div className="p-3 border-b border-border/50">
-                  <p className="text-sm font-medium">My Account</p>
+                  <p className="text-sm font-medium">{currentUser?.username || 'My Account'}</p>
+                  {currentUser?.email && <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>}
                 </div>
                 <div className="p-1">
                   <button
