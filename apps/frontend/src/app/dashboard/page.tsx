@@ -32,7 +32,7 @@ const Dashboard = () => {
     // Auth guard: check if token exists
     const token = localStorage.getItem('accessToken');
     if (!token) {
-      router.replace('/');
+      router.replace('/login');
     }
   }, [router]);
 
@@ -46,7 +46,7 @@ const Dashboard = () => {
     } catch (e) {
       // ignore
     }
-    router.push('/');
+    router.push('/login');
   };
 
   return (

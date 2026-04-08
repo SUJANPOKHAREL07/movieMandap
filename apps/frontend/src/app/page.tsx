@@ -1,125 +1,192 @@
 'use client';
 
-import Link from 'next/link';
+import React, { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import UserNavBar from '@/components/UserNavBar';
+import MovieCard from '@/components/MovieCard';
+import { Play, Info } from 'lucide-react';
+import { useQuery, gql } from '@apollo/client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import NavBar from '@/components/NavBar';
-import { useMutation, gql } from '@apollo/client';
-
-const LOGIN_MUTATION = gql`
-  mutation LoginUser($email: String, $username: String, $password: String!) {
-    loginUser(email: $email, username: $username, password: $password) {
-      success
-      message
-      accessToken
+const GET_MOVIES = gql`
+  query GetMovies {
+    getMovie {
+      id
+      title
+      overview
+      posterPath
+      voteAverage
+      releaseDate
+      MovieGenre {
+        genre {
+          name
+        }
+      }
     }
   }
 `;
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+function BrowseContent() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q')?.toLowerCase() || '';
 
-  const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
-    onCompleted: (data) => {
-      if (data.loginUser.success) {
-        if (data.loginUser.accessToken) {
-          localStorage.setItem('accessToken', data.loginUser.accessToken);
-        }
-        // Successful login
-        router.push('/browse');
-      } else {
-        // Failed login (handled by backend logic, e.g., wrong credentials)
-        setError(data.loginUser.message || 'Login failed');
-      }
-    },
-    onError: (err) => {
-      setError(err.message || 'An error occurred during login');
-    },
-  });
+  const { data, loading, error } = useQuery(GET_MOVIES);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  // Fallback/Loading UI
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-muted-foreground animate-pulse">Loading Movies...</p>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      await loginUser({
-        variables: {
-          email: email,
-          password: password,
-        },
-      });
-    } catch (e) {
-      // Error handled in onError
-    }
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-destructive">
+        Error loading movies: {error.message}
+      </div>
+    );
+  }
+
+  let movies = data?.getMovie || [];
+
+  // Filter if search query exists
+  if (query) {
+    movies = movies.filter((m: any) =>
+      m.title.toLowerCase().includes(query) ||
+      (m.overview && m.overview.toLowerCase().includes(query))
+    );
+  }
+
+  // Select a random movie for the hero section
+  const featuredMovie = movies.length > 0
+    ? movies[Math.floor(Math.random() * movies.length)]
+    : null;
+
+  const heroImage = featuredMovie?.posterPath
+    ? (featuredMovie.posterPath.startsWith('http') ? featuredMovie.posterPath : `https://image.tmdb.org/t/p/original${featuredMovie.posterPath}`)
+    : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop';
 
   return (
-    <div className="flex flex-col p-5 min-h-screen items-center justify-center bg-background text-foreground transition-all">
-      <NavBar />
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-2xl backdrop-blur-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to access your dashboard</p>
-        </div>
+    <div className="min-h-screen bg-background text-foreground pb-20">
+      <UserNavBar />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-input bg-background/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-              placeholder="user@example.com"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-foreground"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-input bg-background/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200"
-              placeholder="••••••"
-              required
-            />
-          </div>
-
-          {error && <p className="text-sm text-destructive font-medium text-center bg-destructive/10 py-2 rounded-lg">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground hover:opacity-90 transition-all duration-200 shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+      {/* Hero Section */}
+      {featuredMovie && (
+        <div className="relative h-[80vh] w-full overflow-hidden">
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${heroImage})`,
+            }}
           >
-            {loading ? (
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            ) : (
-              'Sign In'
-            )}
-          </button>
-        </form>
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
+          </div>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
-          <Link href="/signup" className="text-primary hover:underline font-medium">Sign up</Link>
-        </p>
+          {/* Hero Content */}
+          <div className="relative h-full flex items-center max-w-[96rem] mx-auto px-6">
+            <div className="max-w-2xl space-y-6 pt-20">
+              <span className="text-primary font-bold tracking-wider uppercase text-sm bg-primary/10 px-3 py-1 rounded-full border border-primary/20">Featured Movie</span>
+              <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-white drop-shadow-2xl line-clamp-2">
+                {featuredMovie.title}
+              </h1>
+              <p className="text-lg text-muted-foreground line-clamp-3">
+                {featuredMovie.overview}
+              </p>
+              <div className="flex items-center gap-4 pt-4">
+                <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
+                  <Play fill="currentColor" size={20} /> Play Now
+                </button>
+                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-white/10">
+                  <Info size={20} /> More Info
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Movie Grid Section */}
+      <div className="max-w-[96rem] mx-auto px-6 -mt-20 relative z-10 space-y-12">
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span className="w-1 h-6 bg-primary rounded-full"></span>
+              Trending Now
+            </h2>
+            <button className="text-sm text-primary hover:underline">View All</button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {movies.map((movie: any) => {
+              const poster = movie.posterPath
+                ? (movie.posterPath.startsWith('http') ? movie.posterPath : `https://image.tmdb.org/t/p/w500${movie.posterPath}`)
+                : 'https://via.placeholder.com/500x750';
+
+              const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 0;
+              const genreName = movie.MovieGenre?.[0]?.genre?.name || 'Unknown';
+
+              return (
+                <MovieCard
+                  key={movie.id}
+                  id={movie.id}
+                  title={movie.title}
+                  rating={movie.voteAverage || 0}
+                  year={releaseYear}
+                  category={genreName}
+                  image={poster}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Keeping strict structure from before, just reusing list for demo of second section */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span className="w-1 h-6 bg-primary rounded-full"></span>
+              New Releases
+            </h2>
+            <button className="text-sm text-primary hover:underline">View All</button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {[...movies].reverse().map((movie: any) => {
+              const poster = movie.posterPath
+                ? (movie.posterPath.startsWith('http') ? movie.posterPath : `https://image.tmdb.org/t/p/w500${movie.posterPath}`)
+                : 'https://via.placeholder.com/500x750';
+
+              const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 0;
+              const genreName = movie.MovieGenre?.[0]?.genre?.name || 'Unknown';
+
+              return (
+                <MovieCard
+                  key={`new-${movie.id}`}
+                  id={movie.id}
+                  title={movie.title}
+                  rating={movie.voteAverage || 0}
+                  year={releaseYear}
+                  category={genreName}
+                  image={poster}
+                />
+              );
+            })}
+          </div>
+        </section>
       </div>
     </div>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div></div>}>
+      <BrowseContent />
+    </Suspense>
   );
 }

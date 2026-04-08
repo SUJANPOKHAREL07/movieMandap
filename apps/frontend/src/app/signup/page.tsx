@@ -1,14 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
 import { CREATE_USER, VERIFY_OTP, RESEND_OTP } from '@/lib/mutations';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 type SignupStep = 'register' | 'verify-otp';
 
 export default function SignupPage() {
     const router = useRouter();
+    const { token } = useAuth();
+
+    useEffect(() => {
+        if (token) {
+            router.push('/');
+        }
+    }, [token, router]);
+
     const [step, setStep] = useState<SignupStep>('register');
     const [formData, setFormData] = useState({
         username: '',
@@ -111,7 +120,7 @@ export default function SignupPage() {
 
             if (data?.verifyOtp?.success) {
                 // Success! Redirect to login or dashboard
-                router.push('/');
+                router.push('/login');
             } else {
                 setErrors({ otp: data?.verifyOtp?.message || 'Invalid OTP' });
             }
@@ -300,7 +309,7 @@ export default function SignupPage() {
                             {/* Login Link */}
                             <p className="text-center text-gray-400 text-sm">
                                 Already have an account?{' '}
-                                <a href="/browse" className="text-orange-500 hover:text-orange-400 font-medium transition-colors">
+                                <a href="/login" className="text-orange-500 hover:text-orange-400 font-medium transition-colors">
                                     Sign In
                                 </a>
                             </p>

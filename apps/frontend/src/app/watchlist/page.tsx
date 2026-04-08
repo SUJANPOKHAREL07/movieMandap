@@ -35,8 +35,7 @@ export default function WatchlistPage() {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center">
                 <p className="text-xl text-destructive font-semibold">Error loading watchlist</p>
-                <p className="text-muted-foreground mt-2">{error.message}</p>
-                <Link href="/browse" className="mt-6 text-primary hover:underline">Return to Browse</Link>
+                <Link href="/" className="mt-6 text-primary hover:underline">Return to Browse</Link>
             </div>
         );
     }
@@ -66,7 +65,7 @@ export default function WatchlistPage() {
                             Looks like you haven't added any movies to your list yet. Start exploring to find something to watch!
                         </p>
                         <Link
-                            href="/browse"
+                            href="/"
                             className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20 inline-block"
                         >
                             Explore Movies
