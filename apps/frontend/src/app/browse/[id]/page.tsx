@@ -336,11 +336,11 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
             rows={3}
             placeholder="Content"
           />
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <select
               value={editReviewForm.rating}
               onChange={e => setEditReviewForm({ ...editReviewForm, rating: e.target.value })}
-              className="flex-1 px-4 py-2 bg-secondary border border-border rounded-lg"
+              className="w-full sm:flex-1 px-4 py-2 bg-secondary border border-border rounded-lg"
             >
               {RATINGS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
@@ -690,64 +690,66 @@ export default function MovieDetailPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
 
-        <div className="absolute top-24 left-6 z-20">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors bg-secondary/50 backdrop-blur-md px-4 py-2 rounded-full border border-border"
-          >
-            <ArrowLeft size={20} /> Back
-          </button>
-        </div>
+        <div className="relative z-10 max-w-[96rem] mx-auto px-6 h-full flex flex-col">
+          <div className="pt-24 shrink-0">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all bg-background/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 hover:bg-background/40 shadow-lg"
+            >
+              <ArrowLeft size={20} /> Back
+            </button>
+          </div>
 
-        <div className="relative z-10 max-w-[96rem] mx-auto px-6 h-full flex items-end md:items-center pb-12 md:pb-0">
-          <div className="flex flex-col md:flex-row gap-8 items-start md:items-end w-full">
-            {/* Poster Card */}
-            <div className="hidden md:block w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border rotate-1 hover:rotate-0 transition-transform duration-300">
-              <img src={poster} alt={movie.title} className="w-full h-auto object-cover" />
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 space-y-6 md:mb-10">
-              <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
-                {movie.MovieGenre?.map((g: any, i: number) => (
-                  <span key={i} className="px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 backdrop-blur-md">
-                    {g.genre.name}
-                  </span>
-                ))}
-                {movie.releaseDate && (
-                  <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
-                    <Calendar size={14} /> {new Date(movie.releaseDate).getFullYear()}
-                  </span>
-                )}
-                {movie.runtime && (
-                  <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
-                    <Clock size={14} /> {movie.runtime}m
-                  </span>
-                )}
+          <div className="flex-1 flex items-end md:items-center pb-12 md:pb-0">
+            <div className="flex flex-col md:flex-row gap-8 items-start md:items-end w-full">
+              {/* Poster Card */}
+              <div className="hidden md:block w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border rotate-1 hover:rotate-0 transition-transform duration-300">
+                <img src={poster} alt={movie.title} className="w-full h-auto object-cover" />
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-black text-foreground leading-tight drop-shadow-xl">{movie.title}</h1>
+              {/* Content */}
+              <div className="flex-1 space-y-6 md:mb-10">
+                <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
+                  {movie.MovieGenre?.map((g: any, i: number) => (
+                    <span key={i} className="px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 backdrop-blur-md">
+                      {g.genre.name}
+                    </span>
+                  ))}
+                  {movie.releaseDate && (
+                    <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
+                      <Calendar size={14} /> {new Date(movie.releaseDate).getFullYear()}
+                    </span>
+                  )}
+                  {movie.runtime && (
+                    <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
+                      <Clock size={14} /> {movie.runtime}m
+                    </span>
+                  )}
+                </div>
 
-              <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed drop-shadow-md">
-                {movie.overview || "No overview available."}
-              </p>
+                <h1 className="text-4xl md:text-6xl font-black text-foreground leading-tight drop-shadow-xl">{movie.title}</h1>
 
-              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25 transform hover:scale-105">
-                  <Play fill="currentColor" size={20} /> Watch Movie
-                </button>
-                <button
-                  onClick={handleAddToWatchlist}
-                  disabled={addingWatchlist || watchlistAdded}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-border bg-secondary/50 hover:bg-secondary transition-all disabled:opacity-60"
-                >
-                  {watchlistAdded ? <Check size={18} className="text-green-400" /> : <BookmarkPlus size={18} />}
-                  {watchlistAdded ? 'Added' : 'My List'}
-                </button>
-                <div className="flex items-center gap-2 ml-auto">
-                  <Star className="text-yellow-400 fill-yellow-400" size={28} />
-                  <span className="text-2xl font-bold text-foreground">{movie.voteAverage?.toFixed(1) || 'N/A'}</span>
-                  <span className="text-muted-foreground text-sm mt-1">/ 10</span>
+                <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed drop-shadow-md">
+                  {movie.overview || "No overview available."}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 pt-4">
+                  <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25 transform hover:scale-105">
+                    <Play fill="currentColor" size={20} /> Watch Movie
+                  </button>
+                  <button
+                    onClick={handleAddToWatchlist}
+                    disabled={addingWatchlist || watchlistAdded}
+                    className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-border bg-secondary/50 hover:bg-secondary transition-all disabled:opacity-60"
+                  >
+                    {watchlistAdded ? <Check size={18} className="text-green-400" /> : <BookmarkPlus size={18} />}
+                    {watchlistAdded ? 'Added' : 'My List'}
+                  </button>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Star className="text-yellow-400 fill-yellow-400" size={28} />
+                    <span className="text-2xl font-bold text-foreground">{movie.voteAverage?.toFixed(1) || 'N/A'}</span>
+                    <span className="text-muted-foreground text-sm mt-1">/ 10</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -825,7 +827,7 @@ export default function MovieDetailPage() {
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 space-y-1">
                   <label className="text-sm font-medium text-muted-foreground">Rating</label>
                   <select

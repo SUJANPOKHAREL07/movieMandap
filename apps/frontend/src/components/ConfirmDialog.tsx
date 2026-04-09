@@ -81,19 +81,19 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-secondary/30 p-4 flex flex-col sm:flex-row-reverse gap-3">
+                <div className="bg-secondary/30 p-4 flex flex-col sm:flex-row-reverse gap-2 sm:gap-3">
                     <button
                         onClick={() => {
                             onConfirm();
                             onClose();
                         }}
-                        className={`px-6 py-2.5 rounded-xl font-bold transition-all transform active:scale-95 ${styles.button}`}
+                        className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold transition-all transform active:scale-95 ${styles.button}`}
                     >
                         {confirmText}
                     </button>
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-xl font-bold bg-secondary text-foreground hover:bg-secondary/80 transition-all border border-border"
+                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold bg-secondary text-foreground hover:bg-secondary/80 transition-all border border-border"
                     >
                         {cancelText}
                     </button>
