@@ -15,10 +15,8 @@ export const movieSocialResolver = {
         throw new Error('Movie name must be string');
       }
 
-      const auth = await authContextMiddleware(context);
-      if (auth.token === null) {
-        throw new Error('Token missing in header');
-      }
+      // Allow public access to reviews
+      await authContextMiddleware(context).catch(() => null);
 
       const data = await MovieSocialGet.getAllReviewOfMovie(movieName);
 

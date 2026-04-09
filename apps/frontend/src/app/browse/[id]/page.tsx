@@ -549,10 +549,27 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
               type="text"
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
-              placeholder="Write a comment..."
-              className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-foreground"
+              onClick={() => {
+                if (!currentUser) {
+                  setConfirmConfig({
+                    isOpen: true,
+                    title: 'Authentication Required',
+                    description: 'You need to be logged in to write a comment. Would you like to login or register now?',
+                    confirmText: 'Go to Login',
+                    variant: 'primary',
+                    onConfirm: () => router.push('/login')
+                  });
+                }
+              }}
+              readOnly={!currentUser}
+              placeholder={currentUser ? "Write a comment..." : "Login to comment..."}
+              className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-all"
             />
-            <button disabled={addingComment || !commentText.trim()} type="submit" className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-orange-600 transition-colors">
+            <button
+              disabled={addingComment || !commentText.trim() || !currentUser}
+              type="submit"
+              className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-orange-600 transition-colors"
+            >
               Post
             </button>
           </form>
@@ -571,11 +588,11 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
     </div>
   );
 };
-
 export default function MovieDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { id } = params;
+  const { currentUser } = useAuth();
 
   // Review form state
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -595,6 +612,10 @@ export default function MovieDetailPage() {
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     onConfirm: () => void;
+    title?: string;
+    description?: string;
+    confirmText?: string;
+    variant?: 'danger' | 'warning' | 'primary';
   }>({
     isOpen: false,
     onConfirm: () => { },
@@ -738,7 +759,20 @@ export default function MovieDetailPage() {
                     <Play fill="currentColor" size={20} /> Watch Movie
                   </button>
                   <button
-                    onClick={handleAddToWatchlist}
+                    onClick={() => {
+                      if (!currentUser) {
+                        setConfirmConfig({
+                          isOpen: true,
+                          title: 'Authentication Required',
+                          description: 'You need to be logged in to add movies to your list. Would you like to login or register now?',
+                          confirmText: 'Go to Login',
+                          variant: 'primary',
+                          onConfirm: () => router.push('/login')
+                        });
+                        return;
+                      }
+                      handleAddToWatchlist();
+                    }}
                     disabled={addingWatchlist || watchlistAdded}
                     className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-border bg-secondary/50 hover:bg-secondary transition-all disabled:opacity-60"
                   >
@@ -768,6 +802,17 @@ export default function MovieDetailPage() {
             </h2>
             <button
               onClick={() => {
+                if (!currentUser) {
+                  setConfirmConfig({
+                    isOpen: true,
+                    title: 'Authentication Required',
+                    description: 'You need to be logged in to write a review. Would you like to login or register now?',
+                    confirmText: 'Go to Login',
+                    variant: 'primary',
+                    onConfirm: () => router.push('/login')
+                  });
+                  return;
+                }
                 if (showReviewForm) {
                   const isDirty = reviewForm.title.trim() !== '' ||
                     reviewForm.content.trim() !== '' ||
@@ -777,6 +822,10 @@ export default function MovieDetailPage() {
                   if (isDirty) {
                     setConfirmConfig({
                       isOpen: true,
+                      title: 'Discard Review?',
+                      description: 'You have started writing a review. Are you sure you want to discard it?',
+                      confirmText: 'Discard',
+                      variant: 'warning',
                       onConfirm: () => setShowReviewForm(false)
                     });
                   } else {
@@ -890,10 +939,10 @@ export default function MovieDetailPage() {
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         onConfirm={confirmConfig.onConfirm}
-        title="Discard Review?"
-        description="You have started writing a review. Are you sure you want to discard it?"
-        confirmText="Discard"
-        variant="warning"
+        title={confirmConfig.title || "Discard Review?"}
+        description={confirmConfig.description || "You have started writing a review. Are you sure you want to discard it?"}
+        confirmText={confirmConfig.confirmText || "Discard"}
+        variant={confirmConfig.variant || "warning"}
       />
     </div>
   );
