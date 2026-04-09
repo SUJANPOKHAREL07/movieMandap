@@ -347,11 +347,11 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
             <label className="flex items-center gap-2 cursor-pointer select-none text-sm px-2">
               <div
                 onClick={() => setEditReviewForm({ ...editReviewForm, isSpoiler: !editReviewForm.isSpoiler })}
-                className={`w-10 h-6 rounded-full transition-colors flex items-center px-1 ${editReviewForm.isSpoiler ? 'bg-red-500' : 'bg-secondary'}`}
+                className={`w-10 h-6 rounded-full transition-all flex items-center px-1 border-2 ${editReviewForm.isSpoiler ? 'bg-red-500 border-red-500' : 'bg-slate-200 dark:bg-zinc-700 border-slate-300 dark:border-zinc-600'}`}
               >
-                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${editReviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
+                <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-md transition-transform ${editReviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
               </div>
-              <span className="text-muted-foreground">Spoiler</span>
+              <span className={`font-bold transition-colors ${editReviewForm.isSpoiler ? 'text-red-500' : 'text-muted-foreground'}`}>Spoiler</span>
             </label>
           </div>
           <button disabled={updatingReview} type="submit" className="w-full bg-primary text-black font-bold py-2 rounded-lg hover:bg-orange-600 transition disabled:opacity-50">
@@ -843,12 +843,12 @@ export default function MovieDetailPage() {
                   <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
                     <div
                       onClick={() => setReviewForm({ ...reviewForm, isSpoiler: !reviewForm.isSpoiler })}
-                      className={`w-10 h-6 rounded-full transition-colors flex items-center px-1 ${reviewForm.isSpoiler ? 'bg-red-500' : 'bg-secondary'
+                      className={`w-10 h-6 rounded-full transition-all flex items-center px-1 border-2 ${reviewForm.isSpoiler ? 'bg-red-500 border-red-500' : 'bg-slate-200 dark:bg-zinc-700 border-slate-300 dark:border-zinc-600'
                         }`}
                     >
-                      <div className={`w-4 h-4 rounded-full bg-white transition-transform ${reviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-md transition-transform ${reviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
                     </div>
-                    <span className="text-muted-foreground">Contains Spoiler</span>
+                    <span className={`font-bold transition-colors ${reviewForm.isSpoiler ? 'text-red-500' : 'text-muted-foreground'}`}>Contains Spoiler</span>
                   </label>
                 </div>
               </div>
