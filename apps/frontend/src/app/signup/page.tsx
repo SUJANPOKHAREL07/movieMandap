@@ -165,14 +165,14 @@ export default function SignupPage() {
     const passwordStrength = getPasswordStrength(formData.password);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black p-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <div className="w-full max-w-md">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-white mb-2">
+                    <h1 className="text-4xl font-bold text-foreground mb-2">
                         {step === 'register' ? 'Create Account' : 'Verify Email'}
                     </h1>
-                    <p className="text-gray-400">
+                    <p className="text-muted-foreground">
                         {step === 'register'
                             ? 'Join us to discover amazing movies'
                             : `Enter the OTP sent to ${formData.email}`}
@@ -180,12 +180,12 @@ export default function SignupPage() {
                 </div>
 
                 {/* Card */}
-                <div className="bg-gray-900/50 backdrop-blur-lg border border-gray-800 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-card backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
                     {step === 'register' ? (
                         <form onSubmit={handleRegister} className="space-y-6">
                             {/* Username */}
                             <div>
-                                <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+                                <label htmlFor="username" className="block text-sm font-medium text-muted-foreground mb-2">
                                     Username
                                 </label>
                                 <input
@@ -196,7 +196,7 @@ export default function SignupPage() {
                                         setFormData({ ...formData, username: e.target.value });
                                         setErrors({ ...errors, username: '' });
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                                     placeholder="Choose a username"
                                 />
                                 {errors.username && (
@@ -206,7 +206,7 @@ export default function SignupPage() {
 
                             {/* Email */}
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                                <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-2">
                                     Email
                                 </label>
                                 <input
@@ -217,7 +217,7 @@ export default function SignupPage() {
                                         setFormData({ ...formData, email: e.target.value });
                                         setErrors({ ...errors, email: '' });
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                                     placeholder="your@email.com"
                                 />
                                 {errors.email && (
@@ -227,7 +227,7 @@ export default function SignupPage() {
 
                             {/* Password */}
                             <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                                <label htmlFor="password" className="block text-sm font-medium text-muted-foreground mb-2">
                                     Password
                                 </label>
                                 <input
@@ -238,7 +238,7 @@ export default function SignupPage() {
                                         setFormData({ ...formData, password: e.target.value });
                                         setErrors({ ...errors, password: '' });
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                                     placeholder="Create a strong password"
                                 />
                                 {errors.password && (
@@ -247,13 +247,13 @@ export default function SignupPage() {
                                 {formData.password && (
                                     <div className="mt-2">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                            <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full ${passwordStrength.color} transition-all duration-300`}
                                                     style={{ width: `${(passwordStrength.strength / 3) * 100}%` }}
                                                 />
                                             </div>
-                                            <span className="text-xs text-gray-400">{passwordStrength.label}</span>
+                                            <span className="text-xs text-muted-foreground">{passwordStrength.label}</span>
                                         </div>
                                     </div>
                                 )}
@@ -261,7 +261,7 @@ export default function SignupPage() {
 
                             {/* Confirm Password */}
                             <div>
-                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted-foreground mb-2">
                                     Confirm Password
                                 </label>
                                 <input
@@ -272,7 +272,7 @@ export default function SignupPage() {
                                         setFormData({ ...formData, confirmPassword: e.target.value });
                                         setErrors({ ...errors, confirmPassword: '' });
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                                     placeholder="Confirm your password"
                                 />
                                 {errors.confirmPassword && (
@@ -291,7 +291,7 @@ export default function SignupPage() {
                             <button
                                 type="submit"
                                 disabled={creatingUser}
-                                className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg shadow-orange-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {creatingUser ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -307,9 +307,9 @@ export default function SignupPage() {
                             </button>
 
                             {/* Login Link */}
-                            <p className="text-center text-gray-400 text-sm">
+                            <p className="text-center text-muted-foreground text-sm">
                                 Already have an account?{' '}
-                                <a href="/login" className="text-orange-500 hover:text-orange-400 font-medium transition-colors">
+                                <a href="/login" className="text-primary hover:underline font-medium transition-colors">
                                     Sign In
                                 </a>
                             </p>
@@ -318,7 +318,7 @@ export default function SignupPage() {
                         <form onSubmit={handleVerifyOtp} className="space-y-6">
                             {/* OTP Input */}
                             <div>
-                                <label htmlFor="otp" className="block text-sm font-medium text-gray-300 mb-2">
+                                <label htmlFor="otp" className="block text-sm font-medium text-muted-foreground mb-2">
                                     Verification Code
                                 </label>
                                 <input
@@ -329,7 +329,7 @@ export default function SignupPage() {
                                         setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
                                         setErrors({ ...errors, otp: '' });
                                     }}
-                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-3 bg-secondary/50 border border-input rounded-lg text-foreground text-center text-2xl tracking-widest placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                                     placeholder="000000"
                                     maxLength={6}
                                 />
@@ -341,15 +341,15 @@ export default function SignupPage() {
                             {/* Resend OTP */}
                             <div className="text-center">
                                 {resendTimer > 0 ? (
-                                    <p className="text-sm text-gray-400">
-                                        Resend code in <span className="text-orange-500 font-medium">{resendTimer}s</span>
+                                    <p className="text-sm text-muted-foreground">
+                                        Resend code in <span className="text-primary font-medium">{resendTimer}s</span>
                                     </p>
                                 ) : (
                                     <button
                                         type="button"
                                         onClick={handleResendOtp}
                                         disabled={resendingOtp}
-                                        className="text-sm text-orange-500 hover:text-orange-400 font-medium transition-colors disabled:opacity-50"
+                                        className="text-sm text-primary hover:underline font-medium transition-colors disabled:opacity-50"
                                     >
                                         {resendingOtp ? 'Sending...' : 'Resend Code'}
                                     </button>
@@ -367,7 +367,7 @@ export default function SignupPage() {
                             <button
                                 type="submit"
                                 disabled={verifyingOtp}
-                                className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg shadow-orange-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-3 px-4 bg-primary text-primary-foreground font-semibold rounded-lg shadow-lg shadow-primary/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {verifyingOtp ? (
                                     <span className="flex items-center justify-center gap-2">
@@ -390,7 +390,7 @@ export default function SignupPage() {
                                     setOtp('');
                                     setErrors({});
                                 }}
-                                className="w-full py-2 text-gray-400 hover:text-white transition-colors text-sm"
+                                className="w-full py-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
                             >
                                 ← Back to Registration
                             </button>
@@ -399,7 +399,7 @@ export default function SignupPage() {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-gray-500 text-xs mt-6">
+                <p className="text-center text-muted-foreground text-xs mt-6">
                     By signing up, you agree to our Terms of Service and Privacy Policy
                 </p>
             </div>

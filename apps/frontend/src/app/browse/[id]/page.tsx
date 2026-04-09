@@ -252,7 +252,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
       <form onSubmit={handleUpdateReview} className="bg-card p-6 rounded-xl border border-border/50 border-primary shadow-lg space-y-4">
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-bold text-lg text-primary flex items-center gap-2"><Edit2 size={16} /> Edit Review</h3>
-          <button type="button" onClick={() => setIsEditingReview(false)} className="text-muted-foreground hover:text-white"><X size={20} /></button>
+          <button type="button" onClick={() => setIsEditingReview(false)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
         </div>
         <input
           type="text"
@@ -297,11 +297,11 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
     <div className={`bg-card p-6 rounded-xl border border-border/50 hover:border-primary/30 transition-colors ${deletingReview ? 'opacity-50' : ''}`}>
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold">
             {review.user?.username?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div>
-            <h4 className="font-bold text-white leading-none">{review.user?.username || "Anonymous"}</h4>
+            <h4 className="font-bold text-foreground leading-none">{review.user?.username || "Anonymous"}</h4>
             <div className="flex items-center gap-2 mt-1.5">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
@@ -327,7 +327,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
             <div className="relative">
               <button
                 onClick={() => setShowReviewMenu(!showReviewMenu)}
-                className="p-1.5 text-muted-foreground hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
                 title="Options"
               >
                 <MoreHorizontal size={20} />
@@ -357,7 +357,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
         </div>
       </div>
       <h3 className="font-bold text-lg mb-2 text-foreground">{review.title}</h3>
-      <p className="text-gray-400 leading-relaxed mb-4">{review.content}</p>
+      <p className="text-muted-foreground leading-relaxed mb-4">{review.content}</p>
 
       {/* Action Bar */}
       <div className="flex items-center gap-4 text-sm mt-4 border-t border-border/50 pt-4">
@@ -385,7 +385,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-white">
+                      <span className="text-sm font-bold text-foreground">
                         {comment.user?.username || 'Anonymous'}
                         {isCommentEdited && <span className="ml-2 text-xs font-normal italic opacity-50">(edited)</span>}
                       </span>
@@ -393,7 +393,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                         <div className="relative">
                           <button
                             onClick={() => setActiveCommentMenuId(activeCommentMenuId === comment.id ? null : comment.id)}
-                            className="p-1 text-muted-foreground hover:text-white rounded transition-colors"
+                            className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
                             title="More"
                           >
                             <MoreHorizontal size={14} />
@@ -430,10 +430,10 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                           className="flex-1 bg-secondary border border-border rounded px-3 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                         <button disabled={updatingComment} type="submit" className="text-xs bg-primary text-black px-3 rounded font-bold hover:bg-orange-600 disabled:opacity-50">Save</button>
-                        <button type="button" onClick={() => setEditingCommentId(null)} className="text-xs text-muted-foreground hover:text-white px-2">Cancel</button>
+                        <button type="button" onClick={() => setEditingCommentId(null)} className="text-xs text-muted-foreground hover:text-foreground px-2">Cancel</button>
                       </form>
                     ) : (
-                      <p className="text-sm text-gray-300 mt-1 break-words">{comment.content}</p>
+                      <p className="text-sm text-muted-foreground mt-1 break-words">{comment.content}</p>
                     )}
                   </div>
                 </div>
@@ -448,7 +448,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
               placeholder="Write a comment..."
-              className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-white"
+              className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-foreground"
             />
             <button disabled={addingComment || !commentText.trim()} type="submit" className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-orange-600 transition-colors">
               Post
@@ -572,7 +572,7 @@ export default function MovieDetailPage() {
         <div className="absolute top-24 left-6 z-20">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors bg-secondary/50 backdrop-blur-md px-4 py-2 rounded-full border border-border"
           >
             <ArrowLeft size={20} /> Back
           </button>
@@ -581,7 +581,7 @@ export default function MovieDetailPage() {
         <div className="relative z-10 max-w-[96rem] mx-auto px-6 h-full flex items-end md:items-center pb-12 md:pb-0">
           <div className="flex flex-col md:flex-row gap-8 items-start md:items-end w-full">
             {/* Poster Card */}
-            <div className="hidden md:block w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-white/10 rotate-1 hover:rotate-0 transition-transform duration-300">
+            <div className="hidden md:block w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border rotate-1 hover:rotate-0 transition-transform duration-300">
               <img src={poster} alt={movie.title} className="w-full h-auto object-cover" />
             </div>
 
@@ -594,20 +594,20 @@ export default function MovieDetailPage() {
                   </span>
                 ))}
                 {movie.releaseDate && (
-                  <span className="flex items-center gap-1.5 text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
                     <Calendar size={14} /> {new Date(movie.releaseDate).getFullYear()}
                   </span>
                 )}
                 {movie.runtime && (
-                  <span className="flex items-center gap-1.5 text-gray-300 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  <span className="flex items-center gap-1.5 text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
                     <Clock size={14} /> {movie.runtime}m
                   </span>
                 )}
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-black text-white leading-tight drop-shadow-xl">{movie.title}</h1>
+              <h1 className="text-4xl md:text-6xl font-black text-foreground leading-tight drop-shadow-xl">{movie.title}</h1>
 
-              <p className="text-lg text-gray-300 max-w-3xl leading-relaxed drop-shadow-md">
+              <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed drop-shadow-md">
                 {movie.overview || "No overview available."}
               </p>
 
@@ -618,15 +618,15 @@ export default function MovieDetailPage() {
                 <button
                   onClick={handleAddToWatchlist}
                   disabled={addingWatchlist || watchlistAdded}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-white/20 bg-white/5 hover:bg-white/10 transition-all disabled:opacity-60"
+                  className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold border border-border bg-secondary/50 hover:bg-secondary transition-all disabled:opacity-60"
                 >
                   {watchlistAdded ? <Check size={18} className="text-green-400" /> : <BookmarkPlus size={18} />}
                   {watchlistAdded ? 'Added' : 'My List'}
                 </button>
                 <div className="flex items-center gap-2 ml-auto">
                   <Star className="text-yellow-400 fill-yellow-400" size={28} />
-                  <span className="text-2xl font-bold text-white">{movie.voteAverage?.toFixed(1) || 'N/A'}</span>
-                  <span className="text-gray-400 text-sm mt-1">/ 10</span>
+                  <span className="text-2xl font-bold text-foreground">{movie.voteAverage?.toFixed(1) || 'N/A'}</span>
+                  <span className="text-muted-foreground text-sm mt-1">/ 10</span>
                 </div>
               </div>
             </div>

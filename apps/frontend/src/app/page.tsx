@@ -92,7 +92,7 @@ function BrowseContent() {
           <div className="relative h-full flex items-center max-w-[96rem] mx-auto px-6">
             <div className="max-w-2xl space-y-6 pt-20">
               <span className="text-primary font-bold tracking-wider uppercase text-sm bg-primary/10 px-3 py-1 rounded-full border border-primary/20">Featured Movie</span>
-              <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-white drop-shadow-2xl line-clamp-2">
+              <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-foreground drop-shadow-2xl line-clamp-2">
                 {featuredMovie.title}
               </h1>
               <p className="text-lg text-muted-foreground line-clamp-3">
@@ -102,7 +102,7 @@ function BrowseContent() {
                 <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
                   <Play fill="currentColor" size={20} /> Play Now
                 </button>
-                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-white/10">
+                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-border">
                   <Info size={20} /> More Info
                 </button>
               </div>
