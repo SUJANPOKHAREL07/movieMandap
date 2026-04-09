@@ -6,6 +6,7 @@ import { useQuery, useMutation, gql } from '@apollo/client';
 import UserNavBar from '@/components/UserNavBar';
 import { Play, Star, Calendar, Clock, ArrowLeft, BookmarkPlus, PenLine, Check, Trash2, Edit2, X, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 const GET_MOVIES = gql`
   query GetMovies {
@@ -163,6 +164,24 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
   const [showReviewMenu, setShowReviewMenu] = useState(false);
   const [activeCommentMenuId, setActiveCommentMenuId] = useState<number | null>(null);
 
+  // Confirmation state
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant: 'danger' | 'warning' | 'primary';
+    confirmText?: string;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => { },
+    variant: 'primary',
+  });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+
   const [addComment, { loading: addingComment }] = useMutation(CREATE_COMMENT, {
     onCompleted: () => {
       setCommentText('');
@@ -225,71 +244,131 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
 
   const handleUpdateReview = (e: React.FormEvent) => {
     e.preventDefault();
-    updateReview({ variables: { reviewId: review.id, ...editReviewForm } });
+    setConfirmConfig({
+      isOpen: true,
+      title: "Confirm Update",
+      description: "Are you sure you want to save these changes to your review?",
+      confirmText: "Save Changes",
+      variant: 'primary',
+      onConfirm: () => updateReview({ variables: { reviewId: review.id, ...editReviewForm } })
+    });
   };
 
   const handleDeleteReview = () => {
-    if (window.confirm("Are you sure you want to delete this review?")) {
-      deleteReview({ variables: { reviewId: review.id } });
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Review",
+      description: "Are you sure you want to delete this review? This action cannot be undone.",
+      confirmText: "Delete",
+      variant: 'danger',
+      onConfirm: () => deleteReview({ variables: { reviewId: review.id } })
+    });
   };
 
   const handleUpdateComment = (e: React.FormEvent, commentId: number) => {
     e.preventDefault();
-    updateComment({ variables: { commentId, content: editCommentText } });
+    setConfirmConfig({
+      isOpen: true,
+      title: "Confirm Update",
+      description: "Are you sure you want to save the changes to your comment?",
+      confirmText: "Save Changes",
+      variant: 'primary',
+      onConfirm: () => updateComment({ variables: { commentId, content: editCommentText } })
+    });
   };
 
   const handleDeleteComment = (commentId: number) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      deleteComment({ variables: { commentId } });
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Comment",
+      description: "Are you sure you want to delete this comment? This action cannot be undone.",
+      confirmText: "Delete",
+      variant: 'danger',
+      onConfirm: () => deleteComment({ variables: { commentId } })
+    });
   };
 
   const isReviewEdited = Number(review.updatedAt) > Number(review.createdAt) + 1000;
 
   if (isEditingReview) {
     return (
-      <form onSubmit={handleUpdateReview} className="bg-card p-6 rounded-xl border border-border/50 border-primary shadow-lg space-y-4">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-bold text-lg text-primary flex items-center gap-2"><Edit2 size={16} /> Edit Review</h3>
-          <button type="button" onClick={() => setIsEditingReview(false)} className="text-muted-foreground hover:text-foreground"><X size={20} /></button>
-        </div>
-        <input
-          type="text"
-          value={editReviewForm.title}
-          onChange={e => setEditReviewForm({ ...editReviewForm, title: e.target.value })}
-          className="w-full px-4 py-2 bg-secondary border border-border rounded-lg"
-          placeholder="Title"
-        />
-        <textarea
-          value={editReviewForm.content}
-          onChange={e => setEditReviewForm({ ...editReviewForm, content: e.target.value })}
-          className="w-full px-4 py-2 bg-secondary border border-border rounded-lg resize-none"
-          rows={3}
-          placeholder="Content"
-        />
-        <div className="flex gap-4">
-          <select
-            value={editReviewForm.rating}
-            onChange={e => setEditReviewForm({ ...editReviewForm, rating: e.target.value })}
-            className="flex-1 px-4 py-2 bg-secondary border border-border rounded-lg"
-          >
-            {RATINGS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-          </select>
-          <label className="flex items-center gap-2 cursor-pointer select-none text-sm px-2">
-            <div
-              onClick={() => setEditReviewForm({ ...editReviewForm, isSpoiler: !editReviewForm.isSpoiler })}
-              className={`w-10 h-6 rounded-full transition-colors flex items-center px-1 ${editReviewForm.isSpoiler ? 'bg-red-500' : 'bg-secondary'}`}
+      <>
+        <form onSubmit={handleUpdateReview} className="bg-card p-6 rounded-xl border border-border/50 border-primary shadow-lg space-y-4">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-lg text-primary flex items-center gap-2"><Edit2 size={16} /> Edit Review</h3>
+            <button
+              type="button"
+              onClick={() => {
+                const isDirty = editReviewForm.title !== review.title ||
+                  editReviewForm.content !== review.content ||
+                  editReviewForm.rating !== review.rating ||
+                  editReviewForm.isSpoiler !== review.isSpoiler;
+
+                if (isDirty) {
+                  setConfirmConfig({
+                    isOpen: true,
+                    title: "Discard Changes?",
+                    description: "You have unsaved changes. Are you sure you want to discard them?",
+                    confirmText: "Discard",
+                    variant: 'warning',
+                    onConfirm: () => setIsEditingReview(false)
+                  });
+                } else {
+                  setIsEditingReview(false);
+                }
+              }}
+              className="text-muted-foreground hover:text-foreground"
             >
-              <div className={`w-4 h-4 rounded-full bg-white transition-transform ${editReviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
-            </div>
-            <span className="text-muted-foreground">Spoiler</span>
-          </label>
-        </div>
-        <button disabled={updatingReview} type="submit" className="w-full bg-primary text-black font-bold py-2 rounded-lg hover:bg-orange-600 transition disabled:opacity-50">
-          Save Changes
-        </button>
-      </form>
+              <X size={20} />
+            </button>
+          </div>
+          <input
+            type="text"
+            value={editReviewForm.title}
+            onChange={e => setEditReviewForm({ ...editReviewForm, title: e.target.value })}
+            className="w-full px-4 py-2 bg-secondary border border-border rounded-lg"
+            placeholder="Title"
+          />
+          <textarea
+            value={editReviewForm.content}
+            onChange={e => setEditReviewForm({ ...editReviewForm, content: e.target.value })}
+            className="w-full px-4 py-2 bg-secondary border border-border rounded-lg resize-none"
+            rows={3}
+            placeholder="Content"
+          />
+          <div className="flex gap-4">
+            <select
+              value={editReviewForm.rating}
+              onChange={e => setEditReviewForm({ ...editReviewForm, rating: e.target.value })}
+              className="flex-1 px-4 py-2 bg-secondary border border-border rounded-lg"
+            >
+              {RATINGS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+            </select>
+            <label className="flex items-center gap-2 cursor-pointer select-none text-sm px-2">
+              <div
+                onClick={() => setEditReviewForm({ ...editReviewForm, isSpoiler: !editReviewForm.isSpoiler })}
+                className={`w-10 h-6 rounded-full transition-colors flex items-center px-1 ${editReviewForm.isSpoiler ? 'bg-red-500' : 'bg-secondary'}`}
+              >
+                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${editReviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
+              </div>
+              <span className="text-muted-foreground">Spoiler</span>
+            </label>
+          </div>
+          <button disabled={updatingReview} type="submit" className="w-full bg-primary text-black font-bold py-2 rounded-lg hover:bg-orange-600 transition disabled:opacity-50">
+            Save Changes
+          </button>
+        </form>
+
+        <ConfirmDialog
+          isOpen={confirmConfig.isOpen}
+          onClose={closeConfirm}
+          onConfirm={confirmConfig.onConfirm}
+          title={confirmConfig.title}
+          description={confirmConfig.description}
+          confirmText={confirmConfig.confirmText}
+          variant={confirmConfig.variant}
+        />
+      </>
     );
   }
 
@@ -430,7 +509,30 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                           className="flex-1 bg-secondary border border-border rounded px-3 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                         <button disabled={updatingComment} type="submit" className="text-xs bg-primary text-black px-3 rounded font-bold hover:bg-orange-600 disabled:opacity-50">Save</button>
-                        <button type="button" onClick={() => setEditingCommentId(null)} className="text-xs text-muted-foreground hover:text-foreground px-2">Cancel</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (editCommentText !== comment.content) {
+                              setConfirmConfig({
+                                isOpen: true,
+                                title: "Discard Changes?",
+                                description: "You have unsaved changes in your comment. Discard them?",
+                                confirmText: "Discard",
+                                variant: 'warning',
+                                onConfirm: () => {
+                                  setEditingCommentId(null);
+                                  setEditCommentText('');
+                                }
+                              });
+                            } else {
+                              setEditingCommentId(null);
+                              setEditCommentText('');
+                            }
+                          }}
+                          className="text-xs text-muted-foreground hover:text-foreground px-2"
+                        >
+                          Cancel
+                        </button>
                       </form>
                     ) : (
                       <p className="text-sm text-muted-foreground mt-1 break-words">{comment.content}</p>
@@ -456,6 +558,16 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
           </form>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmConfig.isOpen}
+        onClose={closeConfirm}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        description={confirmConfig.description}
+        confirmText={confirmConfig.confirmText}
+        variant={confirmConfig.variant}
+      />
     </div>
   );
 };
@@ -478,6 +590,15 @@ export default function MovieDetailPage() {
 
   // Watchlist state
   const [watchlistAdded, setWatchlistAdded] = useState(false);
+
+  // Confirmation state for new review
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    onConfirm: () => { },
+  });
 
   // 1. Fetch all movies (since API doesn't support getById)
   const { data: movieData, loading: movieLoading, error: movieError } = useQuery(GET_MOVIES);
@@ -644,7 +765,26 @@ export default function MovieDetailPage() {
               User Reviews <span className="text-sm font-normal text-muted-foreground bg-secondary px-2 py-0.5 rounded-md">{reviews.length}</span>
             </h2>
             <button
-              onClick={() => { setShowReviewForm(!showReviewForm); setReviewError(''); }}
+              onClick={() => {
+                if (showReviewForm) {
+                  const isDirty = reviewForm.title.trim() !== '' ||
+                    reviewForm.content.trim() !== '' ||
+                    reviewForm.rating !== 'Good_To_Watch' ||
+                    reviewForm.isSpoiler !== false;
+
+                  if (isDirty) {
+                    setConfirmConfig({
+                      isOpen: true,
+                      onConfirm: () => setShowReviewForm(false)
+                    });
+                  } else {
+                    setShowReviewForm(false);
+                  }
+                } else {
+                  setShowReviewForm(true);
+                  setReviewError('');
+                }
+              }}
               className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
             >
               <PenLine size={15} /> {showReviewForm ? 'Cancel' : 'Write a Review'}
@@ -743,6 +883,16 @@ export default function MovieDetailPage() {
         </section>
 
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmConfig.onConfirm}
+        title="Discard Review?"
+        description="You have started writing a review. Are you sure you want to discard it?"
+        confirmText="Discard"
+        variant="warning"
+      />
     </div>
   );
 }
