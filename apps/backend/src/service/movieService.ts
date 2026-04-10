@@ -41,7 +41,7 @@ const createMovie = async (
     }
     return {
       message: 'Movie created',
-      success: false,
+      success: true,
     };
   } catch (err) {
     throw new Error('Failed to create the movie');

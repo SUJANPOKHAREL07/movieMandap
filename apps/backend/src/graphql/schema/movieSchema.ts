@@ -141,13 +141,14 @@ export const movieTypeDefs = gql`
       originalTitle: String
       releaseDate: Date
       runtime: Int!
-      poster: Upload
+      posterBase64: String
       budget: Int!
       revenue: Int
       status: MovieStatus!
       tagline: String!
       adult: Boolean!
       trailerLink: String
+      genreIds: [Int]
     ): MutationResponse
     updateMovie(
       title: String

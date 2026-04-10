@@ -27,6 +27,7 @@ export interface TMovieInput {
   adult: boolean;
   trailerLink: string | null;
   poster?: TFile;
+  genreIds?: number[];
 }
 export interface TMovieUpdate {
   title?: string | null;

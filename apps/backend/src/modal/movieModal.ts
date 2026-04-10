@@ -45,6 +45,11 @@ async function createMovie(data: any, poster: string) {
         tagline: data.tagline,
         adult: data.adult,
         trailerLink: data.trailerLink,
+        MovieGenre: {
+          create: data.genreIds?.map((id: number) => ({
+            generesId: id,
+          })),
+        },
       },
     });
   } catch (err) {

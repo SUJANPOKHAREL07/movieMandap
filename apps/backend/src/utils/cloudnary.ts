@@ -35,3 +35,13 @@ export async function uploadFile(file: TFile) {
   // Return the Cloudinary URL instead of local path
   return result.secure_url;
 }
+
+export async function uploadBase64(base64DataUrl: string): Promise<string> {
+  const uniqueName = `poster-${uuid()}`;
+  const result = await cloudinary.uploader.upload(base64DataUrl, {
+    folder: 'myapp/posters',
+    public_id: uniqueName,
+  });
+  console.log('✅ Uploaded base64 to Cloudinary:', result.secure_url);
+  return result.secure_url;
+}
