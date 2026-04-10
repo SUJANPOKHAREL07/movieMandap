@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMutation, gql } from '@apollo/client';
-import { Search, Bell, User, LogOut } from 'lucide-react';
+import { Search, Bell, User, LogOut, LayoutDashboard } from 'lucide-react';
 import ThemeToggle from './Theme-Toggle';
 import { useAuth } from '@/context/AuthContext';
 import ConfirmDialog from './ConfirmDialog';
@@ -126,6 +126,17 @@ const UserNavBar = () => {
                       {currentUser?.email && <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>}
                     </div>
                     <div className="p-1">
+                      {(currentUser.role === 'admin' || currentUser.role === 'moderator') && (
+                        <button
+                          onClick={() => {
+                            router.push('/dashboard');
+                            setShowDropdown(false);
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-primary/10 rounded-lg flex items-center gap-2 transition-colors border-b border-border/50 mb-1 pb-2"
+                        >
+                          <LayoutDashboard size={14} className="text-primary" /> Admin Dashboard
+                        </button>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"

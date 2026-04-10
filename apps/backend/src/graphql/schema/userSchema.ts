@@ -5,6 +5,7 @@ export const userTypeDefs = gql`
     id: Int!
     username: String!
     email: String!
+    role: Role!
   }
   enum Role {
     user

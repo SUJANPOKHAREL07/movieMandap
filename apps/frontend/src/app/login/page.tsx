@@ -5,25 +5,15 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
-import { useMutation, gql } from '@apollo/client';
 import { useAuth } from '@/context/AuthContext';
-
-const LOGIN_MUTATION = gql`
-  mutation LoginUser($email: String, $username: String, $password: String!) {
-    loginUser(email: $email, username: $username, password: $password) {
-      success
-      message
-      accessToken
-    }
-  }
-`;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { login, token } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -31,37 +21,22 @@ export default function LoginPage() {
     }
   }, [token, router]);
 
-  const [loginUser, { loading }] = useMutation(LOGIN_MUTATION, {
-    onCompleted: (data) => {
-      if (data.loginUser.success) {
-        if (data.loginUser.accessToken) {
-          localStorage.setItem('accessToken', data.loginUser.accessToken);
-        }
-        // Successful login
-        router.push('/');
-      } else {
-        // Failed login (handled by backend logic, e.g., wrong credentials)
-        setError(data.loginUser.message || 'Login failed');
-      }
-    },
-    onError: (err) => {
-      setError(err.message || 'An error occurred during login');
-    },
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      await loginUser({
-        variables: {
-          email: email,
-          password: password,
-        },
-      });
-    } catch (e) {
-      // Error handled in onError
+      const res = await login(email, password);
+      if (res.success) {
+        router.push('/');
+      } else {
+        setError(res.message);
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during login');
+    } finally {
+      setLoading(false);
     }
   };
 

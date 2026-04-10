@@ -5,7 +5,7 @@ import { fetchGraphQL } from '../lib/graphql';
 
 type AuthContextType = {
   token: string | null;
-  currentUser: { id: number; username: string; email: string } | null;
+  currentUser: { id: number; username: string; email: string; role: string } | null;
   login: (
     email: string,
     password: string
@@ -36,11 +36,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (token) {
       localStorage.setItem('accessToken', token);
-      fetchGraphQL(`query { getMe { id username email } }`)
+      fetchGraphQL(`query { getMe { id username email role } }`)
         .then((data) => {
-          if (data?.getMe) setCurrentUser(data.getMe);
+          if (data?.getMe) {
+            setCurrentUser(data.getMe);
+          } else {
+            setToken(null);
+            setCurrentUser(null);
+          }
         })
-        .catch(() => setCurrentUser(null));
+        .catch(() => {
+          setToken(null);
+          setCurrentUser(null);
+        });
     } else {
       localStorage.removeItem('accessToken');
       setCurrentUser(null);
@@ -48,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   async function login(email: string, password: string) {
-    const query = `mutation Login($email: String, $password: String!, $username: String) { loginUser(email: $email, password: $password) { success message accessToken refreshToken } }`;
+    const query = `mutation Login($email: String, $password: String!) { loginUser(email: $email, password: $password) { success message accessToken refreshToken } }`;
     try {
       const data = await fetchGraphQL(query, { email, password });
       const res = data?.loginUser;
