@@ -3,6 +3,7 @@ import { movieTypeDefs } from './movieSchema';
 import { movieSocialTypeDef } from './movieSocialSchema';
 import { movieTeamTypeDefs } from './movieTeamSchema';
 import { userTypeDefs } from './userSchema';
+import { dashboardTypeDefs } from './dashboardSchema';
 
 export const typeDefs = [
   userTypeDefs,
@@ -10,4 +11,5 @@ export const typeDefs = [
   movieTypeDefs,
   movieTeamTypeDefs,
   movieSocialTypeDef,
+  dashboardTypeDefs,
 ];

@@ -3,6 +3,7 @@ import { movieResolver } from './movieResolver';
 import { movieSocialResolver } from './movieSocialResolver';
 import { movieTeamResolver } from './movieTeamResolver';
 import { userResolvers } from './userResolver';
+import { dashboardResolver } from './dashboardResolver';
 
 export const resolvers = [
   userResolvers,
@@ -10,4 +11,5 @@ export const resolvers = [
   movieResolver,
   movieTeamResolver,
   movieSocialResolver,
+  dashboardResolver,
 ];
