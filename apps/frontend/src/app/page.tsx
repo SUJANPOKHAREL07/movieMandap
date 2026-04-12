@@ -6,6 +6,8 @@ import UserNavBar from '@/components/UserNavBar';
 import MovieCard from '@/components/MovieCard';
 import { Play, Info } from 'lucide-react';
 import { useQuery, gql } from '@apollo/client';
+import { buildAccessMap, isRouteAllowedInMap, Role } from '@/lib/routeAccess';
+import { useAuth } from '@/context/AuthContext';
 
 const GET_MOVIES = gql`
   query GetMovies {
@@ -26,11 +28,26 @@ const GET_MOVIES = gql`
   }
 `;
 
+const GET_ROUTE_ACCESS = gql`
+  query GetRouteAccess {
+    getRouteAccess {
+      routeId
+      role
+      allowed
+    }
+  }
+`;
+
 function BrowseContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q')?.toLowerCase() || '';
+  const { currentUser } = useAuth();
 
   const { data, loading, error } = useQuery(GET_MOVIES);
+  const { data: accessData } = useQuery(GET_ROUTE_ACCESS);
+  const accessMap = buildAccessMap(accessData?.getRouteAccess ?? []);
+  const userRole = ((currentUser?.role as Role) || 'user');
+  const canSeeArated = isRouteAllowedInMap(accessMap, 'arated', userRole);
 
   // Fallback/Loading UI
   if (loading) {
@@ -149,7 +166,7 @@ function BrowseContent() {
         </section>
 
         {/* A-Rated Movies Section */}
-        {(() => {
+        {canSeeArated && (() => {
           const aRatedMovies = movies.filter((m: any) => m.adult);
           if (aRatedMovies.length === 0) return null;
 

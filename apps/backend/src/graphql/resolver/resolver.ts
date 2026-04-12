@@ -4,6 +4,7 @@ import { movieSocialResolver } from './movieSocialResolver';
 import { movieTeamResolver } from './movieTeamResolver';
 import { userResolvers } from './userResolver';
 import { dashboardResolver } from './dashboardResolver';
+import { routeAccessResolver } from './routeAccessResolver';
 
 export const resolvers = [
   userResolvers,
@@ -12,4 +13,5 @@ export const resolvers = [
   movieTeamResolver,
   movieSocialResolver,
   dashboardResolver,
+  routeAccessResolver,
 ];

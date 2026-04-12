@@ -3,11 +3,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation, gql } from '@apollo/client';
 import { Search, Bell, User, LogOut, LayoutDashboard } from 'lucide-react';
 import ThemeToggle from './Theme-Toggle';
 import { useAuth } from '@/context/AuthContext';
 import ConfirmDialog from './ConfirmDialog';
+import { buildAccessMap, isRouteAllowedInMap, Role } from '@/lib/routeAccess';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 const LOGOUT_MUTATION = gql`
   mutation LogoutUser {
@@ -18,12 +19,28 @@ const LOGOUT_MUTATION = gql`
   }
 `;
 
+const GET_ROUTE_ACCESS = gql`
+  query GetRouteAccess {
+    getRouteAccess {
+      routeId
+      role
+      allowed
+    }
+  }
+`;
+
 const UserNavBar = () => {
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const { logout, currentUser } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const { data: accessData } = useQuery(GET_ROUTE_ACCESS);
+  const accessMap = buildAccessMap(accessData?.getRouteAccess ?? []);
+  const userRole = ((currentUser?.role as Role) || 'user');
+
+  const canSeeStats = isRouteAllowedInMap(accessMap, 'statistics', userRole);
+  const canSeeWatchlist = isRouteAllowedInMap(accessMap, 'watchlist', userRole);
   const [logoutUser] = useMutation(LOGOUT_MUTATION);
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -71,26 +88,30 @@ const UserNavBar = () => {
             <Link href="/" className="text-foreground hover:text-primary transition-colors">Home</Link>
             <Link href="#" className="hover:text-primary transition-colors">Movies</Link>
             <Link href="#" className="hover:text-primary transition-colors">Series</Link>
-            <Link href="/statistics" className="hover:text-primary transition-colors">Stats</Link>
-            <button
-              onClick={() => {
-                if (!currentUser) {
-                  setConfirmConfig({
-                    isOpen: true,
-                    title: 'Authentication Required',
-                    description: 'You need to be logged in to access your watchlist. Would you like to login or register now?',
-                    confirmText: 'Go to Login',
-                    variant: 'primary',
-                    onConfirm: () => router.push('/login')
-                  });
-                } else {
-                  router.push('/watchlist');
-                }
-              }}
-              className="hover:text-primary transition-colors"
-            >
-              My List
-            </button>
+            {canSeeStats && (
+              <Link href="/statistics" className="hover:text-primary transition-colors">Stats</Link>
+            )}
+            {canSeeWatchlist && (
+              <button
+                onClick={() => {
+                  if (!currentUser) {
+                    setConfirmConfig({
+                      isOpen: true,
+                      title: 'Authentication Required',
+                      description: 'You need to be logged in to access your watchlist. Would you like to login or register now?',
+                      confirmText: 'Go to Login',
+                      variant: 'primary',
+                      onConfirm: () => router.push('/login')
+                    });
+                  } else {
+                    router.push('/watchlist');
+                  }
+                }}
+                className="hover:text-primary transition-colors"
+              >
+                My List
+              </button>
+            )}
           </div>
 
           {/* Right Actions */}
