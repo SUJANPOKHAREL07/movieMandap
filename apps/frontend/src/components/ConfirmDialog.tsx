@@ -12,6 +12,7 @@ interface ConfirmDialogProps {
     confirmText?: string;
     cancelText?: string;
     variant?: 'danger' | 'warning' | 'primary';
+    showCancel?: boolean;
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -22,7 +23,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     description,
     confirmText = 'Confirm',
     cancelText = 'Cancel',
-    variant = 'primary'
+    variant = 'primary',
+    showCancel = true
 }) => {
     if (!isOpen) return null;
 
@@ -30,20 +32,20 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         switch (variant) {
             case 'danger':
                 return {
-                    icon: <Trash2 className="text-red-500" size={24} />,
-                    button: 'bg-red-500 hover:bg-red-600 text-white',
-                    bg: 'bg-red-500/10 border-red-500/20'
+                    icon: <Trash2 className="text-destructive" size={24} />,
+                    button: 'bg-destructive hover:opacity-90 text-destructive-foreground',
+                    bg: 'bg-destructive/10 border-destructive/20'
                 };
             case 'warning':
                 return {
-                    icon: <AlertCircle className="text-orange-500" size={24} />,
-                    button: 'bg-orange-500 hover:bg-orange-600 text-black',
-                    bg: 'bg-orange-500/10 border-orange-500/20'
+                    icon: <AlertCircle className="text-primary" size={24} />,
+                    button: 'bg-primary hover:bg-primary/90 text-primary-foreground',
+                    bg: 'bg-primary/10 border-primary/20'
                 };
             default:
                 return {
                     icon: <AlertCircle className="text-primary" size={24} />,
-                    button: 'bg-primary hover:bg-orange-600 text-black',
+                    button: 'bg-primary hover:bg-primary/90 text-primary-foreground',
                     bg: 'bg-primary/10 border-primary/20'
                 };
         }
@@ -91,12 +93,14 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                     >
                         {confirmText}
                     </button>
-                    <button
-                        onClick={onClose}
-                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold bg-secondary text-foreground hover:bg-secondary/80 transition-all border border-border"
-                    >
-                        {cancelText}
-                    </button>
+                    {showCancel && (
+                        <button
+                            onClick={onClose}
+                            className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold bg-secondary text-foreground hover:bg-secondary/80 transition-all border border-border"
+                        >
+                            {cancelText}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

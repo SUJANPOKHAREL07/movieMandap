@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import UserNavBar from '@/components/UserNavBar';
-import { Play, Star, Calendar, Clock, ArrowLeft, BookmarkPlus, PenLine, Check, Trash2, Edit2, X, MoreHorizontal } from 'lucide-react';
+import { Play, Star, Calendar, Clock, ArrowLeft, BookmarkPlus, PenLine, Check, Trash2, Edit2, X, MoreHorizontal, ThumbsUp, ThumbsDown, MessageSquare, Reply } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { buildAccessMap, isRouteAllowedInMap, Role } from '@/lib/routeAccess';
 
 const GET_MOVIES = gql`
   query GetMovies {
@@ -35,6 +36,11 @@ const GET_REVIEWS = gql`
       content
       rating
       isSpoiler
+      likesCount
+      disLikesCount
+      commentsCount
+      userHasLiked
+      userHasDisliked
       createdAt
       updatedAt
       user {
@@ -44,11 +50,46 @@ const GET_REVIEWS = gql`
       comments {
         id
         content
+        parentId
+        likesCount
+        disLikesCount
+        userHasLiked
+        userHasDisliked
         createdAt
         updatedAt
         user {
           id
           username
+        }
+        replies {
+          id
+          content
+          parentId
+          likesCount
+          disLikesCount
+          userHasLiked
+          userHasDisliked
+          createdAt
+          updatedAt
+          user {
+            id
+            username
+          }
+          replies {
+            id
+            content
+            parentId
+            likesCount
+            disLikesCount
+            userHasLiked
+            userHasDisliked
+            createdAt
+            updatedAt
+            user {
+              id
+              username
+            }
+          }
         }
       }
     }
@@ -92,8 +133,8 @@ const DELETE_COMMENT = gql`
 `;
 
 const CREATE_COMMENT = gql`
-  mutation CreateComment($content: String!, $reviewId: Int!) {
-    createComment(content: $content, reviewId: $reviewId) {
+  mutation CreateComment($content: String!, $reviewId: Int!, $parentId: Int) {
+    createComment(content: $content, reviewId: $reviewId, parentId: $parentId) {
       success
       message
     }
@@ -130,6 +171,16 @@ const ADD_WATCHLIST = gql`
   }
 `;
 
+const GET_ROUTE_ACCESS = gql`
+  query GetRouteAccess {
+    getRouteAccess {
+      routeId
+      role
+      allowed
+    }
+  }
+`;
+
 const RATINGS = [
   { value: 'Worst', label: '★ Worst' },
   { value: 'Bearable', label: '★★ Bearable' },
@@ -138,8 +189,311 @@ const RATINGS = [
   { value: 'Absolute_Cinema', label: '★★★★★ Absolute Cinema' },
 ];
 
-const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void }) => {
+const TOGGLE_REVIEW_LIKE = gql`
+  mutation ToggleReviewLike($reviewId: Int!) {
+    toggleReviewLike(reviewId: $reviewId) {
+      success
+      message
+    }
+  }
+`;
+
+const TOGGLE_REVIEW_DISLIKE = gql`
+  mutation ToggleReviewDislike($reviewId: Int!) {
+    toggleReviewDislike(reviewId: $reviewId) {
+      success
+      message
+    }
+  }
+`;
+
+const TOGGLE_COMMENT_LIKE = gql`
+  mutation ToggleCommentLike($commentId: Int!) {
+    toggleCommentLike(commentId: $commentId) {
+      success
+      message
+    }
+  }
+`;
+
+const TOGGLE_COMMENT_DISLIKE = gql`
+  mutation ToggleCommentDislike($commentId: Int!) {
+    toggleCommentDislike(commentId: $commentId) {
+      success
+      message
+    }
+  }
+`;
+
+const CommentItem = ({
+  comment,
+  onRefetch,
+  canComment,
+  canLike,
+  parentSetConfirmConfig,
+  depth = 0
+}: {
+  comment: any,
+  onRefetch: () => void,
+  canComment: boolean,
+  canLike: boolean,
+  parentSetConfirmConfig: any,
+  depth?: number
+}) => {
   const { currentUser } = useAuth();
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(comment.content);
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
+  const [activeMenu, setActiveMenu] = useState(false);
+
+  // New local confirmation state for CommentItem
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant: 'danger' | 'warning' | 'primary';
+    confirmText?: string;
+    showCancel?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => { },
+    variant: 'primary',
+    showCancel: true,
+  });
+
+  const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+
+  const [updateComment] = useMutation(gql`
+    mutation UpdateComment($commentId: Int!, $content: String!) {
+      updateComment(commentId: $commentId, content: $content) { success }
+    }
+  `);
+
+  const [deleteComment] = useMutation(gql`
+    mutation DeleteComment($commentId: Int!) {
+      deleteComment(commentId: $commentId) { success }
+    }
+  `);
+
+  const [toggleLike] = useMutation(TOGGLE_COMMENT_LIKE);
+  const [toggleDislike] = useMutation(TOGGLE_COMMENT_DISLIKE);
+  const [createComment] = useMutation(CREATE_COMMENT);
+
+  const handleUpdate = async () => {
+    if (!editedContent.trim()) return;
+    await updateComment({ variables: { commentId: comment.id, content: editedContent } });
+    setIsEditing(false);
+    onRefetch();
+  };
+
+  const handleDelete = async () => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Comment",
+      description: "Are you sure you want to delete this comment? This action cannot be undone.",
+      confirmText: "Delete",
+      variant: 'danger',
+      onConfirm: async () => {
+        await deleteComment({ variables: { commentId: comment.id } });
+        onRefetch();
+      }
+    });
+  };
+
+  const handleReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyContent.trim()) return;
+    await createComment({
+      variables: {
+        reviewId: Number(comment.reviewId), // This needs to be passed down or available
+        content: replyContent,
+        parentId: comment.id
+      }
+    });
+    setReplyContent('');
+    setShowReplyBox(false);
+    onRefetch();
+  };
+
+  return (
+    <div className={`mt-4 ${depth > 0 ? 'ml-6 border-l-2 border-border/30 pl-4' : ''}`}>
+      <div className="flex items-start gap-3 group">
+        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+          {comment.user?.username?.[0]?.toUpperCase() || 'A'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="bg-secondary/30 rounded-2xl p-3 inline-block max-w-full">
+            <div className="flex items-center justify-between gap-4 mb-1">
+              <span className="text-sm font-bold text-foreground">
+                {comment.user?.username || 'Anonymous'}
+              </span>
+              <span className="text-[10px] text-muted-foreground whitespace-nowrap" suppressHydrationWarning>
+                {new Date(Number(comment.createdAt)).toLocaleDateString()}
+              </span>
+            </div>
+
+            {isEditing ? (
+              <div className="space-y-2">
+                <textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg p-2 text-sm focus:outline-none"
+                  rows={2}
+                />
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => setIsEditing(false)} className="text-xs text-muted-foreground">Cancel</button>
+                  <button onClick={handleUpdate} className="text-xs text-primary font-bold">Save</button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-foreground/90 break-words">{comment.content}</p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 mt-1 ml-2">
+            <button
+              onClick={() => {
+                if (!currentUser) {
+                  parentSetConfirmConfig({
+                    isOpen: true,
+                    title: 'Authentication Required',
+                    description: 'You need to be logged in to like a comment. Would you like to login or register now?',
+                    confirmText: 'Go to Login',
+                    variant: 'primary',
+                    onConfirm: () => router.push('/login')
+                  });
+                  return;
+                }
+                if (!canLike) return;
+                toggleLike({ variables: { commentId: comment.id } }).then(() => onRefetch());
+              }}
+              disabled={!canLike}
+              className={`flex items-center gap-1 text-[11px] font-semibold transition-colors ${comment.userHasLiked ? 'text-primary' : 'text-muted-foreground hover:text-primary'} ${!canLike ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <ThumbsUp size={12} className={comment.userHasLiked ? 'fill-primary' : ''} /> {comment.likesCount || 0}
+            </button>
+            <button
+              onClick={() => {
+                if (!currentUser) {
+                  parentSetConfirmConfig({
+                    isOpen: true,
+                    title: 'Authentication Required',
+                    description: 'You need to be logged in to dislike a comment. Would you like to login or register now?',
+                    confirmText: 'Go to Login',
+                    variant: 'primary',
+                    onConfirm: () => router.push('/login')
+                  });
+                  return;
+                }
+                if (!canLike) return;
+                toggleDislike({ variables: { commentId: comment.id } }).then(() => onRefetch());
+              }}
+              disabled={!canLike}
+              className={`flex items-center gap-1 text-[11px] font-semibold transition-colors ${comment.userHasDisliked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'} ${!canLike ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <ThumbsDown size={12} className={comment.userHasDisliked ? 'fill-red-500' : ''} /> {comment.disLikesCount || 0}
+            </button>
+            {canComment && depth < 3 && (
+              <button
+                onClick={() => setShowReplyBox(!showReplyBox)}
+                className="flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Reply size={12} /> Reply
+              </button>
+            )}
+            {currentUser?.id === comment.user?.id && !isEditing && (
+              <div className="relative">
+                <button
+                  onClick={() => setActiveMenu(!activeMenu)}
+                  className="p-1 text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-all"
+                >
+                  <MoreHorizontal size={14} />
+                </button>
+                {activeMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setActiveMenu(false)} />
+                    <div className="absolute left-0 mt-1 w-24 bg-card border border-border/50 rounded-lg shadow-xl z-50 overflow-hidden py-1">
+                      <button
+                        onClick={() => { setIsEditing(true); setActiveMenu(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-secondary/50 transition-colors"
+                      >
+                        <Edit2 size={12} /> Edit
+                      </button>
+                      <button
+                        onClick={() => { handleDelete(); setActiveMenu(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {showReplyBox && (
+            <form onSubmit={handleReply} className="mt-3 flex flex-col gap-2">
+              <input
+                type="text"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Write a reply..."
+                className="flex-1 bg-secondary/20 border border-border/50 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowReplyBox(false)}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="bg-primary hover:bg-primary/80 text-black font-bold px-4 py-1.5 rounded-xl text-xs transition-all">
+                  Reply
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Render Replies */}
+          {comment.replies?.map((reply: any) => (
+            <CommentItem
+              key={reply.id}
+              comment={{ ...reply, reviewId: comment.reviewId }}
+              onRefetch={onRefetch}
+              canComment={canComment}
+              canLike={canLike}
+              parentSetConfirmConfig={parentSetConfirmConfig}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Render local ConfirmDialog for CommentItem */}
+      <ConfirmDialog
+        isOpen={confirmConfig.isOpen}
+        onClose={closeConfirm}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        description={confirmConfig.description}
+        confirmText={confirmConfig.confirmText}
+        variant={confirmConfig.variant}
+        showCancel={confirmConfig.showCancel}
+      />
+    </div>
+  );
+};
+
+const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentSetConfirmConfig }: { review: any, onRefetch: () => void, canComment: boolean, canReview: boolean, canLike: boolean, parentSetConfirmConfig: any }) => {
+  const { currentUser } = useAuth();
+  const router = useRouter();
   const isReviewOwner = currentUser?.id === review.user?.id;
   // console.log('Ownership Check:', { currentUser: currentUser?.id, reviewUser: review.user?.id, match: isReviewOwner });
 
@@ -172,15 +526,20 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
     onConfirm: () => void;
     variant: 'danger' | 'warning' | 'primary';
     confirmText?: string;
+    showCancel?: boolean;
   }>({
     isOpen: false,
     title: '',
     description: '',
     onConfirm: () => { },
     variant: 'primary',
+    showCancel: true,
   });
 
   const closeConfirm = () => setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+
+  const [toggleReviewLike] = useMutation(TOGGLE_REVIEW_LIKE);
+  const [toggleReviewDislike] = useMutation(TOGGLE_REVIEW_DISLIKE);
 
   const [addComment, { loading: addingComment }] = useMutation(CREATE_COMMENT, {
     onCompleted: () => {
@@ -195,10 +554,26 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
         setIsEditingReview(false);
         onRefetch();
       } else {
-        alert(data?.updateReview?.message || "Failed to update review");
+        setConfirmConfig({
+          isOpen: true,
+          title: "Update Failed",
+          description: data?.updateReview?.message || "Failed to update review",
+          confirmText: "OK",
+          variant: 'warning',
+          showCancel: false,
+          onConfirm: () => { }
+        });
       }
     },
-    onError: (error) => alert(error.message)
+    onError: (error) => setConfirmConfig({
+      isOpen: true,
+      title: "Error",
+      description: error.message,
+      confirmText: "OK",
+      variant: 'danger',
+      showCancel: false,
+      onConfirm: () => { }
+    })
   });
 
   const [deleteReview, { loading: deletingReview }] = useMutation(DELETE_REVIEW, {
@@ -206,10 +581,26 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
       if (data?.deleteReview?.success) {
         onRefetch();
       } else {
-        alert(data?.deleteReview?.message || "Failed to delete review");
+        setConfirmConfig({
+          isOpen: true,
+          title: "Delete Failed",
+          description: data?.deleteReview?.message || "Failed to delete review",
+          confirmText: "OK",
+          variant: 'warning',
+          showCancel: false,
+          onConfirm: () => { }
+        });
       }
     },
-    onError: (error) => alert(error.message)
+    onError: (error) => setConfirmConfig({
+      isOpen: true,
+      title: "Error",
+      description: error.message,
+      confirmText: "OK",
+      variant: 'danger',
+      showCancel: false,
+      onConfirm: () => { }
+    })
   });
 
   const [updateComment, { loading: updatingComment }] = useMutation(UPDATE_COMMENT, {
@@ -219,10 +610,26 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
         setEditCommentText('');
         onRefetch();
       } else {
-        alert(data?.updateComment?.message || "Failed to update comment");
+        setConfirmConfig({
+          isOpen: true,
+          title: "Update Failed",
+          description: data?.updateComment?.message || "Failed to update comment",
+          confirmText: "OK",
+          variant: 'warning',
+          showCancel: false,
+          onConfirm: () => { }
+        });
       }
     },
-    onError: (error) => alert(error.message)
+    onError: (error) => setConfirmConfig({
+      isOpen: true,
+      title: "Error",
+      description: error.message,
+      confirmText: "OK",
+      variant: 'danger',
+      showCancel: false,
+      onConfirm: () => { }
+    })
   });
 
   const [deleteComment] = useMutation(DELETE_COMMENT, {
@@ -230,10 +637,26 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
       if (data?.deleteComment?.success) {
         onRefetch();
       } else {
-        alert(data?.deleteComment?.message || "Failed to delete comment");
+        setConfirmConfig({
+          isOpen: true,
+          title: "Delete Failed",
+          description: data?.deleteComment?.message || "Failed to delete comment",
+          confirmText: "OK",
+          variant: 'warning',
+          showCancel: false,
+          onConfirm: () => { }
+        });
       }
     },
-    onError: (error) => alert(error.message)
+    onError: (error) => setConfirmConfig({
+      isOpen: true,
+      title: "Error",
+      description: error.message,
+      confirmText: "OK",
+      variant: 'danger',
+      showCancel: false,
+      onConfirm: () => { }
+    })
   });
 
   const handleCommentSubmit = (e: React.FormEvent) => {
@@ -367,6 +790,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
           description={confirmConfig.description}
           confirmText={confirmConfig.confirmText}
           variant={confirmConfig.variant}
+          showCancel={confirmConfig.showCancel}
         />
       </>
     );
@@ -391,7 +815,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                   />
                 ))}
               </div>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground" suppressHydrationWarning>
                 {new Date(Number(review.createdAt)).toLocaleDateString()}
                 {isReviewEdited && <span className="ml-1 italic opacity-60">(edited)</span>}
               </span>
@@ -412,7 +836,7 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
                 <MoreHorizontal size={20} />
               </button>
 
-              {showReviewMenu && (
+              {showReviewMenu && canReview && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowReviewMenu(false)} />
                   <div className="absolute right-0 mt-2 w-36 bg-card border border-border/50 rounded-xl shadow-2xl z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100">
@@ -439,140 +863,126 @@ const ReviewCard = ({ review, onRefetch }: { review: any, onRefetch: () => void 
       <p className="text-muted-foreground leading-relaxed mb-4">{review.content}</p>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-4 text-sm mt-4 border-t border-border/50 pt-4">
+      <div className="flex items-center gap-6 text-sm mt-4 border-t border-border/30 pt-4 px-1">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                parentSetConfirmConfig({
+                  isOpen: true,
+                  title: 'Authentication Required',
+                  description: 'You need to be logged in to like a review. Would you like to login or register now?',
+                  confirmText: 'Go to Login',
+                  variant: 'primary',
+                  onConfirm: () => router.push('/login')
+                });
+                return;
+              }
+              if (!canLike) return;
+              toggleReviewLike({ variables: { reviewId: Number(review.id) } }).then(() => onRefetch());
+            }}
+            disabled={!canLike}
+            className={`flex items-center gap-1.5 font-bold transition-all ${review.userHasLiked ? 'text-primary' : 'text-muted-foreground hover:text-primary'} ${!canLike ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <ThumbsUp size={18} className={review.userHasLiked ? 'fill-primary' : ''} />
+            <span>{review.likesCount || 0}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!currentUser) {
+                parentSetConfirmConfig({
+                  isOpen: true,
+                  title: 'Authentication Required',
+                  description: 'You need to be logged in to dislike a review. Would you like to login or register now?',
+                  confirmText: 'Go to Login',
+                  variant: 'primary',
+                  onConfirm: () => router.push('/login')
+                });
+                return;
+              }
+              if (!canLike) return;
+              toggleReviewDislike({ variables: { reviewId: Number(review.id) } }).then(() => onRefetch());
+            }}
+            disabled={!canLike}
+            className={`flex items-center gap-1.5 font-bold transition-all ${review.userHasDisliked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'} ${!canLike ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <ThumbsDown size={18} className={review.userHasDisliked ? 'fill-red-500' : ''} />
+            <span>{review.disLikesCount || 0}</span>
+          </button>
+        </div>
+
         <button
           onClick={() => setShowCommentBox(!showCommentBox)}
-          className="text-muted-foreground hover:text-primary transition-colors font-semibold"
+          className={`flex items-center gap-2 font-bold transition-all ${showCommentBox ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
         >
-          {review.comments?.length || 0} Comments
+          <MessageSquare size={18} />
+          <span>{review.commentsCount || 0} <span className="hidden sm:inline">Comments</span></span>
         </button>
       </div>
 
       {showCommentBox && (
-        <div className="mt-4 pt-4 border-t border-border/50">
-          {/* List existing comments */}
-          <div className="space-y-4 mb-4">
-            {review.comments?.map((comment: any) => {
-              const isCommentOwner = currentUser?.id === comment.user?.id;
-              const isCommentEdited = Number(comment.updatedAt) > Number(comment.createdAt) + 1000;
-              const isEditing = editingCommentId === comment.id;
-
-              return (
-                <div key={comment.id} className="flex gap-3 items-start bg-secondary/30 p-3 rounded-lg border border-border/30 group">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0 mt-1">
-                    {comment.user?.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-foreground">
-                        {comment.user?.username || 'Anonymous'}
-                        {isCommentEdited && <span className="ml-2 text-xs font-normal italic opacity-50">(edited)</span>}
-                      </span>
-                      {isCommentOwner && !isEditing && (
-                        <div className="relative">
-                          <button
-                            onClick={() => setActiveCommentMenuId(activeCommentMenuId === comment.id ? null : comment.id)}
-                            className="p-1 text-muted-foreground hover:text-foreground rounded transition-colors"
-                            title="More"
-                          >
-                            <MoreHorizontal size={14} />
-                          </button>
-
-                          {activeCommentMenuId === comment.id && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setActiveCommentMenuId(null)} />
-                              <div className="absolute right-0 mt-1 w-32 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden py-1">
-                                <button
-                                  onClick={() => { setEditingCommentId(comment.id); setEditCommentText(comment.content); setActiveCommentMenuId(null); }}
-                                  className="w-full text-left px-3 py-1.5 text-xs text-foreground hover:bg-primary/10 flex items-center gap-2 transition-colors"
-                                >
-                                  <Edit2 size={12} /> Edit
-                                </button>
-                                <button
-                                  onClick={() => { handleDeleteComment(comment.id); setActiveCommentMenuId(null); }}
-                                  className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
-                                >
-                                  <Trash2 size={12} /> Delete
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    {isEditing ? (
-                      <form onSubmit={(e) => handleUpdateComment(e, comment.id)} className="mt-2 flex gap-2">
-                        <input
-                          type="text"
-                          value={editCommentText}
-                          onChange={(e) => setEditCommentText(e.target.value)}
-                          className="flex-1 bg-secondary border border-border rounded px-3 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
-                        <button disabled={updatingComment} type="submit" className="text-xs bg-primary text-black px-3 rounded font-bold hover:bg-orange-600 disabled:opacity-50">Save</button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (editCommentText !== comment.content) {
-                              setConfirmConfig({
-                                isOpen: true,
-                                title: "Discard Changes?",
-                                description: "You have unsaved changes in your comment. Discard them?",
-                                confirmText: "Discard",
-                                variant: 'warning',
-                                onConfirm: () => {
-                                  setEditingCommentId(null);
-                                  setEditCommentText('');
-                                }
-                              });
-                            } else {
-                              setEditingCommentId(null);
-                              setEditCommentText('');
-                            }
-                          }}
-                          className="text-xs text-muted-foreground hover:text-foreground px-2"
-                        >
-                          Cancel
-                        </button>
-                      </form>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-1 break-words">{comment.content}</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
+        <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
           {/* Add Comment Input */}
-          <form onSubmit={handleCommentSubmit} className="flex gap-2">
-            <input
-              type="text"
-              value={commentText}
-              onChange={e => setCommentText(e.target.value)}
-              onClick={() => {
-                if (!currentUser) {
-                  setConfirmConfig({
-                    isOpen: true,
-                    title: 'Authentication Required',
-                    description: 'You need to be logged in to write a comment. Would you like to login or register now?',
-                    confirmText: 'Go to Login',
-                    variant: 'primary',
-                    onConfirm: () => router.push('/login')
-                  });
-                }
-              }}
-              readOnly={!currentUser}
-              placeholder={currentUser ? "Write a comment..." : "Login to comment..."}
-              className="flex-1 bg-secondary border border-border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary text-foreground transition-all"
-            />
-            <button
-              disabled={addingComment || !commentText.trim() || !currentUser}
-              type="submit"
-              className="bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-orange-600 transition-colors"
-            >
-              Post
-            </button>
-          </form>
+          {canComment && (
+            <form onSubmit={handleCommentSubmit} className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={e => setCommentText(e.target.value)}
+                  onClick={() => {
+                    if (!currentUser) {
+                      parentSetConfirmConfig({
+                        isOpen: true,
+                        title: 'Authentication Required',
+                        description: 'You need to be logged in to write a comment. Would you like to login or register now?',
+                        confirmText: 'Go to Login',
+                        variant: 'primary',
+                        onConfirm: () => router.push('/login')
+                      });
+                    }
+                  }}
+                  readOnly={!currentUser}
+                  placeholder={currentUser ? "Write a comment..." : "Login to comment..."}
+                  className="flex-1 bg-secondary border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all"
+                />
+                <button
+                  disabled={addingComment || !commentText.trim() || !currentUser}
+                  type="submit"
+                  className="bg-primary text-black px-6 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-orange-600 transition-all shadow-md shadow-primary/20"
+                >
+                  {addingComment ? '...' : 'Post'}
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowCommentBox(false)}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* List existing comments */}
+          <div className="space-y-4">
+            {review.comments?.map((comment: any) => (
+              <CommentItem
+                key={comment.id}
+                comment={{ ...comment, reviewId: review.id }}
+                onRefetch={onRefetch}
+                canComment={canComment}
+                canLike={canLike}
+                parentSetConfirmConfig={parentSetConfirmConfig}
+              />
+            ))}
+            {(!review.comments || review.comments.length === 0) && (
+              <p className="text-center py-6 text-sm text-muted-foreground italic border border-dashed border-border/50 rounded-xl">No comments yet. Start the conversation!</p>
+            )}
+          </div>
         </div>
       )}
 
@@ -632,6 +1042,14 @@ export default function MovieDetailPage() {
     variables: { movieName: movie?.title || '' },
     skip: !movie,
   });
+
+  const { data: accessData } = useQuery(GET_ROUTE_ACCESS);
+  const accessMap = buildAccessMap(accessData?.getRouteAccess ?? []);
+  const userRole = ((currentUser?.role as Role) || 'user');
+
+  const canReview = isRouteAllowedInMap(accessMap, 'reviews', userRole);
+  const canComment = isRouteAllowedInMap(accessMap, 'comments', userRole);
+  const canLike = isRouteAllowedInMap(accessMap, 'likes', userRole);
 
   const [createReview, { loading: submittingReview }] = useMutation(CREATE_REVIEW);
   const [addToWatchlist, { loading: addingWatchlist }] = useMutation(ADD_WATCHLIST);
@@ -836,7 +1254,9 @@ export default function MovieDetailPage() {
                   setReviewError('');
                 }
               }}
-              className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+              className={`flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${!canReview ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+              disabled={!canReview}
+              title={!canReview ? 'Reviews are currently disabled' : undefined}
             >
               <PenLine size={15} /> {showReviewForm ? 'Cancel' : 'Write a Review'}
             </button>
@@ -923,7 +1343,15 @@ export default function MovieDetailPage() {
           ) : reviews.length > 0 ? (
             <div className="grid gap-6">
               {reviews.map((review: any) => (
-                <ReviewCard key={review.id} review={review} onRefetch={() => refetchReviews()} />
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  onRefetch={() => refetchReviews()}
+                  canComment={canComment}
+                  canReview={canReview}
+                  canLike={canLike}
+                  parentSetConfirmConfig={setConfirmConfig}
+                />
               ))}
             </div>
           ) : (
