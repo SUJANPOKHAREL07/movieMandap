@@ -16,8 +16,7 @@ export const movieSocialResolver = {
       }
 
       // Allow public access to reviews
-      await authContextMiddleware(context).catch(() => null);
-
+      const auth = await authContextMiddleware(context).catch(() => ({ user: null }));
       const data = await MovieSocialGet.getAllReviewOfMovie(movieName);
 
       if (!data.success) {
@@ -26,32 +25,44 @@ export const movieSocialResolver = {
       if (typeof data.data == 'undefined') {
         throw new Error(data.message);
       }
-      // Transform the data to match our schema
-      const transformedReviews = data.data.map((review: any) => ({
-        id: review.id,
-        title: review.title,
-        content: review.content,
-        rating: review.rating,
-        isSpoiler: review.isSpoiler,
-        user: review.user, // This should now be populated
-        comments: review.Comment
-          ? review.Comment.map((comment: any) => ({
-            id: comment.id,
-            content: comment.content,
-            user: comment.user,
-            createdAt: String(comment.createdAt.getTime()),
-            updatedAt: String(comment.updatedAt.getTime()),
-            replies: comment.replies || [],
-          }))
-          : [],
-        likesCount: review._count?.Like || 0,
-        disLikesCount: review._count?.Dislike || 0,
 
-        commentsCount: review._count?.Comment || 0,
-        createdAt: String(review.creadtedAt.getTime()),
-        updatedAt: String(review.updatedAt.getTime()),
-      }));
-      console.log('data of review in the resolver', transformedReviews);
+      const userId = Number(auth.user?.userId || 0);
+
+      const transformedReviews = data.data.map((review: any) => {
+        // Function to transform comments recursively
+        const transformComment = (comment: any): any => ({
+          id: comment.id,
+          content: comment.content,
+          parentId: comment.parentId,
+          user: comment.user,
+          createdAt: String(comment.createdAt.getTime()),
+          updatedAt: String(comment.updatedAt.getTime()),
+          likesCount: comment._count?.CommentLike || 0,
+          disLikesCount: comment._count?.CommentDislike || 0,
+          userHasLiked: userId ? comment.CommentLike?.some((l: any) => l.userId === userId) : false,
+          userHasDisliked: userId ? comment.CommentDislike?.some((d: any) => d.userId === userId) : false,
+          replies: comment.replies ? comment.replies.map(transformComment) : [],
+        });
+
+        return {
+          id: review.id,
+          title: review.title,
+          content: review.content,
+          rating: review.rating,
+          isSpoiler: review.isSpoiler,
+          user: review.user,
+          comments: review.Comment ? review.Comment.map(transformComment) : [],
+          likesCount: review._count?.Like || 0,
+          disLikesCount: review._count?.Dislike || 0,
+          commentsCount: review._count?.Comment || 0,
+          userHasLiked: userId ? review.Like?.some((l: any) => l.userId === userId) : false,
+          userHasDisliked: userId ? review.Dislike?.some((d: any) => d.userId === userId) : false,
+          createdAt: String(review.creadtedAt.getTime()),
+          updatedAt: String(review.updatedAt.getTime()),
+        };
+      });
+
+      console.log('data of review in the resolver', JSON.stringify(transformedReviews, null, 2));
       return transformedReviews;
     },
     getAllWatchList: async (_: any, __: any, context: any) => {
@@ -265,6 +276,26 @@ export const movieSocialResolver = {
       }
 
       return await MovieSocialDelete.deleteDisLike(disLikeId);
+    },
+    toggleReviewLike: async (_: any, { reviewId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) throw new Error('Token missing in header');
+      return await movieSocialCreate.toggleReviewLike(Number(auth.user?.userId), reviewId);
+    },
+    toggleReviewDislike: async (_: any, { reviewId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) throw new Error('Token missing in header');
+      return await movieSocialCreate.toggleReviewDislike(Number(auth.user?.userId), reviewId);
+    },
+    toggleCommentLike: async (_: any, { commentId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) throw new Error('Token missing in header');
+      return await movieSocialCreate.toggleCommentLike(Number(auth.user?.userId), commentId);
+    },
+    toggleCommentDislike: async (_: any, { commentId }: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null) throw new Error('Token missing in header');
+      return await movieSocialCreate.toggleCommentDislike(Number(auth.user?.userId), commentId);
     },
     createFollow: async (_: any, { toFollowId }: any, context: any) => {
       console.log('this user get new follwer', toFollowId);

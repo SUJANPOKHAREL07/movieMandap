@@ -132,6 +132,39 @@ const createDisLike = async (data: TCreateLike) => {
     };
   }
 };
+
+const toggleReviewLike = async (userId: number, reviewId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleReviewLike(userId, reviewId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle like' };
+  }
+};
+
+const toggleReviewDislike = async (userId: number, reviewId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleReviewDislike(userId, reviewId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle dislike' };
+  }
+};
+
+const toggleCommentLike = async (userId: number, commentId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleCommentLike(userId, commentId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle comment like' };
+  }
+};
+
+const toggleCommentDislike = async (userId: number, commentId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleCommentDislike(userId, commentId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle comment dislike' };
+  }
+};
+
 const createComment = async (data: TCreateComment) => {
   try {
     const comment = await movieSocialModalCreate.createComment(data);
@@ -227,6 +260,10 @@ export const movieSocialCreate = {
   createWatchList,
   createDisLike,
   createFollow,
+  toggleReviewLike,
+  toggleReviewDislike,
+  toggleCommentLike,
+  toggleCommentDislike,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {

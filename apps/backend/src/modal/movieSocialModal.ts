@@ -64,6 +64,68 @@ async function createFollow(data: TFollow) {
     },
   });
 }
+
+async function toggleCommentLike(userId: number, commentId: number) {
+  const existing = await prisma.commentLike.findUnique({
+    where: { userId_commentId: { userId, commentId } },
+  });
+
+  if (existing) {
+    await prisma.commentLike.delete({ where: { id: existing.id } });
+    return { success: true, message: 'Like removed' };
+  }
+
+  await prisma.commentDislike.deleteMany({ where: { userId, commentId } });
+  await prisma.commentLike.create({ data: { userId, commentId } });
+  return { success: true, message: 'Comment liked' };
+}
+
+async function toggleCommentDislike(userId: number, commentId: number) {
+  const existing = await prisma.commentDislike.findUnique({
+    where: { userId_commentId: { userId, commentId } },
+  });
+
+  if (existing) {
+    await prisma.commentDislike.delete({ where: { id: existing.id } });
+    return { success: true, message: 'Dislike removed' };
+  }
+
+  await prisma.commentLike.deleteMany({ where: { userId, commentId } });
+  await prisma.commentDislike.create({ data: { userId, commentId } });
+  return { success: true, message: 'Comment disliked' };
+}
+
+// Review Interaction Toggles
+async function toggleReviewLike(userId: number, reviewId: number) {
+  const existing = await prisma.like.findUnique({
+    where: { userId_reviewId: { userId, reviewId } },
+  });
+
+  if (existing) {
+    await prisma.like.delete({ where: { id: existing.id } });
+    return { success: true, message: 'Like removed' };
+  }
+
+  await prisma.dislike.deleteMany({ where: { userId, reviewId } });
+  await prisma.like.create({ data: { userId, reviewId } });
+  return { success: true, message: 'Review liked' };
+}
+
+async function toggleReviewDislike(userId: number, reviewId: number) {
+  const existing = await prisma.dislike.findUnique({
+    where: { userId_reviewId: { userId, reviewId } },
+  });
+
+  if (existing) {
+    await prisma.dislike.delete({ where: { id: existing.id } });
+    return { success: true, message: 'Dislike removed' };
+  }
+
+  await prisma.like.deleteMany({ where: { userId, reviewId } });
+  await prisma.dislike.create({ data: { userId, reviewId } });
+  return { success: true, message: 'Review disliked' };
+}
+
 export const movieSocialModalCreate = {
   createComment,
   createFollow,
@@ -71,8 +133,12 @@ export const movieSocialModalCreate = {
   createLike,
   createWatchList,
   createDislike,
+  toggleCommentLike,
+  toggleCommentDislike,
+  toggleReviewLike,
+  toggleReviewDislike,
 };
-async function getReviewOfMovieByID(movieId: number) {
+async function getReviewOfMovieByID(movieId: number, userId?: number) {
   const data = await prisma.review.findMany({
     where: {
       movieId: movieId,
@@ -95,6 +161,8 @@ async function getReviewOfMovieByID(movieId: number) {
               username: true,
             },
           },
+          CommentLike: true,
+          CommentDislike: true,
           replies: {
             include: {
               user: {
@@ -103,14 +171,32 @@ async function getReviewOfMovieByID(movieId: number) {
                   username: true,
                 },
               },
+              CommentLike: true,
+              CommentDislike: true,
+              replies: { // Add another level of replies if needed
+                include: {
+                  user: { select: { id: true, username: true } },
+                  CommentLike: true,
+                  CommentDislike: true,
+                }
+              }
             },
+            orderBy: { createdAt: 'asc' },
           },
+          _count: {
+            select: {
+              CommentLike: true,
+              CommentDislike: true,
+              replies: true,
+            }
+          }
         },
         orderBy: {
           createdAt: 'asc',
         },
       },
-      Like: true, // Include likes to count them
+      Like: true,
+      Dislike: true,
       _count: {
         select: {
           Like: true,
@@ -120,11 +206,12 @@ async function getReviewOfMovieByID(movieId: number) {
       },
     },
     orderBy: {
-      creadtedAt: 'asc',
+      Like: {
+        _count: 'desc',
+      },
     },
   });
 
-  console.log('Fetched review data:', JSON.stringify(data, null, 2));
   return data;
 }
 
