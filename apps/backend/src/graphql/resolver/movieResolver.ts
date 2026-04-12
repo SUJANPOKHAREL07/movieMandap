@@ -3,7 +3,7 @@ import { movieService } from '../../service/movieService';
 // import { TMovieInput } from '../../types/movie.types';
 // import { TReqRes } from '../../types/user.types';
 import { GraphQLUpload } from 'graphql-upload';
-import { uploadFile, uploadBase64 } from '../../utils/cloudnary';
+import { uploadBase64 } from '../../utils/cloudnary';
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { TMovieInput } from '../../types/movie.types';
 export const movieResolver = {
@@ -72,10 +72,10 @@ export const movieResolver = {
           message: 'User are not allowed to create',
         };
       }
-      const { poster, ...data } = args;
+      const { posterBase64, ...data } = args as any;
       let posterPath = '';
-      if (typeof poster !== 'undefined') {
-        posterPath = await uploadFile(poster);
+      if (posterBase64) {
+        posterPath = await uploadBase64(posterBase64);
       }
       return await movieService.updateMovie(data, posterPath);
     },

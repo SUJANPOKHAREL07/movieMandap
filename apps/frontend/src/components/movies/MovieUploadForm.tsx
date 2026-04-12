@@ -39,6 +39,39 @@ const CREATE_MOVIE_MUTATION = gql`
   }
 `;
 
+const UPDATE_MOVIE_MUTATION = gql`
+  mutation UpdateMovie(
+    $title: String
+    $originalTitle: String
+    $releaseDate: Date
+    $runtime: Int
+    $posterBase64: String
+    $budget: Int
+    $revenue: Int
+    $status: MovieStatus
+    $tagline: String
+    $adult: Boolean
+    $trailerLink: String
+  ) {
+    updateMovie(
+      title: $title
+      originalTitle: $originalTitle
+      releaseDate: $releaseDate
+      runtime: $runtime
+      posterBase64: $posterBase64
+      budget: $budget
+      revenue: $revenue
+      status: $status
+      tagline: $tagline
+      adult: $adult
+      trailerLink: $trailerLink
+    ) {
+      success
+      message
+    }
+  }
+`;
+
 const GET_GENRES = gql`
   query GetGenres {
     getGenre {
@@ -50,27 +83,31 @@ const GET_GENRES = gql`
 
 interface MovieUploadFormProps {
   onClose: () => void;
+  movieToEdit?: any;
 }
 
-const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
+const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit }) => {
   const [step, setStep] = useState(1);
+  const isEditing = !!movieToEdit;
   const [formData, setFormData] = useState({
-    title: '',
-    originalTitle: '',
-    releaseDate: '',
-    runtime: 0,
-    adult: false,
-    overview: '',
-    tagline: '',
-    trailerLink: '',
-    status: 'IN_PRODUCTION',
-    budget: 0,
-    revenue: 0,
+    title: movieToEdit?.title || '',
+    originalTitle: movieToEdit?.originalTitle || '',
+    releaseDate: movieToEdit?.releaseDate ? new Date(movieToEdit.releaseDate).toISOString().split('T')[0] : '',
+    runtime: movieToEdit?.runtime || 0,
+    adult: movieToEdit?.adult || false,
+    overview: movieToEdit?.overview || '',
+    tagline: movieToEdit?.tagline || '',
+    trailerLink: movieToEdit?.trailerLink || '',
+    status: movieToEdit?.status || 'IN_PRODUCTION',
+    budget: movieToEdit?.budget || 0,
+    revenue: movieToEdit?.revenue || 0,
   });
 
-  const [selectedGenres, setSelectedGenres] = useState<{ id: number; name: string }[]>([]);
+  const [selectedGenres, setSelectedGenres] = useState<{ id: number; name: string }[]>(
+    movieToEdit?.MovieGenre?.map((mg: any) => mg.genre) || []
+  );
   const [posterFile, setPosterFile] = useState<File | null>(null);
-  const [posterPreview, setPosterPreview] = useState<string>('');
+  const [posterPreview, setPosterPreview] = useState<string>(movieToEdit?.posterPath || '');
 
   const readFileAsBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -89,6 +126,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
   };
 
   const { data: genreData } = useQuery(GET_GENRES);
+
   const [createMovie, { loading: creating }] = useMutation(CREATE_MOVIE_MUTATION, {
     onCompleted: (data) => {
       if (data.createMovie.success) {
@@ -102,6 +140,22 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
       alert('Mutation Error: ' + error.message);
     }
   });
+
+  const [updateMovie, { loading: updating }] = useMutation(UPDATE_MOVIE_MUTATION, {
+    onCompleted: (data) => {
+      if (data.updateMovie.success) {
+        alert('Movie updated successfully!');
+        onClose();
+      } else {
+        alert('Error: ' + data.updateMovie.message);
+      }
+    },
+    onError: (error) => {
+      alert('Mutation Error: ' + error.message);
+    }
+  });
+
+  const isMutating = creating || updating;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -125,21 +179,32 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (creating) return;
+    if (isMutating) return;
 
     let posterBase64: string | undefined;
     if (posterFile) {
       posterBase64 = await readFileAsBase64(posterFile);
     }
 
-    await createMovie({
-      variables: {
-        ...formData,
-        releaseDate: formData.releaseDate ? new Date(formData.releaseDate).toISOString() : null,
-        posterBase64,
-        genreIds: selectedGenres.map(g => g.id),
-      }
-    });
+    if (isEditing) {
+      await updateMovie({
+        variables: {
+          ...formData,
+          releaseDate: formData.releaseDate ? new Date(formData.releaseDate).toISOString() : null,
+          posterBase64,
+          // Note: updateMovie doesn't take genreIds natively in the schema yet, but we'll adapt what's there
+        }
+      });
+    } else {
+      await createMovie({
+        variables: {
+          ...formData,
+          releaseDate: formData.releaseDate ? new Date(formData.releaseDate).toISOString() : null,
+          posterBase64,
+          genreIds: selectedGenres.map(g => g.id),
+        }
+      });
+    }
   };
 
   const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
@@ -157,7 +222,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
         {/* Header */}
         <div className="px-8 py-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
           <div>
-            <h1 className="text-2xl font-bold text-orange-500">Add New Movie</h1>
+            <h1 className="text-2xl font-bold text-orange-500">{isEditing ? 'Edit Movie' : 'Add New Movie'}</h1>
             <p className="text-zinc-400 text-sm">Step {step} of 3: {steps[step - 1].title}</p>
           </div>
           <button
@@ -440,10 +505,10 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose }) => {
             <button
               form="movie-form"
               type="submit"
-              disabled={creating}
+              disabled={isMutating}
               className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
             >
-              {creating ? 'Adding Movie...' : 'Create Movie'}
+              {isMutating ? (isEditing ? 'Updating...' : 'Adding Movie...') : (isEditing ? 'Update Movie' : 'Create Movie')}
             </button>
           )}
         </div>

@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import MovieUploadForm from './MovieUploadForm';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useQuery, useMutation, gql } from '@apollo/client';
-import { Clapperboard, Trash2, Clock, Film } from 'lucide-react';
+import { Clapperboard, Trash2, Clock, Film, Pencil } from 'lucide-react';
+import ConfirmDialog from '../ConfirmDialog';
 
 const GET_MOVIES = gql`
   query GetMovies {
@@ -48,22 +49,25 @@ const STATUS_COLORS: Record<string, string> = {
 
 const Movies = () => {
   const [isOpen, setisOpen] = useState(false);
+  const [movieToEdit, setMovieToEdit] = useState<any>(null);
+  const [movieToDelete, setMovieToDelete] = useState<{ id: number; title: string } | null>(null);
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_MOVIES);
   const [deleteMovie] = useMutation(DELETE_MOVIE);
 
-  const handleDelete = async (id: number, title: string) => {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
-    setDeletingId(id);
+  const confirmDelete = async () => {
+    if (!movieToDelete) return;
+    setDeletingId(movieToDelete.id);
     try {
-      await deleteMovie({ variables: { title } });
+      await deleteMovie({ variables: { title: movieToDelete.title } });
       await refetch();
     } catch (e) {
       alert('Failed to delete movie.');
     } finally {
       setDeletingId(null);
+      setMovieToDelete(null);
     }
   };
 
@@ -84,14 +88,36 @@ const Movies = () => {
           </p>
         </div>
         <button
-          onClick={() => setisOpen(true)}
+          onClick={() => {
+            setMovieToEdit(null);
+            setisOpen(true);
+          }}
           className="bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600 duration-200 rounded-xl shadow-lg shadow-orange-500/20 flex items-center gap-2"
         >
           <span className="text-lg">+</span> Add Movie
         </button>
       </div>
 
-      {isOpen && <MovieUploadForm onClose={() => { setisOpen(false); refetch(); }} />}
+      {isOpen && (
+        <MovieUploadForm
+          movieToEdit={movieToEdit}
+          onClose={() => {
+            setisOpen(false);
+            setMovieToEdit(null);
+            refetch();
+          }}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={!!movieToDelete}
+        onClose={() => setMovieToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Movie"
+        description={`Are you sure you want to delete "${movieToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        variant="danger"
+      />
 
       {/* Search */}
       <div className="border border-border p-3 rounded-2xl flex items-center gap-2 bg-card">
@@ -151,15 +177,27 @@ const Movies = () => {
                 ) : (
                   <Clapperboard size={36} className="text-zinc-700" />
                 )}
-                {/* Delete button */}
-                <button
-                  onClick={() => handleDelete(movie.id, movie.title)}
-                  disabled={deletingId === movie.id}
-                  className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 disabled:opacity-50"
-                  title="Delete movie"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {/* Action buttons */}
+                <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <button
+                    onClick={() => {
+                      setMovieToEdit(movie);
+                      setisOpen(true);
+                    }}
+                    className="p-1.5 bg-black/60 hover:bg-orange-500 text-white rounded-lg transition-all duration-200"
+                    title="Edit movie"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => setMovieToDelete({ id: movie.id, title: movie.title })}
+                    disabled={deletingId === movie.id}
+                    className="p-1.5 bg-black/60 hover:bg-red-600 text-white rounded-lg transition-all duration-200 disabled:opacity-50"
+                    title="Delete movie"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
                 {/* Status badge */}
                 {movie.status && (
                   <span className={`absolute bottom-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full border ${STATUS_COLORS[movie.status] ?? ''}`}>

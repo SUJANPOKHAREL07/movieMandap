@@ -155,7 +155,7 @@ export const movieTypeDefs = gql`
       originalTitle: String
       releaseDate: Date
       runtime: Int
-      poster: Upload
+      posterBase64: String
       budget: Int
       revenue: Int
       status: MovieStatus
