@@ -71,6 +71,7 @@ const UserNavBar = () => {
             <Link href="/" className="text-foreground hover:text-primary transition-colors">Home</Link>
             <Link href="#" className="hover:text-primary transition-colors">Movies</Link>
             <Link href="#" className="hover:text-primary transition-colors">Series</Link>
+            <Link href="/statistics" className="hover:text-primary transition-colors">Stats</Link>
             <button
               onClick={() => {
                 if (!currentUser) {
