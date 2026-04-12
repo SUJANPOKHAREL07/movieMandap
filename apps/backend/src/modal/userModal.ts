@@ -36,6 +36,7 @@ async function getUserModal() {
       id: true,
       username: true,
       email: true,
+      role: true,
     },
   });
 
