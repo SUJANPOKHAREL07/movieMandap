@@ -16,6 +16,7 @@ const GET_MOVIES = gql`
       posterPath
       voteAverage
       releaseDate
+      adult
       MovieGenre {
         genre {
           name
@@ -140,11 +141,53 @@ function BrowseContent() {
                   year={releaseYear}
                   category={genreName}
                   image={poster}
+                  adult={movie.adult}
                 />
               );
             })}
           </div>
         </section>
+
+        {/* A-Rated Movies Section */}
+        {(() => {
+          const aRatedMovies = movies.filter((m: any) => m.adult);
+          if (aRatedMovies.length === 0) return null;
+
+          return (
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <span className="w-1 h-6 bg-red-600 rounded-full shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
+                  <span className="text-red-500 drop-shadow-md">A-Rated Collection</span>
+                </h2>
+                <button className="text-sm text-red-500 hover:text-red-400 hover:underline">View All</button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {aRatedMovies.map((movie: any) => {
+                  const poster = movie.posterPath
+                    ? (movie.posterPath.startsWith('http') ? movie.posterPath : `https://image.tmdb.org/t/p/w500${movie.posterPath}`)
+                    : 'https://via.placeholder.com/500x750';
+
+                  const releaseYear = movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 0;
+                  const genreName = movie.MovieGenre?.[0]?.genre?.name || 'Unknown';
+
+                  return (
+                    <MovieCard
+                      key={`arated-${movie.id}`}
+                      id={movie.id}
+                      title={movie.title}
+                      rating={movie.voteAverage || 0}
+                      year={releaseYear}
+                      category={genreName}
+                      image={poster}
+                      adult={movie.adult}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Keeping strict structure from before, just reusing list for demo of second section */}
         <section>
@@ -173,6 +216,7 @@ function BrowseContent() {
                   year={releaseYear}
                   category={genreName}
                   image={poster}
+                  adult={movie.adult}
                 />
               );
             })}

@@ -9,6 +9,7 @@ interface MovieCardProps {
   rating: number;
   year: number;
   category: string;
+  adult?: boolean;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({
@@ -18,6 +19,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   rating,
   year,
   category,
+  adult,
 }) => {
   return (
     <Link href={`/browse/${id}`} className="group relative rounded-xl overflow-hidden bg-card border border-border/50 shadow-lg hover:shadow-orange-500/20 transition-all duration-300 hover:-translate-y-1 block">
@@ -34,22 +36,30 @@ const MovieCard: React.FC<MovieCardProps> = ({
             <Play fill="currentColor" size={24} />
           </button>
         </div>
-        
+
         {/* Rating Badge */}
-        <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 border border-white/10">
-          <Star className="text-orange-500" fill="currentColor" size={12} />
-          <span className="text-white text-xs font-bold">{rating.toFixed(1)}</span>
+        <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
+          <div className="bg-black/70 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 border border-white/10">
+            <Star className="text-orange-500" fill="currentColor" size={12} />
+            <span className="text-white text-xs font-bold">{rating.toFixed(1)}</span>
+          </div>
+          {adult && (
+            <div className="bg-red-600/90 backdrop-blur-md px-2 py-0.5 rounded-md flex items-center shadow-[0_0_12px_rgba(220,38,38,0.7)] border border-red-400/50 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"></div>
+              <span className="text-white text-[10px] font-black tracking-widest uppercase relative z-10 w-4 text-center">A</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
         <div className="flex justify-between items-start mb-1">
-            <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{title}</h3>
+          <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{title}</h3>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
-            <span>{year}</span>
-            <span className="px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{category}</span>
+          <span>{year}</span>
+          <span className="px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{category}</span>
         </div>
       </div>
     </Link>
