@@ -17,6 +17,7 @@ const GET_MOVIES = gql`
       overview
       posterPath
       voteAverage
+      dominantRating
       releaseDate
       adult
       MovieGenre {
@@ -154,7 +155,7 @@ function BrowseContent() {
                   key={movie.id}
                   id={movie.id}
                   title={movie.title}
-                  rating={movie.voteAverage || 0}
+                  dominantRating={movie.dominantRating || 'No Ratings'}
                   year={releaseYear}
                   category={genreName}
                   image={poster}
@@ -193,7 +194,7 @@ function BrowseContent() {
                       key={`arated-${movie.id}`}
                       id={movie.id}
                       title={movie.title}
-                      rating={movie.voteAverage || 0}
+                      dominantRating={movie.dominantRating || 'No Ratings'}
                       year={releaseYear}
                       category={genreName}
                       image={poster}
@@ -229,7 +230,7 @@ function BrowseContent() {
                   key={`new-${movie.id}`}
                   id={movie.id}
                   title={movie.title}
-                  rating={movie.voteAverage || 0}
+                  dominantRating={movie.dominantRating || 'No Ratings'}
                   year={releaseYear}
                   category={genreName}
                   image={poster}

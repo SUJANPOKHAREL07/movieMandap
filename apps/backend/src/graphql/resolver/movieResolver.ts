@@ -150,5 +150,27 @@ export const movieResolver = {
       }, 0);
       return Number((total / parent.Review.length).toFixed(1));
     },
+    dominantRating: (parent: any) => {
+      if (!parent.Review || parent.Review.length === 0) return 'No Ratings';
+      const counts: Record<string, number> = {};
+      parent.Review.forEach((review: any) => {
+        counts[review.rating] = (counts[review.rating] || 0) + 1;
+      });
+
+      let maxCount = 0;
+      let dominant = '';
+
+      // Define order of ratings if ties occur, or just pick the first one
+      // But typically, we just pick the one with the highest count.
+      for (const rating in counts) {
+        if (counts[rating] > maxCount) {
+          maxCount = counts[rating];
+          dominant = rating;
+        }
+      }
+
+      // Replace underscores with spaces for better display
+      return dominant.replace(/_/g, ' ');
+    },
   },
 };

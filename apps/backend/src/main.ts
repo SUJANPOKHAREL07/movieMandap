@@ -47,6 +47,24 @@ async function startServer() {
           token: auth.token,
         };
       },
+      formatError: (error) => {
+        console.error('GraphQL Error:', error);
+
+        // Check for Prisma connection errors
+        if (
+          error.message.includes('Can\'t reach database server') ||
+          error.message.includes('PrismaClientKnownRequestError') ||
+          error.message.includes('P1001') ||
+          error.message.includes('P1002') ||
+          error.message.includes('P1003')
+        ) {
+          return new Error(
+            'Database connection failed. Please ensure your database server is running and accessible at the configured port.'
+          );
+        }
+
+        return error;
+      },
     }
     // @ts-ignore
     //   context: async ({ req, res }: TReqRes) => {

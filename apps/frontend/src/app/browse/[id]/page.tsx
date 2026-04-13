@@ -17,6 +17,7 @@ const GET_MOVIES = gql`
       overview
       posterPath
       voteAverage
+      dominantRating
       releaseDate
       runtime
       MovieGenre {
@@ -224,6 +225,16 @@ const TOGGLE_COMMENT_DISLIKE = gql`
     }
   }
 `;
+
+const getRatingStyle = (rating: string) => {
+  const r = rating.toUpperCase();
+  if (r.includes('ABSOLUTE CINEMA')) return 'bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-500 text-white border-orange-400/50 shadow-[0_0_30px_rgba(249,115,22,0.6)]';
+  if (r.includes('WORTHY')) return 'bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 text-white border-blue-400/50 shadow-[0_0_30px_rgba(59,130,246,0.6)]';
+  if (r.includes('GOOD TO WATCH')) return 'bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 text-white border-emerald-400/50 shadow-[0_0_30px_rgba(16,185,129,0.6)]';
+  if (r.includes('BEARABLE')) return 'bg-gradient-to-br from-amber-500 via-amber-400 to-yellow-300 text-black border-amber-400/50 shadow-[0_0_30px_rgba(245,158,11,0.6)]';
+  if (r.includes('WORST')) return 'bg-gradient-to-br from-rose-600 via-red-500 to-orange-400 text-white border-red-400/50 shadow-[0_0_30px_rgba(239,68,68,0.6)]';
+  return 'bg-secondary/40 border-border text-muted-foreground';
+};
 
 const CommentItem = ({
   comment,
@@ -1198,9 +1209,9 @@ export default function MovieDetailPage() {
                     {watchlistAdded ? 'Added' : 'My List'}
                   </button>
                   <div className="flex items-center gap-2 ml-auto">
-                    <Star className="text-yellow-400 fill-yellow-400" size={28} />
-                    <span className="text-2xl font-bold text-foreground">{movie.voteAverage?.toFixed(1) || 'N/A'}</span>
-                    <span className="text-muted-foreground text-sm mt-1">/ 10</span>
+                    <div className={`backdrop-blur-md px-6 py-3 rounded-2xl border transition-all duration-500 ${getRatingStyle(movie.dominantRating || '')}`}>
+                      <span className="text-2xl font-black uppercase tracking-tighter whitespace-nowrap">{movie.dominantRating || 'No Ratings'}</span>
+                    </div>
                   </div>
                 </div>
               </div>

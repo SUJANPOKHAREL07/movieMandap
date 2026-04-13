@@ -1,22 +1,32 @@
 import React from 'react';
-import { Star, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import Link from 'next/link';
 
 interface MovieCardProps {
   id: number;
   title: string;
   image: string;
-  rating: number;
+  dominantRating: string;
   year: number;
   category: string;
   adult?: boolean;
 }
 
+const getRatingColor = (rating: string) => {
+  const r = rating.toUpperCase();
+  if (r.includes('ABSOLUTE CINEMA')) return 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white border-orange-400/50 shadow-[0_0_12px_rgba(249,115,22,0.4)]';
+  if (r.includes('WORTHY')) return 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white border-blue-400/50 shadow-[0_0_12px_rgba(59,130,246,0.4)]';
+  if (r.includes('GOOD TO WATCH')) return 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-emerald-400/50 shadow-[0_0_12px_rgba(16,185,129,0.4)]';
+  if (r.includes('BEARABLE')) return 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black border-amber-400/50 shadow-[0_0_12px_rgba(245,158,11,0.4)]';
+  if (r.includes('WORST')) return 'bg-gradient-to-r from-rose-600 to-red-500 text-white border-red-400/50 shadow-[0_0_12px_rgba(225,29,72,0.4)]';
+  return 'bg-secondary/80 text-foreground border-white/10';
+};
+
 const MovieCard: React.FC<MovieCardProps> = ({
   id,
   title,
   image,
-  rating,
+  dominantRating,
   year,
   category,
   adult,
@@ -39,9 +49,8 @@ const MovieCard: React.FC<MovieCardProps> = ({
 
         {/* Rating Badge */}
         <div className="absolute top-2 right-2 flex flex-col gap-2 items-end">
-          <div className="bg-black/70 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 border border-white/10">
-            <Star className="text-orange-500" fill="currentColor" size={12} />
-            <span className="text-white text-xs font-bold">{rating.toFixed(1)}</span>
+          <div className={`backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 border shadow-lg transition-colors ${getRatingColor(dominantRating)}`}>
+            <span className="text-[10px] font-black uppercase tracking-wider">{dominantRating}</span>
           </div>
           {adult && (
             <div className="bg-red-600/90 backdrop-blur-md px-2 py-0.5 rounded-md flex items-center shadow-[0_0_12px_rgba(220,38,38,0.7)] border border-red-400/50 relative overflow-hidden">
