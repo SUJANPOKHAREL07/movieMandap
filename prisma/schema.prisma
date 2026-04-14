@@ -34,6 +34,21 @@ model user {
   CommentLike     CommentLike[]
   CommentDislike  CommentDislike[]
 
+  // Series related
+  SeriesReview           SeriesReview[]
+  SeriesLike             SeriesLike[]
+  SeriesComment          SeriesComment[]
+  SeriesWatchlistItem    SeriesWatchlistItem[]
+  SeriesDislike          SeriesDislike[]
+  SeriesCommentLike      SeriesCommentLike[]
+  SeriesCommentDislike   SeriesCommentDislike[]
+
+  // Season related
+  SeasonReview           SeasonReview[]
+  SeasonLike             SeasonLike[]
+  SeasonDislike          SeasonDislike[]
+  SeasonComment          SeasonComment[]
+
   @@unique([email, id])
 }
 
@@ -93,6 +108,7 @@ model Genre {
   id         Int          @id @default(autoincrement())
   name       String       @unique
   MovieGenre MovieGenre[]
+  SeriesGenre SeriesGenre[]
 
   @@unique([id, name])
   @@map("genres")
@@ -117,6 +133,7 @@ model ProductionCompany {
   logoPath               String?
   originCountry          String?
   MovieProductionCompany MovieProductionCompany[]
+  SeriesProductionCompany SeriesProductionCompany[]
 
   @@unique([id, name])
   @@map("production_companies")
@@ -144,6 +161,8 @@ model Person {
   adult      Boolean      @default(true)
   crewMember crewMember[]
   CastMember CastMember[]
+  SeriesCrewMember SeriesCrewMember[]
+  SeriesCastMember SeriesCastMember[]
 
   @@map("people")
 }
@@ -321,4 +340,280 @@ model RouteAccess {
 
   @@unique([routeId, role])
   @@map("route_access")
+}
+
+model Series {
+  id                     Int                      @id @default(autoincrement())
+  title                  String                   @unique
+  originalTitle          String?
+  overview               String?
+  releaseDate            DateTime?
+  runtime                Int?
+  posterPath             String?
+  trailerLink            String?
+  budget                 Int?
+  revenue                Int?
+  status                 seriesStatus             @default(IN_PRODUCTION)
+  tagline                String?
+  adult                  Boolean                  @default(false)
+  SeriesGenre            SeriesGenre[]
+  SeriesProductionCompany SeriesProductionCompany[]
+  SeriesCrewMember       SeriesCrewMember[]
+  SeriesCastMember       SeriesCastMember[]
+  SeriesReview           SeriesReview[]
+  SeriesWatchlistItem    SeriesWatchlistItem[]
+
+  @@unique([id, title])
+  @@map("series")
+  Season                 Season[]
+}
+
+model Season {
+  id           Int      @id @default(autoincrement())
+  seriesId     Int
+  seasonNumber Int
+  title        String?
+  overview     String?
+  airDate      DateTime?
+  episodeCount Int      @default(0)
+  posterPath   String?
+
+  series       Series         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  SeasonReview SeasonReview[]
+
+  @@unique([seriesId, seasonNumber])
+  @@map("seasons")
+}
+
+model SeasonReview {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  rating     Ratings  @default(Good_To_Watch)
+  isSpoiler  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int
+  seasonId   Int
+
+  user            user                 @relation(references: [id], fields: [userId], onDelete: Cascade)
+  season          Season               @relation(references: [id], fields: [seasonId], onDelete: Cascade)
+  SeasonLike      SeasonLike[]
+  SeasonDislike   SeasonDislike[]
+  SeasonComment   SeasonComment[]
+
+  @@unique([userId, seasonId])
+  @@map("season_reviews")
+}
+
+model SeasonLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+
+  user   user         @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review SeasonReview @relation(references: [id], fields: [reviewId], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("season_likes")
+}
+
+model SeasonDislike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+
+  user   user         @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review SeasonReview @relation(references: [id], fields: [reviewId], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("season_dislikes")
+}
+
+model SeasonComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  reviewId  Int
+  parentId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    user          @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review  SeasonReview  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parent  SeasonComment?  @relation("SeasonCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies SeasonComment[] @relation("SeasonCommentReplies")
+
+  @@map("season_comments")
+}
+
+enum seriesStatus {
+  RELEASED
+  IN_PRODUCTION
+  POST_PRODUCTION
+  PLANNED
+  CANCELLED
+  RUMORED
+}
+
+model SeriesGenre {
+  id Int @id @default(autoincrement())
+
+  seriesId  Int
+  generesId Int
+
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  genre  Genre  @relation(fields: [generesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, generesId])
+  @@map("series_genere")
+}
+
+model SeriesProductionCompany {
+  id        Int               @id @default(autoincrement())
+  seriesId  Int
+  conpanyId Int
+  series    Series            @relation(references: [id], fields: [seriesId], onDelete: Cascade)
+  company   ProductionCompany @relation(references: [id], fields: [conpanyId], onDelete: Cascade)
+
+  @@unique([seriesId, conpanyId])
+  @@map("series_production_companies")
+}
+
+model SeriesCrewMember {
+  id         Int    @id @default(autoincrement())
+  seriesId   Int
+  personId   Int
+  department String
+  job        String
+
+  series Series @relation(references: [id], fields: [seriesId], onDelete: Cascade)
+  person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
+
+  @@unique([seriesId, personId, job])
+  @@map("series_crew_member")
+}
+
+model SeriesCastMember {
+  id        Int    @id @default(autoincrement())
+  seriesId  Int
+  personId  Int
+  character String
+  creditId  String
+
+  series Series @relation(references: [id], fields: [seriesId], onDelete: Cascade)
+  person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
+
+  @@unique([seriesId, personId, character])
+  @@map("series_cast_member")
+}
+
+model SeriesReview {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  rating     Ratings  @default(Good_To_Watch)
+  isSpoiler  Boolean  @default(false)
+  creadtedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int
+  seriesId   Int
+
+  user          user            @relation(references: [id], fields: [userId], onDelete: Cascade)
+  series        Series          @relation(references: [id], fields: [seriesId], onDelete: Cascade)
+  SeriesLike    SeriesLike[]
+  SeriesComment SeriesComment[]
+  SeriesDislike SeriesDislike[]
+
+  @@unique([userId, seriesId])
+  @@map("series_reviews")
+}
+
+model SeriesLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   user         @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review SeriesReview @relation(references: [id], fields: [reviewId], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("series_likes")
+}
+
+model SeriesDislike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   user         @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review SeriesReview @relation(references: [id], fields: [reviewId], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("series_dislikes")
+}
+
+model SeriesComment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  reviewId  Int
+  parentId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                 user                   @relation(references: [id], fields: [userId], onDelete: Cascade)
+  review               SeriesReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parent               SeriesComment?         @relation("SeriesCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies              SeriesComment[]        @relation("SeriesCommentReplies")
+  SeriesCommentLike    SeriesCommentLike[]
+  SeriesCommentDislike SeriesCommentDislike[]
+
+  @@map("series_comments")
+}
+
+model SeriesCommentLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime @default(now())
+
+  user    user          @relation(references: [id], fields: [userId], onDelete: Cascade)
+  comment SeriesComment @relation(references: [id], fields: [commentId], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@map("series_comment_likes")
+}
+
+model SeriesCommentDislike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime @default(now())
+
+  user    user          @relation(references: [id], fields: [userId], onDelete: Cascade)
+  comment SeriesComment @relation(references: [id], fields: [commentId], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@map("series_comment_dislikes")
+}
+
+model SeriesWatchlistItem {
+  id       Int         @id @default(autoincrement())
+  userId   Int
+  seriesId Int
+  addedAt  DateTime    @default(now())
+  note     String?
+  status   watchStatus @default(Yet_To_Watch)
+  user     user        @relation(references: [id], fields: [userId], onDelete: Cascade)
+  series   Series      @relation(references: [id], fields: [seriesId], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@map("series_watchlist_items")
 }
