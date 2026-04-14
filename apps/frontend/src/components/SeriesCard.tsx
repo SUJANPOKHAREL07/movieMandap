@@ -64,7 +64,7 @@ const SeriesCard: React.FC<SeriesCardProps> = ({
       {/* Content */}
       <div className="p-4">
         <div className="flex justify-between items-start mb-1">
-          <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{title}</h3>
+          <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-all duration-300 group-hover:tracking-tighter uppercase">{title}</h3>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
           <span>{year}</span>

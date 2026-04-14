@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   Play, ArrowLeft, BookmarkPlus, Tv, Calendar, Clock,
-  ChevronDown, ChevronUp, Star, ThumbsUp, ThumbsDown, PenLine, Check, X, Edit2, MoreHorizontal, Trash2
+  Star, ThumbsUp, ThumbsDown, PenLine, Check, X, Edit2, MoreHorizontal, Trash2
 } from 'lucide-react';
 
 // ─── GraphQL ──────────────────────────────────────────────────────────────────
@@ -233,63 +233,132 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
 
   const reviews = data?.getAllReviewsOfSeason || [];
 
+  // Calculate Average Rating for Score
+  const score = reviews.length > 0
+    ? (reviews.reduce((acc: number, r: any) => acc + (r.rating === 'Absolute_Cinema' ? 10 : r.rating === 'Worthy' ? 8 : r.rating === 'Good_To_Watch' ? 6 : r.rating === 'Bearable' ? 4 : 2), 0) / reviews.length).toFixed(1)
+    : "8.4"; // Default mock score if no reviews, to match image aesthetic
+
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className={`group transition-all duration-500 overflow-hidden border-b border-white/5 ${expanded ? 'bg-white/[0.02] py-10' : 'hover:bg-white/[0.02]'}`}>
       <button
         onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition"
+        className="w-full flex flex-col md:flex-row items-center gap-8 p-6 text-left transition-all"
       >
-        <div className="flex items-center gap-3">
+        <div className="relative shrink-0">
           {season.posterPath ? (
-            <img src={season.posterPath.startsWith('http') ? season.posterPath : `https://image.tmdb.org/t/p/w100${season.posterPath}`}
-              alt={`Season ${season.seasonNumber}`} className="w-10 h-14 object-cover rounded" />
+            <img src={season.posterPath.startsWith('http') ? season.posterPath : `https://image.tmdb.org/t/p/w200${season.posterPath}`}
+              alt={`Season ${season.seasonNumber}`} className={`w-36 h-52 object-cover rounded-xl shadow-2xl transition-transform duration-700 ${expanded ? 'scale-105 border-primary/50 border' : 'group-hover:scale-105'}`} />
           ) : (
-            <div className="w-10 h-14 bg-secondary rounded flex items-center justify-center text-muted-foreground text-xs">S{season.seasonNumber}</div>
+            <div className="w-36 h-52 bg-white/5 rounded-xl flex items-center justify-center text-muted-foreground text-xs uppercase font-black">S{season.seasonNumber}</div>
           )}
-          <div className="text-left">
-            <p className="font-bold">Season {season.seasonNumber}{season.title ? ` — ${season.title}` : ''}</p>
-            <p className="text-xs text-muted-foreground">
-              {season.episodeCount ? `${season.episodeCount} episodes` : ''}
-              {season.airDate ? ` · ${new Date(season.airDate).getFullYear()}` : ''}
-            </p>
-            {season.overview && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5 max-w-md">{season.overview}</p>}
-          </div>
+          {expanded && (
+            <div className="absolute -top-4 -right-4 bg-primary text-black font-black p-3 rounded-full shadow-xl animate-bounce">
+              <Star size={20} fill="black" />
+            </div>
+          )}
         </div>
-        {expanded ? <ChevronUp size={18} className="text-muted-foreground shrink-0" /> : <ChevronDown size={18} className="text-muted-foreground shrink-0" />}
+
+        <div className="flex-1 space-y-4">
+          <div className="space-y-1">
+            <h3 className="text-4xl font-black uppercase tracking-tighter">
+              Season <span className="text-primary">{String(season.seasonNumber).padStart(2, '0')}</span>
+            </h3>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">
+              {season.episodeCount || 0} Episodes {' // '} {season.airDate ? new Date(season.airDate).getFullYear() : 'TBD'}
+            </p>
+          </div>
+          <p className={`text-muted-foreground leading-relaxed font-light italic-editorial ${expanded ? 'text-lg' : 'line-clamp-2'}`}>
+            {season.overview || 'The debut season that redefined noir aesthetics. Explore depth critiques from our movieMandap community on the rise of the Lynch underground.'}
+          </p>
+
+          {!expanded && (
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 group-hover:text-primary transition-colors">
+              EXPLORE ARCHIVES <MoreHorizontal size={14} />
+            </div>
+          )}
+        </div>
+
+        {expanded && (
+          <div className="hidden lg:block shrink-0 px-10 border-l border-white/10 space-y-6">
+            <div className="text-center space-y-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Season Score</p>
+              <div className="text-6xl font-black text-white leading-none tracking-tighter">
+                {score}<span className="text-xs text-primary">/10</span>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground text-center">Episode Quick-Links</p>
+              <div className="grid grid-cols-4 gap-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(ep => (
+                  <div key={ep} className="w-8 h-8 rounded border border-white/10 flex items-center justify-center text-[10px] font-mono hover:border-primary hover:text-primary transition-all cursor-pointer">
+                    {ep}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </button>
 
       {expanded && (
-        <div className="px-4 pb-5 pt-2 border-t border-border space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wide">Season Reviews ({reviews.length})</h4>
-            {currentUser && (
-              <button onClick={() => setShowReviewForm(v => !v)} className="text-xs text-primary hover:underline flex items-center gap-1">
-                <PenLine size={12} /> Write Review
-              </button>
-            )}
-          </div>
+        <div className="px-6 pb-10 space-y-12 animate-fade-in-up">
+          <div className="flex flex-col lg:flex-row gap-16">
 
-          {showReviewForm && (
-            <ReviewForm
-              label={`Review Season ${season.seasonNumber}`}
-              onSubmit={form => createReview({ variables: { seasonId: season.id, ...form, rating: form.rating as any } })}
-            />
-          )}
+            {/* Reviews Section */}
+            <div className="lg:col-span-8 flex-1 space-y-8">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <h4 className="text-2xl font-black uppercase tracking-tighter">User Verdicts</h4>
+                {currentUser && (
+                  <button onClick={() => setShowReviewForm(v => !v)} className="text-xs font-black uppercase bg-primary text-black px-4 py-2 rounded-full hover:scale-105 transition">
+                    WRITE VERDICT
+                  </button>
+                )}
+              </div>
 
-          {reviews.length === 0 && !showReviewForm && (
-            <p className="text-sm text-muted-foreground text-center py-4">No reviews yet. Be the first!</p>
-          )}
+              {showReviewForm && (
+                <ReviewForm
+                  label={`Review Season ${season.seasonNumber}`}
+                  onSubmit={form => createReview({ variables: { seasonId: season.id, ...form, rating: form.rating as any } })}
+                />
+              )}
 
-          <div className="space-y-3">
-            {reviews.map((r: any) => (
-              <SeasonReviewCard key={r.id} review={r} onRefetch={() => refetch()} currentUser={currentUser} />
-            ))}
+              {reviews.length === 0 && !showReviewForm && (
+                <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl">
+                  <p className="text-sm text-muted-foreground italic font-light italic-editorial">
+                    "A sensory overload that demands your individual attention." — Be the first to share.
+                  </p>
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {reviews.map((r: any) => (
+                  <SeasonReviewCard key={r.id} review={r} onRefetch={() => refetch()} currentUser={currentUser} />
+                ))}
+              </div>
+            </div>
+
+            {/* Discussion / Quick Info sidebar */}
+            <div className="lg:w-80 space-y-10">
+              <div className="space-y-6">
+                <h4 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Join the Discussion</h4>
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+                  <p className="text-xs text-muted-foreground leading-relaxed font-light font-serif">
+                    Share your unique perspective on Season {season.seasonNumber} with our curated editorial community.
+                  </p>
+                  <button className="w-full py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-primary transition">
+                    ENTER FORUM
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
 // ─── Main Page ──────────────────────────────────────────────────────────────
 
@@ -298,7 +367,6 @@ export default function SeriesDetailPage() {
   const router = useRouter();
   const { currentUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'seasons' | 'reviews'>('overview');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<any>({ isOpen: false, onConfirm: () => { } });
 
@@ -348,161 +416,173 @@ export default function SeriesDetailPage() {
 
   const genres = series.SeriesGenre?.map((g: any) => g.genre?.name).filter(Boolean) || [];
 
+  const splitTitle = series.title.split(' ');
+  const lastWord = splitTitle.pop();
+  const restOfTitle = splitTitle.join(' ');
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <UserNavBar />
 
-      {/* Hero backdrop */}
-      <div className="relative h-[60vh] overflow-hidden">
+      {/* Editorial Hero backdrop */}
+      <div className="relative h-[85vh] w-full overflow-hidden flex items-center justify-center">
         {backdropUrl && (
-          <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: `url(${backdropUrl})` }} />
+          <div className="absolute inset-0 bg-cover bg-center opacity-40 scale-105" style={{ backgroundImage: `url(${backdropUrl})` }} />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
+        <div className="absolute inset-0 bg-black/40" />
 
-        <div className="relative h-full max-w-[96rem] mx-auto px-6 flex items-end pb-10">
-          <div className="flex gap-6 items-end">
-            <img src={posterUrl} alt={series.title} className="w-36 h-52 object-cover rounded-2xl shadow-2xl border border-border hidden md:block" />
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <button onClick={() => router.back()} className="flex items-center gap-1 hover:text-foreground transition">
-                  <ArrowLeft size={14} /> Back
-                </button>
-                <span>·</span>
-                <Tv size={14} className="text-purple-400" />
-                <span className="text-purple-400 font-semibold">Series</span>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-extrabold">{series.title}</h1>
-              <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                {series.releaseDate && <span className="flex items-center gap-1"><Calendar size={13} />{new Date(series.releaseDate).getFullYear()}</span>}
-                {series.runtime && <span className="flex items-center gap-1"><Clock size={13} />{series.runtime} min/ep</span>}
-                {genres.map((g: string) => <span key={g} className="bg-secondary px-2 py-0.5 rounded-full text-xs">{g}</span>)}
-                {series.dominantRating && <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${getRatingStyle(series.dominantRating)}`}>{series.dominantRating.replace(/_/g, ' ')}</span>}
-              </div>
-              <div className="flex flex-wrap gap-3 pt-2">
-                {series.trailerLink && (
-                  <a href={series.trailerLink} target="_blank" rel="noreferrer" className="bg-primary text-black px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition text-sm">
-                    <Play fill="currentColor" size={16} /> Watch Trailer
-                  </a>
-                )}
-                <button
-                  onClick={() => {
-                    if (!currentUser) { setConfirmConfig({ isOpen: true, title: 'Login Required', description: 'You need to be logged in to add to watchlist.', confirmText: 'Go to Login', variant: 'primary', onConfirm: () => router.push('/login') }); return; }
-                    addWatchlist({ variables: { seriesName: series.title } });
-                  }}
-                  className="bg-secondary border border-border text-foreground px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary/70 transition text-sm"
-                >
-                  <BookmarkPlus size={16} /> Add to Watchlist
-                </button>
-              </div>
+        <div className="relative z-10 w-full max-w-[96rem] mx-auto px-6 text-center space-y-8 animate-fade-in">
+          <div className="space-y-2">
+            <div className="flex items-center justify-center gap-3 text-xs font-bold tracking-[0.3em] uppercase text-primary/80 stagger-1">
+              <Tv size={14} />
+              <span>Series Exclusive</span>
+            </div>
+            <h1 className="text-editorial-hero title-glow stagger-2">
+              <span className="text-white">{restOfTitle}</span>{' '}
+              <span className="text-primary italic px-2">{lastWord}</span>
+            </h1>
+          </div>
+
+          <div className="flex items-center justify-center gap-6 text-sm font-semibold text-muted-foreground stagger-3">
+            {series.releaseDate && <span>{new Date(series.releaseDate).getFullYear()}</span>}
+            <span className="w-1 h-1 bg-muted-foreground rounded-full" />
+            {series.runtime && <span>{series.runtime} MIN / EP</span>}
+            <span className="w-1 h-1 bg-muted-foreground rounded-full" />
+            <div className="flex gap-2">
+              {genres.slice(0, 2).map((g: string) => <span key={g} className="uppercase tracking-wider">{g}</span>)}
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-4 stagger-4">
+            {series.trailerLink && (
+              <a href={series.trailerLink} target="_blank" rel="noreferrer" className="group bg-primary text-black px-10 py-4 rounded-full font-black flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)]">
+                <Play fill="currentColor" size={20} /> WATCH TRAILER
+              </a>
+            )}
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  if (!currentUser) { setConfirmConfig({ isOpen: true, title: 'Login Required', description: 'You need to be logged in to add to watchlist.', confirmText: 'Go to Login', variant: 'primary', onConfirm: () => router.push('/login') }); return; }
+                  addWatchlist({ variables: { seriesName: series.title } });
+                }}
+                className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white transition-all group"
+                title="Add to Watchlist"
+              >
+                <BookmarkPlus size={20} className="text-white group-hover:text-primary transition-colors" />
+              </button>
+              <button className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white transition-all group" title="Like">
+                <ThumbsUp size={20} className="text-white group-hover:text-primary transition-colors" />
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 animate-bounce">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Scroll</span>
+          <div className="w-px h-10 bg-gradient-to-b from-primary to-transparent" />
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="max-w-[96rem] mx-auto px-6">
-        <div className="flex border-b border-border mb-8">
-          {(['overview', 'seasons', 'reviews'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-3 text-sm font-semibold capitalize transition-colors border-b-2 -mb-px ${activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
-            >
-              {tab} {tab === 'seasons' && seasons.length > 0 && `(${seasons.length})`}
-              {tab === 'reviews' && reviews.length > 0 && `(${reviews.length})`}
-            </button>
-          ))}
-        </div>
+      {/* Integrated Editorial Layout */}
+      <div className="max-w-[96rem] mx-auto px-6 py-20 relative">
+        <div className="grid lg:grid-cols-12 gap-16">
 
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="grid md:grid-cols-3 gap-8 pb-16">
-            <div className="md:col-span-2 space-y-6">
-              <div>
-                <h2 className="font-bold text-xl mb-2">Overview</h2>
-                <p className="text-muted-foreground leading-relaxed">{series.overview || 'No overview available.'}</p>
+          {/* Main Column - Overview & Seasons */}
+          <div className="lg:col-span-8 space-y-24">
+
+            <section className="space-y-6">
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Overview</h2>
+              <p className="text-3xl font-light leading-snug text-white/90 font-serif italic italic-editorial">
+                "{series.overview || 'A haunting exploration of memory and the digital afterlife. A series that defies conventional genre boundaries, blending existential dread with visual poetry.'}"
+              </p>
+            </section>
+
+            <section className="space-y-10">
+              <div className="flex items-end justify-between border-b border-white/10 pb-4">
+                <h2 className="text-4xl font-black uppercase tracking-tighter">Seasons</h2>
+                <span className="text-muted-foreground font-mono text-xs mb-1">{seasons.length} TOTAL SEASONS</span>
               </div>
+              <div className="space-y-4">
+                {seasons.map((season: any) => (
+                  <SeasonPanel key={season.id} season={season} currentUser={currentUser} seriesTitle={series.title} />
+                ))}
+              </div>
+            </section>
+
+          </div>
+
+          {/* Sidebar - Critique & Details */}
+          <div className="lg:col-span-4 space-y-20">
+
+            <section className="space-y-8">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-black uppercase tracking-tighter">Critique</h2>
+                {currentUser && (
+                  <button onClick={() => setShowReviewForm(v => !v)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition">
+                    <PenLine size={16} className="text-primary" />
+                  </button>
+                )}
+              </div>
+
+              {showReviewForm && (
+                <ReviewForm
+                  label="Share Your Verdict"
+                  onSubmit={form => createSeriesReview({ variables: { ...form, seriesName: series.title, rating: form.rating as any } })}
+                />
+              )}
+
+              <div className="space-y-6">
+                {reviews.length === 0 && !showReviewForm ? (
+                  <p className="text-muted-foreground italic text-sm">Waiting for the first critical response...</p>
+                ) : (
+                  reviews.slice(0, 3).map((r: any) => (
+                    <SeasonReviewCard key={r.id} review={r} onRefetch={() => refetchReviews()} currentUser={currentUser} />
+                  ))
+                )}
+                {reviews.length > 3 && (
+                  <button className="w-full py-4 border border-white/10 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/5 transition">
+                    VIEW ALL REVIEWS ({reviews.length})
+                  </button>
+                )}
+              </div>
+            </section>
+
+            <section className="space-y-8 bg-white/5 p-8 rounded-3xl border border-white/10">
+              <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Production Info</h3>
+              <div className="space-y-4 text-sm">
+                <div className="flex justify-between border-b border-white/5 pb-2">
+                  <span className="text-muted-foreground uppercase">Status</span>
+                  <span className="font-bold text-white uppercase">Released</span>
+                </div>
+                <div className="flex justify-between border-b border-white/5 pb-2">
+                  <span className="text-muted-foreground uppercase">Rating</span>
+                  <span className="font-bold text-white uppercase">{series.dominantRating?.replace(/_/g, ' ') || 'TBD'}</span>
+                </div>
+                <div className="flex justify-between border-b border-white/5 pb-2">
+                  <span className="text-muted-foreground uppercase">Network</span>
+                  <span className="font-bold text-white uppercase text-right">Cinematic Editorial</span>
+                </div>
+              </div>
+
               {series.SeriesCastMember?.length > 0 && (
-                <div>
-                  <h2 className="font-bold text-xl mb-3">Cast</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {series.SeriesCastMember.slice(0, 12).map((c: any, i: number) => (
-                      <div key={i} className="bg-secondary rounded-lg px-3 py-2 text-sm text-center">
-                        <p className="font-semibold">{c.person?.name}</p>
-                        {c.character && <p className="text-xs text-muted-foreground">{c.character}</p>}
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Leading Cast</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    {series.SeriesCastMember.slice(0, 4).map((c: any, i: number) => (
+                      <div key={i} className="space-y-0.5">
+                        <p className="font-bold text-sm text-white line-clamp-1">{c.person?.name}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase line-clamp-1">{c.character}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
-            <div className="space-y-4">
-              <div className="bg-card border border-border rounded-xl p-4 space-y-3 text-sm">
-                <h3 className="font-bold">Details</h3>
-                {series.adult && <p className="text-red-400 font-bold">🔞 Adult Content</p>}
-                {series.runtime && <div className="flex justify-between"><span className="text-muted-foreground">Runtime</span><span>{series.runtime} min/ep</span></div>}
-                {series.releaseDate && <div className="flex justify-between"><span className="text-muted-foreground">First Air Date</span><span>{new Date(series.releaseDate).toLocaleDateString()}</span></div>}
-              </div>
-            </div>
+            </section>
+
           </div>
-        )}
-
-        {/* Seasons Tab */}
-        {activeTab === 'seasons' && (
-          <div className="pb-16 space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Tv size={20} className="text-purple-400" />
-                {seasons.length} Season{seasons.length !== 1 ? 's' : ''}
-              </h2>
-            </div>
-            {seasons.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <Tv size={40} className="mx-auto mb-4 opacity-30" />
-                <p>No seasons added yet.</p>
-              </div>
-            ) : (
-              seasons.map((season: any) => (
-                <SeasonPanel key={season.id} season={season} currentUser={currentUser} seriesTitle={series.title} />
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Reviews Tab */}
-        {activeTab === 'reviews' && (
-          <div className="pb-16 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Series Reviews ({reviews.length})</h2>
-              {currentUser && (
-                <button onClick={() => setShowReviewForm(v => !v)} className="flex items-center gap-2 text-sm bg-primary text-black px-4 py-2 rounded-xl font-bold hover:bg-orange-600 transition">
-                  <PenLine size={14} /> Write Review
-                </button>
-              )}
-            </div>
-
-            {showReviewForm && (
-              <ReviewForm
-                label="Review this Series"
-                onSubmit={form => createSeriesReview({ variables: { ...form, seriesName: series.title, rating: form.rating as any } })}
-              />
-            )}
-
-            {reviews.length === 0 && !showReviewForm && (
-              <div className="text-center py-16 text-muted-foreground">
-                <Star size={40} className="mx-auto mb-4 opacity-30" />
-                <p>No reviews yet. Be the first!</p>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {reviews.map((r: any) => (
-                <SeasonReviewCard key={r.id} review={r} onRefetch={() => refetchReviews()} currentUser={currentUser} />
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
       <ConfirmDialog

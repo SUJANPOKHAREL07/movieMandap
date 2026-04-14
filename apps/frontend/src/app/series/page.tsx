@@ -89,46 +89,54 @@ function BrowseContent() {
     ? (featuredSeries.posterPath.startsWith('http') ? featuredSeries.posterPath : `https://image.tmdb.org/t/p/original${featuredSeries.posterPath}`)
     : 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop';
 
+  const splitTitle = featuredSeries?.title.split(' ') || [];
+  const lastWord = splitTitle.pop();
+  const restOfTitle = splitTitle.join(' ');
+
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="min-h-screen bg-background text-foreground pb-20 font-sans">
       <UserNavBar />
 
-      {/* Hero Section */}
+      {/* Editorial Hero Section */}
       {featuredSeries && (
-        <div className="relative h-[80vh] w-full overflow-hidden">
+        <div className="relative h-[85vh] w-full overflow-hidden flex items-center">
           {/* Background Image */}
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center opacity-40 scale-105"
             style={{
               backgroundImage: `url(${heroImage})`,
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50"></div>
           </div>
 
           {/* Hero Content */}
-          <div className="relative h-full flex items-center max-w-[96rem] mx-auto px-6">
-            <div className="max-w-2xl space-y-6 pt-20">
-              <span className="text-primary font-bold tracking-wider uppercase text-sm bg-primary/10 px-3 py-1 rounded-full border border-primary/20">Featured Series</span>
-              <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-foreground drop-shadow-2xl line-clamp-2">
-                {featuredSeries.title}
+          <div className="relative z-10 w-full max-w-[96rem] mx-auto px-6">
+            <div className="max-w-4xl space-y-8 pt-20 animate-fade-in-up">
+              <div className="flex items-center gap-3 text-xs font-black tracking-[0.4em] uppercase text-primary stagger-1">
+                <span className="w-8 h-px bg-primary"></span>
+                Featured Series
+              </div>
+              <h1 className="text-editorial-hero title-glow stagger-2">
+                <span className="text-white">{restOfTitle}</span>{' '}
+                <span className="text-primary italic px-3">{lastWord}</span>
               </h1>
-              <p className="text-lg text-muted-foreground line-clamp-3">
-                {featuredSeries.overview}
+              <p className="text-2xl font-light text-muted-foreground line-clamp-2 max-w-2xl leading-relaxed italic-editorial stagger-3">
+                "{featuredSeries.overview}"
               </p>
-              <div className="flex items-center gap-4 pt-4">
-                <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
+              <div className="flex items-center gap-6 pt-6 stagger-4">
+                <button className="bg-primary text-black px-10 py-4 rounded-full font-black flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_30px_rgba(249,115,22,0.4)] uppercase tracking-widest text-xs">
                   <Play fill="currentColor" size={20} /> Play Now
                 </button>
-                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-border">
-                  <Info size={20} /> More Info
+                <button className="bg-white/5 backdrop-blur-md text-white px-10 py-4 rounded-full font-black flex items-center gap-3 hover:bg-white/10 transition-all border border-white/10 uppercase tracking-widest text-xs">
+                  <Info size={20} /> Details
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
 
       {/* Series Grid Section */}
       <div className="max-w-[96rem] mx-auto px-6 -mt-20 relative z-10 space-y-12">
