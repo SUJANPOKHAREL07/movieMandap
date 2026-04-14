@@ -87,7 +87,7 @@ const UserNavBar = () => {
           <div className="hidden md:flex items-center gap-8 font-medium text-sm text-muted-foreground">
             <Link href="/" className="text-foreground hover:text-primary transition-colors">Home</Link>
             <Link href="#" className="hover:text-primary transition-colors">Movies</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Series</Link>
+            <Link href="/series" className="hover:text-primary transition-colors">Series</Link>
             {canSeeStats && (
               <Link href="/statistics" className="hover:text-primary transition-colors">Stats</Link>
             )}

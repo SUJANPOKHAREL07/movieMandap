@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Clapperboard, LayoutDashboard, LogOut, Users, Globe, ShieldCheck } from 'lucide-react';
+import { Clapperboard, LayoutDashboard, LogOut, Users, Globe, ShieldCheck, Tv } from 'lucide-react';
 import { useMutation, gql } from '@apollo/client';
 import ThemeToggle from '@/components/Theme-Toggle';
 
@@ -61,6 +61,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             }`}
                     >
                         <Clapperboard /> Movies
+                    </button>
+                    <button
+                        onClick={() => router.push('/dashboard/series')}
+                        className={`w-full text-left px-6 py-2 flex items-center gap-3 transition ${pathname.includes('/series')
+                            ? 'bg-orange-500/10 text-orange-400 border-l-4 border-orange-500'
+                            : 'hover:bg-orange-500/10'
+                            }`}
+                    >
+                        <Tv /> Series
                     </button>
                     <button
                         onClick={() => router.push('/dashboard/users')}
