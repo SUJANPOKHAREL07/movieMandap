@@ -11,6 +11,7 @@ type AuthContextType = {
     password: string
   ) => Promise<{ success: boolean; message: string }>;
   logout: () => Promise<void>;
+  googleLogin: (credential: string) => Promise<{ success: boolean; message: string }>;
   register?: (
     username: string,
     email: string,
@@ -82,6 +83,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCurrentUser(null);
   }
 
+  async function googleLogin(credential: string) {
+    const query = `mutation GoogleLogin($credential: String!) { googleLogin(credential: $credential) { success message accessToken refreshToken } }`;
+    try {
+      const data = await fetchGraphQL(query, { credential });
+      const res = data?.googleLogin;
+      if (res?.success) {
+        setToken(res.accessToken || null);
+        return { success: true, message: res.message };
+      }
+      return { success: false, message: res?.message || 'Google Login failed' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Network error' };
+    }
+  }
+
   async function register(
     username: string,
     email: string,
@@ -105,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, currentUser, login, logout, register }}>
+    <AuthContext.Provider value={{ token, currentUser, login, logout, register, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );

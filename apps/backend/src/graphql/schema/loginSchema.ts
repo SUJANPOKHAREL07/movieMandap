@@ -15,6 +15,7 @@ export const LoginTypeDefs = gql`
 
   type Mutation {
     loginUser(email: String, username: String, password: String!): Response!
+    googleLogin(credential: String!): Response!
     logoutUser: Response!
     resetPassword(email: String, username: String): Response!
     resendResetPasswordOtp(email: String, username: String): Response!

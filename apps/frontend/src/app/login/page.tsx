@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import { useAuth } from '@/context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -97,6 +98,46 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border"></span>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground font-medium">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={(credentialResponse) => {
+                console.log('Google Login Success Handler:', credentialResponse);
+                if (credentialResponse.credential) {
+                  googleLogin(credentialResponse.credential).then((res) => {
+                    console.log('Backend Login Response:', res);
+                    if (res.success) {
+                      router.push('/');
+                    } else {
+                      setError(res.message);
+                    }
+                  }).catch(err => {
+                    console.error('Backend Login Error:', err);
+                    setError('Backend communication failed');
+                  });
+                }
+              }}
+              onError={() => {
+                console.error('Google Login Error Callback');
+                setError('Google Login Failed');
+              }}
+              useOneTap={false}
+              theme="filled_black"
+              shape="pill"
+              width="100%"
+            />
+          </div>
+        </div>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Don't have an account?{' '}
