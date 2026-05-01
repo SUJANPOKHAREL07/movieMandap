@@ -1179,7 +1179,7 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
   const reviews = data?.getAllReviewsOfSeason || [];
 
   // Calculate Average Rating for Score
-  const score = reviews.length > 0
+  const seasonScore = reviews.length > 0
     ? (reviews.reduce((acc: number, r: any) => acc + (r.rating === 'Absolute_Cinema' ? 10 : r.rating === 'Worthy' ? 8 : r.rating === 'Good_To_Watch' ? 6 : r.rating === 'Bearable' ? 4 : 2), 0) / reviews.length).toFixed(1)
     : "8.4"; // Default mock score if no reviews, to match image aesthetic
 
@@ -1253,7 +1253,7 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
               <div className="flex flex-col lg:flex-row xl:flex-row gap-8 items-start">
                 {/* Gauge Panel */}
                 <div className="w-full lg:w-64 xl:w-64 shrink-0 lg:sticky lg:top-4">
-                  <RatingGaugeMeter reviews={reviews} score={score} />
+                  <RatingGaugeMeter reviews={reviews} score={seasonScore} />
                 </div>
 
                 {/* Review cards column */}
@@ -1280,7 +1280,7 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
                   {reviews.length === 0 && !showReviewForm ? (
                     <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl w-full">
                       <p className="text-sm text-muted-foreground italic font-light italic-editorial px-4">
-                        "A sensory overload that demands your individual attention." — Be the first to share.
+                        \"A sensory overload that demands your individual attention.\" — Be the first to share.
                       </p>
                     </div>
                   ) : (
@@ -1327,7 +1327,6 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
     </div>
   );
 }
-
 
 // ─── Main Page ──────────────────────────────────────────────────────────────
 
