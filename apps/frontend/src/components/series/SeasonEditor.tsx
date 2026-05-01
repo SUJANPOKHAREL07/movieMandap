@@ -257,8 +257,8 @@ export default function SeasonEditor({ series }: { series: any }) {
                 ) : (
                     <div className="space-y-4">
                         {seasons.map((season: any) => (
-                            <div key={season.id} className="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl overflow-hidden hover:border-primary/30 transition-all group flex">
-                                <div className="w-24 shrink-0 bg-black flex items-center justify-center relative">
+                            <div key={season.id} className="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl overflow-hidden hover:border-primary/30 transition-all group flex flex-col sm:flex-row">
+                                <div className="w-full sm:w-24 h-48 sm:h-auto shrink-0 bg-black flex items-center justify-center relative">
                                     {season.posterPath ? (
                                         <img src={season.posterPath} alt={season.title} className="w-full h-full object-cover" />
                                     ) : (
@@ -269,22 +269,22 @@ export default function SeasonEditor({ series }: { series: any }) {
                                     </div>
                                 </div>
 
-                                <div className="p-4 flex-1 flex flex-col justify-center">
-                                    <h4 className="font-bold text-white">{season.title || `Season ${season.seasonNumber}`}</h4>
+                                <div className="p-4 flex-1 flex flex-col justify-center min-w-0">
+                                    <h4 className="font-bold text-white truncate">{season.title || `Season ${season.seasonNumber}`}</h4>
                                     <div className="text-xs text-zinc-500 mt-1 flex items-center gap-2">
                                         <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">{season.episodes?.length || 0} Episodes</span>
                                         {season.airDate && <span>• {new Date(season.airDate).getFullYear()}</span>}
                                     </div>
                                 </div>
 
-                                <div className="p-4 flex items-center gap-2 border-l border-zinc-800/50 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => setActiveSeasonForEpisodes(season)} className="p-2 bg-primary hover:opacity-90 text-black rounded-lg transition-all" title="Manage Episodes">
+                                <div className="p-4 flex flex-row sm:flex-col items-center justify-end sm:justify-center gap-2 border-t sm:border-t-0 sm:border-l border-zinc-800/50 bg-black/20 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => setActiveSeasonForEpisodes(season)} className="p-2.5 sm:p-2 bg-primary hover:opacity-90 text-black rounded-lg transition-all flex-1 sm:flex-none flex justify-center" title="Manage Episodes">
                                         <Eye size={16} />
                                     </button>
-                                    <button onClick={() => handleEditClick(season)} className="p-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all" title="Edit Season">
+                                    <button onClick={() => handleEditClick(season)} className="p-2.5 sm:p-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-all flex-1 sm:flex-none flex justify-center" title="Edit Season">
                                         <Pencil size={16} />
                                     </button>
-                                    <button onClick={() => setSeasonToDelete(season.id)} className="p-2 bg-zinc-800 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all" title="Delete Season">
+                                    <button onClick={() => setSeasonToDelete(season.id)} className="p-2.5 sm:p-2 bg-zinc-800 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex-1 sm:flex-none flex justify-center" title="Delete Season">
                                         <Trash2 size={16} />
                                     </button>
                                 </div>

@@ -259,39 +259,39 @@ export default function EpisodeEditor({ season, series, onBack }: any) {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {episodes.map((ep: any) => (
-                                <div key={ep.id} className="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl overflow-hidden hover:border-primary/30 transition-all group flex h-24">
-                                    <div className="w-32 shrink-0 bg-black flex items-center justify-center relative">
-                                        {ep.posterPath ? (
-                                            <img src={ep.posterPath} alt={ep.title} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <Clapperboard size={20} className="text-zinc-800" />
-                                        )}
-                                        <div className="absolute top-1 left-1 bg-black/80 font-mono text-[10px] px-1.5 rounded text-white font-bold backdrop-blur-sm">
-                                            EP {ep.episodeNumber.toString().padStart(2, '0')}
-                                        </div>
-                                    </div>
-
-                                    <div className="p-3 flex-1 flex flex-col justify-center min-w-0">
-                                        <h4 className="font-bold text-sm text-white truncate">{ep.title}</h4>
-                                        {ep.overview && <p className="text-xs text-zinc-500 mt-1 line-clamp-1">{ep.overview}</p>}
-                                        <div className="flex items-center gap-3 mt-auto text-[10px] text-zinc-400 font-medium">
-                                            {ep.runtime && <span className="flex items-center gap-1"><Clock size={10} /> {ep.runtime}m</span>}
-                                            {ep.airDate && <span>Aired: {new Date(ep.airDate).toLocaleDateString()}</span>}
-                                        </div>
-                                    </div>
-
-                                    <div className="p-3 flex flex-col items-center justify-center gap-2 border-l border-zinc-800/50 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEditClick(ep)} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded transition-all" title="Edit Episode">
-                                            <Pencil size={14} />
-                                        </button>
-                                        <button onClick={() => setEpisodeToDelete(ep.id)} className="p-1.5 bg-zinc-800 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all" title="Delete Episode">
-                                            <Trash2 size={14} />
-                                        </button>
+                        {episodes.map((ep: any) => (
+                            <div key={ep.id} className="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl overflow-hidden hover:border-primary/30 transition-all group flex flex-col sm:flex-row sm:h-24">
+                                <div className="w-full sm:w-32 h-40 sm:h-full shrink-0 bg-black flex items-center justify-center relative">
+                                    {ep.posterPath ? (
+                                        <img src={ep.posterPath} alt={ep.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Clapperboard size={20} className="text-zinc-800" />
+                                    )}
+                                    <div className="absolute top-1 left-1 bg-black/80 font-mono text-[10px] px-1.5 rounded text-white font-bold backdrop-blur-sm">
+                                        EP {ep.episodeNumber.toString().padStart(2, '0')}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="p-3 flex-1 flex flex-col justify-center min-w-0">
+                                    <h4 className="font-bold text-sm text-white truncate">{ep.title}</h4>
+                                    {ep.overview && <p className="text-xs text-zinc-500 mt-1 line-clamp-1">{ep.overview}</p>}
+                                    <div className="flex items-center gap-3 mt-auto pt-2 text-[10px] text-zinc-400 font-medium">
+                                        {ep.runtime && <span className="flex items-center gap-1"><Clock size={10} /> {ep.runtime}m</span>}
+                                        {ep.airDate && <span>Aired: {new Date(ep.airDate).toLocaleDateString()}</span>}
+                                    </div>
+                                </div>
+
+                                <div className="p-3 flex flex-row sm:flex-col items-center justify-end sm:justify-center gap-2 border-t sm:border-t-0 sm:border-l border-zinc-800/50 bg-black/20 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => handleEditClick(ep)} className="p-2 sm:p-1.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded transition-all flex-1 sm:flex-none flex justify-center" title="Edit Episode">
+                                        <Pencil size={14} />
+                                    </button>
+                                    <button onClick={() => setEpisodeToDelete(ep.id)} className="p-2 sm:p-1.5 bg-zinc-800 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-all flex-1 sm:flex-none flex justify-center" title="Delete Episode">
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                     )}
                 </div>
 
