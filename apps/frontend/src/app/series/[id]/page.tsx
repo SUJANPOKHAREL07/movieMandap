@@ -254,7 +254,7 @@ const RATING_CONFIG = [
   { key: 'Absolute_Cinema',label: 'Absolute Cinema',  color: '#22c55e' },
 ];
 
-function RatingGaugeMeter({ reviews }: { reviews: any[] }) {
+function RatingGaugeMeter({ reviews, score }: { reviews: any[]; score?: string }) {
   const counts: Record<string, number> = { Worst: 0, Bearable: 0, Good_To_Watch: 0, Worthy: 0, Absolute_Cinema: 0 };
   reviews.forEach(r => { if (r.rating in counts) counts[r.rating]++; });
   const total = reviews.length;
@@ -301,7 +301,7 @@ function RatingGaugeMeter({ reviews }: { reviews: any[] }) {
       ) : (
         <>
           {/* Gauge SVG */}
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-1 relative">
             <svg viewBox="0 0 220 108" className="w-52 h-auto">
               {/* Background arc */}
               <path d={arcPath(178, 2)} fill="none" stroke="#ffffff10" strokeWidth={sw} strokeLinecap="round" />
@@ -324,7 +324,14 @@ function RatingGaugeMeter({ reviews }: { reviews: any[] }) {
               />
               <circle cx={cx} cy={cy} r={7} fill="#111" stroke="white" strokeWidth={2} />
             </svg>
-            <p className="text-base font-black" style={{ color: dominant.color }}>{dominant.label}</p>
+            
+            {score && (
+              <div className="absolute top-[65%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                <span className="text-2xl font-black text-white">{score}</span>
+              </div>
+            )}
+
+            <p className="text-base font-black mt-2" style={{ color: dominant.color }}>{dominant.label}</p>
             <p className="text-[11px] text-muted-foreground">{total} vote{total !== 1 ? 's' : ''}</p>
           </div>
 
@@ -1246,7 +1253,7 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
               <div className="flex flex-col lg:flex-row xl:flex-row gap-8 items-start">
                 {/* Gauge Panel */}
                 <div className="w-full lg:w-64 xl:w-64 shrink-0 lg:sticky lg:top-4">
-                  <RatingGaugeMeter reviews={reviews} />
+                  <RatingGaugeMeter reviews={reviews} score={score} />
                 </div>
 
                 {/* Review cards column */}
@@ -1496,11 +1503,17 @@ export default function SeriesDetailPage() {
 
           {/* Two-column: Gauge + Reviews */}
           <div className="flex flex-col lg:flex-row gap-8 items-start">
-
-            {/* Gauge Panel — sticky on large screens */}
-            <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24">
-              <RatingGaugeMeter reviews={reviews} />
-            </div>
+            
+            {(() => {
+              const overallScore = reviews.length > 0
+                ? (reviews.reduce((acc: number, r: any) => acc + (r.rating === 'Absolute_Cinema' ? 10 : r.rating === 'Worthy' ? 8 : r.rating === 'Good_To_Watch' ? 6 : r.rating === 'Bearable' ? 4 : 2), 0) / reviews.length).toFixed(1)
+                : "8.4";
+              return (
+                <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24">
+                  <RatingGaugeMeter reviews={reviews} score={overallScore} />
+                </div>
+              );
+            })()}
 
             {/* Review cards column */}
             <div className="flex-1 space-y-6">

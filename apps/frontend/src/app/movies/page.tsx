@@ -1,15 +1,11 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import UserNavBar from '@/components/UserNavBar';
 import MovieCard from '@/components/MovieCard';
-import { Play, Film } from 'lucide-react';
+import { Film } from 'lucide-react';
 import { useQuery, gql } from '@apollo/client';
-import { buildAccessMap, isRouteAllowedInMap, Role } from '@/lib/routeAccess';
-import { useAuth } from '@/context/AuthContext';
-
 const GET_MOVIES = gql`
   query GetMovies {
     getMovie {
@@ -30,25 +26,11 @@ const GET_MOVIES = gql`
   }
 `;
 
-const GET_ROUTE_ACCESS = gql`
-  query GetRouteAccess {
-    getRouteAccess {
-      routeId
-      role
-      allowed
-    }
-  }
-`;
-
 function MoviesContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q')?.toLowerCase() || '';
-  const { currentUser } = useAuth();
 
   const { data, loading, error } = useQuery(GET_MOVIES);
-  const { data: accessData } = useQuery(GET_ROUTE_ACCESS);
-  const accessMap = buildAccessMap(accessData?.getRouteAccess ?? []);
-  const userRole = ((currentUser?.role as Role) || 'user');
 
   if (loading) {
     return (
