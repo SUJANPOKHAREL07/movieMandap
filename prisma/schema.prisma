@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model user {
@@ -48,6 +49,7 @@ model user {
   WatchlistItem        WatchlistItem[]
 
   @@unique([email, id])
+  @@map("users")
 }
 
 model login {
@@ -61,7 +63,7 @@ model login {
   updatedAt     DateTime @updatedAt
   user          user     @relation(fields: [useremail, userId], references: [email, id], onDelete: Cascade)
 
-  @@index([useremail, userId], map: "login_useremail_userId_fkey")
+  @@index([useremail, userId], map: "login_useremail_userId_idx")
 }
 
 model Movie {
@@ -107,7 +109,7 @@ model MovieGenre {
   movie     Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   @@unique([movieId, generesId])
-  @@index([generesId], map: "movie_genere_generesId_fkey")
+  @@index([generesId], map: "movie_genere_generesId_idx")
   @@map("movie_genere")
 }
 
@@ -131,7 +133,7 @@ model MovieProductionCompany {
   movie     Movie             @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   @@unique([movieId, conpanyId])
-  @@index([conpanyId], map: "movie_production_companies_conpanyId_fkey")
+  @@index([conpanyId], map: "movie_production_companies_conpanyId_idx")
   @@map("movie_production_companies")
 }
 
@@ -161,7 +163,7 @@ model crewMember {
   person     Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@unique([movieId, personId, job])
-  @@index([personId], map: "crew_member_personId_fkey")
+  @@index([personId], map: "crew_member_personId_idx")
   @@map("crew_member")
 }
 
@@ -175,7 +177,7 @@ model CastMember {
   person    Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@unique([movieId, personId, character])
-  @@index([personId], map: "cast_member_personId_fkey")
+  @@index([personId], map: "cast_member_personId_idx")
   @@map("cast_member")
 }
 
@@ -196,7 +198,7 @@ model Review {
   user       user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieId])
-  @@index([movieId], map: "reviews_movieId_fkey")
+  @@index([movieId], map: "reviews_movieId_idx")
   @@map("reviews")
 }
 
@@ -210,7 +212,7 @@ model Like {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "likes_reviewId_fkey")
+  @@index([reviewId], map: "likes_reviewId_idx")
   @@map("likes")
 }
 
@@ -224,7 +226,7 @@ model Dislike {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "dislikes_reviewId_fkey")
+  @@index([reviewId], map: "dislikes_reviewId_idx")
   @@map("dislikes")
 }
 
@@ -243,9 +245,9 @@ model Comment {
   review         Review           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user           user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([parentId], map: "comments_parentId_fkey")
-  @@index([reviewId], map: "comments_reviewId_fkey")
-  @@index([userId], map: "comments_userId_fkey")
+  @@index([parentId], map: "comments_parentId_idx")
+  @@index([reviewId], map: "comments_reviewId_idx")
+  @@index([userId], map: "comments_userId_idx")
   @@map("comments")
 }
 
@@ -258,7 +260,7 @@ model CommentLike {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "comment_likes_commentId_fkey")
+  @@index([commentId], map: "comment_likes_commentId_idx")
   @@map("comment_likes")
 }
 
@@ -271,7 +273,7 @@ model CommentDislike {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "comment_dislikes_commentId_fkey")
+  @@index([commentId], map: "comment_dislikes_commentId_idx")
   @@map("comment_dislikes")
 }
 
@@ -286,7 +288,7 @@ model WatchlistItem {
   user    user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieId])
-  @@index([movieId], map: "watchlist_items_movieId_fkey")
+  @@index([movieId], map: "watchlist_items_movieId_idx")
   @@map("watchlist_items")
 }
 
@@ -301,8 +303,8 @@ model Follow {
   user        user?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
-  @@index([followingId], map: "Follow_followingId_fkey")
-  @@index([userId], map: "Follow_userId_fkey")
+  @@index([followingId], map: "Follow_followingId_idx")
+  @@index([userId], map: "Follow_userId_idx")
 }
 
 model RouteAccess {
@@ -391,7 +393,7 @@ model SeasonReview {
   user          user            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, seasonId])
-  @@index([seasonId], map: "season_reviews_seasonId_fkey")
+  @@index([seasonId], map: "season_reviews_seasonId_idx")
   @@map("season_reviews")
 }
 
@@ -404,7 +406,7 @@ model SeasonLike {
   user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "season_likes_reviewId_fkey")
+  @@index([reviewId], map: "season_likes_reviewId_idx")
   @@map("season_likes")
 }
 
@@ -417,7 +419,7 @@ model SeasonDislike {
   user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "season_dislikes_reviewId_fkey")
+  @@index([reviewId], map: "season_dislikes_reviewId_idx")
   @@map("season_dislikes")
 }
 
@@ -436,9 +438,9 @@ model SeasonComment {
   review               SeasonReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user                 user                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([parentId], map: "season_comments_parentId_fkey")
-  @@index([reviewId], map: "season_comments_reviewId_fkey")
-  @@index([userId], map: "season_comments_userId_fkey")
+  @@index([parentId], map: "season_comments_parentId_idx")
+  @@index([reviewId], map: "season_comments_reviewId_idx")
+  @@index([userId], map: "season_comments_userId_idx")
   @@map("season_comments")
 }
 
@@ -451,7 +453,7 @@ model SeasonCommentLike {
   user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "season_comment_likes_commentId_fkey")
+  @@index([commentId], map: "season_comment_likes_commentId_idx")
   @@map("season_comment_likes")
 }
 
@@ -464,7 +466,7 @@ model SeasonCommentDislike {
   user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "season_comment_dislikes_commentId_fkey")
+  @@index([commentId], map: "season_comment_dislikes_commentId_idx")
   @@map("season_comment_dislikes")
 }
 
@@ -476,7 +478,7 @@ model SeriesGenre {
   series    Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([seriesId, generesId])
-  @@index([generesId], map: "series_genere_generesId_fkey")
+  @@index([generesId], map: "series_genere_generesId_idx")
   @@map("series_genere")
 }
 
@@ -488,7 +490,7 @@ model SeriesProductionCompany {
   series    Series            @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([seriesId, conpanyId])
-  @@index([conpanyId], map: "series_production_companies_conpanyId_fkey")
+  @@index([conpanyId], map: "series_production_companies_conpanyId_idx")
   @@map("series_production_companies")
 }
 
@@ -502,7 +504,7 @@ model SeriesCrewMember {
   series     Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([seriesId, personId, job])
-  @@index([personId], map: "series_crew_member_personId_fkey")
+  @@index([personId], map: "series_crew_member_personId_idx")
   @@map("series_crew_member")
 }
 
@@ -516,7 +518,7 @@ model SeriesCastMember {
   series    Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([seriesId, personId, character])
-  @@index([personId], map: "series_cast_member_personId_fkey")
+  @@index([personId], map: "series_cast_member_personId_idx")
   @@map("series_cast_member")
 }
 
@@ -537,7 +539,7 @@ model SeriesReview {
   user          user            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, seriesId])
-  @@index([seriesId], map: "series_reviews_seriesId_fkey")
+  @@index([seriesId], map: "series_reviews_seriesId_idx")
   @@map("series_reviews")
 }
 
@@ -551,7 +553,7 @@ model SeriesLike {
   user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "series_likes_reviewId_fkey")
+  @@index([reviewId], map: "series_likes_reviewId_idx")
   @@map("series_likes")
 }
 
@@ -565,7 +567,7 @@ model SeriesDislike {
   user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
-  @@index([reviewId], map: "series_dislikes_reviewId_fkey")
+  @@index([reviewId], map: "series_dislikes_reviewId_idx")
   @@map("series_dislikes")
 }
 
@@ -584,9 +586,9 @@ model SeriesComment {
   review               SeriesReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user                 user                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([parentId], map: "series_comments_parentId_fkey")
-  @@index([reviewId], map: "series_comments_reviewId_fkey")
-  @@index([userId], map: "series_comments_userId_fkey")
+  @@index([parentId], map: "series_comments_parentId_idx")
+  @@index([reviewId], map: "series_comments_reviewId_idx")
+  @@index([userId], map: "series_comments_userId_idx")
   @@map("series_comments")
 }
 
@@ -599,7 +601,7 @@ model SeriesCommentLike {
   user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "series_comment_likes_commentId_fkey")
+  @@index([commentId], map: "series_comment_likes_commentId_idx")
   @@map("series_comment_likes")
 }
 
@@ -612,7 +614,7 @@ model SeriesCommentDislike {
   user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
-  @@index([commentId], map: "series_comment_dislikes_commentId_fkey")
+  @@index([commentId], map: "series_comment_dislikes_commentId_idx")
   @@map("series_comment_dislikes")
 }
 
@@ -627,7 +629,7 @@ model SeriesWatchlistItem {
   user     user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, seriesId])
-  @@index([seriesId], map: "series_watchlist_items_seriesId_fkey")
+  @@index([seriesId], map: "series_watchlist_items_seriesId_idx")
   @@map("series_watchlist_items")
 }
 
