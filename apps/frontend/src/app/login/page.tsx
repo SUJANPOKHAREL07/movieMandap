@@ -10,7 +10,7 @@ import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, token } = useAuth();
+  const { login, googleLogin, token } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

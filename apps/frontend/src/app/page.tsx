@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import UserNavBar from '@/components/UserNavBar';
 import MovieCard from '@/components/MovieCard';
@@ -123,18 +124,18 @@ function BrowseContent() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent"></div>
           </div>
-          <div className="relative h-full flex items-center max-w-[96rem] mx-auto px-6">
-            <div className="max-w-2xl space-y-6 pt-20">
-              <span className="text-primary font-bold tracking-wider uppercase text-sm bg-primary/10 px-3 py-1 rounded-full border border-primary/20">Featured Movie</span>
-              <h1 className="text-5xl md:text-7xl font-extrabold leading-tight text-foreground drop-shadow-2xl line-clamp-2">
+          <div className="relative h-full flex items-center justify-center md:justify-start max-w-[96rem] mx-auto px-6">
+            <div className="max-w-2xl space-y-4 md:space-y-6 pt-20 text-center md:text-left">
+              <span className="text-primary font-bold tracking-wider uppercase text-[10px] sm:text-xs bg-primary/10 px-3 py-1 rounded-full border border-primary/20 w-fit mx-auto md:mx-0">Featured Movie</span>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight text-foreground drop-shadow-2xl line-clamp-2">
                 {featuredMovie.title}
               </h1>
-              <p className="text-lg text-muted-foreground line-clamp-3">{featuredMovie.overview}</p>
-              <div className="flex items-center gap-4 pt-4">
-                <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
+              <p className="text-base md:text-lg text-muted-foreground line-clamp-3 max-w-xl mx-auto md:mx-0">{featuredMovie.overview}</p>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                <button className="bg-primary text-primary-foreground px-6 sm:px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
                   <Play fill="currentColor" size={20} /> Play Now
                 </button>
-                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-border">
+                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-6 sm:px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-border">
                   <Info size={20} /> More Info
                 </button>
               </div>
@@ -181,11 +182,11 @@ function BrowseContent() {
           <section>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold flex items-center gap-2">
-                <span className="w-1 h-6 bg-purple-500 rounded-full"></span>
-                <Tv size={20} className="text-purple-400" />
-                Popular Series
+                <span className="w-1 h-6 bg-yellow-500 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)]"></span>
+                <Tv size={20} className="text-yellow-400" />
+                Featured Series
               </h2>
-              <a href="/series" className="text-sm text-purple-400 hover:underline">View All</a>
+              <Link href="/series" className="text-sm text-yellow-400 hover:underline">Explore All Series</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {seriesList.map((series: any) => {

@@ -31,7 +31,7 @@ const SAVE_ROUTE_ACCESS = gql`
 
 const ROLES: { id: Role; label: string; color: string }[] = [
     { id: 'admin', label: 'Admin', color: 'text-red-400' },
-    { id: 'moderator', label: 'Moderator', color: 'text-purple-400' },
+    { id: 'moderator', label: 'Moderator', color: 'text-yellow-400' },
     { id: 'user', label: 'User', color: 'text-blue-400' },
 ];
 
@@ -97,7 +97,7 @@ export default function AccessControlPage() {
             {/* Header */}
             <div className="flex items-start justify-between flex-wrap gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-orange-500 mb-1 flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-primary mb-1 flex items-center gap-3">
                         <ShieldCheck size={28} />
                         Access Control
                     </h1>
@@ -118,7 +118,7 @@ export default function AccessControlPage() {
                         disabled={saving}
                         className={`flex items-center gap-2 text-sm px-4 py-2 rounded-xl font-bold transition-all shadow-lg disabled:opacity-70 ${saved
                             ? 'bg-green-500 text-white shadow-green-500/20'
-                            : 'bg-orange-500 text-white hover:bg-orange-600 shadow-orange-500/20'
+                            : 'bg-primary text-black hover:opacity-90 shadow-primary/20'
                             }`}
                     >
                         <Save size={14} /> {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
@@ -127,7 +127,7 @@ export default function AccessControlPage() {
             </div>
 
             {/* Info Banner */}
-            <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl p-4 text-sm text-orange-400 flex items-start gap-3">
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-sm text-primary flex items-start gap-3">
                 <ShieldCheck size={18} className="shrink-0 mt-0.5" />
                 <p>
                     These settings control <strong>visibility of nav links</strong> for each role and are stored in the database. Admins always retain full access to the dashboard.
@@ -157,7 +157,7 @@ export default function AccessControlPage() {
                     {CONTROLLABLE_ROUTES.map((route, idx) => (
                         <div
                             key={route.id}
-                            className={`grid grid-cols-[1fr_repeat(3,_140px)] items-center transition-colors hover:bg-orange-500/5 ${idx !== CONTROLLABLE_ROUTES.length - 1 ? 'border-b border-border/50' : ''}`}
+                            className={`grid grid-cols-[1fr_repeat(3,_140px)] items-center transition-colors hover:bg-primary/5 ${idx !== CONTROLLABLE_ROUTES.length - 1 ? 'border-b border-border/50' : ''}`}
                         >
                             <div className="px-6 py-5 space-y-1">
                                 <p className="font-semibold text-sm flex items-center gap-2">
@@ -178,9 +178,9 @@ export default function AccessControlPage() {
                                             disabled={isAdmin}
                                             title={isAdmin ? 'Admins always have access' : undefined}
                                             className={`relative w-11 h-6 rounded-full transition-all duration-300 focus:outline-none ${isAdmin
-                                                ? 'opacity-40 cursor-not-allowed bg-orange-500'
+                                                ? 'opacity-40 cursor-not-allowed bg-primary'
                                                 : isOn
-                                                    ? 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.4)]'
+                                                    ? 'bg-primary shadow-[0_0_10px_rgba(249,115,22,0.4)]'
                                                     : 'bg-border'
                                                 }`}
                                         >

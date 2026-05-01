@@ -115,23 +115,9 @@ const DELETE_REVIEW = gql`
   }
 `;
 
-const UPDATE_COMMENT = gql`
-  mutation UpdateComment($commentId: Int!, $content: String!) {
-    updateComment(commentId: $commentId, content: $content) {
-      success
-      message
-    }
-  }
-`;
 
-const DELETE_COMMENT = gql`
-  mutation DeleteComment($commentId: Int!) {
-    deleteComment(commentId: $commentId) {
-      success
-      message
-    }
-  }
-`;
+
+
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($content: String!, $reviewId: Int!, $parentId: Int) {
@@ -521,13 +507,8 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
     isSpoiler: review.isSpoiler,
   });
 
-  // Editing Comment State
-  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
-  const [editCommentText, setEditCommentText] = useState('');
-
   // Menu state
   const [showReviewMenu, setShowReviewMenu] = useState(false);
-  const [activeCommentMenuId, setActiveCommentMenuId] = useState<number | null>(null);
 
   // Confirmation state
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -614,61 +595,8 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
     })
   });
 
-  const [updateComment, { loading: updatingComment }] = useMutation(UPDATE_COMMENT, {
-    onCompleted: (data) => {
-      if (data?.updateComment?.success) {
-        setEditingCommentId(null);
-        setEditCommentText('');
-        onRefetch();
-      } else {
-        setConfirmConfig({
-          isOpen: true,
-          title: "Update Failed",
-          description: data?.updateComment?.message || "Failed to update comment",
-          confirmText: "OK",
-          variant: 'warning',
-          showCancel: false,
-          onConfirm: () => { }
-        });
-      }
-    },
-    onError: (error) => setConfirmConfig({
-      isOpen: true,
-      title: "Error",
-      description: error.message,
-      confirmText: "OK",
-      variant: 'danger',
-      showCancel: false,
-      onConfirm: () => { }
-    })
-  });
 
-  const [deleteComment] = useMutation(DELETE_COMMENT, {
-    onCompleted: (data) => {
-      if (data?.deleteComment?.success) {
-        onRefetch();
-      } else {
-        setConfirmConfig({
-          isOpen: true,
-          title: "Delete Failed",
-          description: data?.deleteComment?.message || "Failed to delete comment",
-          confirmText: "OK",
-          variant: 'warning',
-          showCancel: false,
-          onConfirm: () => { }
-        });
-      }
-    },
-    onError: (error) => setConfirmConfig({
-      isOpen: true,
-      title: "Error",
-      description: error.message,
-      confirmText: "OK",
-      variant: 'danger',
-      showCancel: false,
-      onConfirm: () => { }
-    })
-  });
+
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -699,28 +627,7 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
     });
   };
 
-  const handleUpdateComment = (e: React.FormEvent, commentId: number) => {
-    e.preventDefault();
-    setConfirmConfig({
-      isOpen: true,
-      title: "Confirm Update",
-      description: "Are you sure you want to save the changes to your comment?",
-      confirmText: "Save Changes",
-      variant: 'primary',
-      onConfirm: () => updateComment({ variables: { commentId, content: editCommentText } })
-    });
-  };
 
-  const handleDeleteComment = (commentId: number) => {
-    setConfirmConfig({
-      isOpen: true,
-      title: "Delete Comment",
-      description: "Are you sure you want to delete this comment? This action cannot be undone.",
-      confirmText: "Delete",
-      variant: 'danger',
-      onConfirm: () => deleteComment({ variables: { commentId } })
-    });
-  };
 
   const isReviewEdited = Number(review.updatedAt) > Number(review.createdAt) + 1000;
 
@@ -1009,13 +916,109 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
     </div>
   );
 };
+
+const RATING_CONFIG = [
+  { key: 'Worst', label: 'Worst', color: '#ef4444' },
+  { key: 'Bearable', label: 'Bearable', color: '#f97316' },
+  { key: 'Good_To_Watch', label: 'Good To Watch', color: '#eab308' },
+  { key: 'Worthy', label: 'Worthy', color: '#3b82f6' },
+  { key: 'Absolute_Cinema', label: 'Absolute Cinema', color: '#22c55e' },
+];
+
+function RatingGaugeMeter({ reviews }: { reviews: any[] }) {
+  const counts: Record<string, number> = { Worst: 0, Bearable: 0, Good_To_Watch: 0, Worthy: 0, Absolute_Cinema: 0 };
+  reviews.forEach(r => { if (r.rating in counts) counts[r.rating]++; });
+  const total = reviews.length;
+
+  const dominantIdx = total > 0
+    ? RATING_CONFIG.reduce((best, rc, i, arr) => counts[rc.key] >= counts[arr[best].key] ? i : best, 0)
+    : 2;
+  const dominant = RATING_CONFIG[dominantIdx];
+
+  const cx = 110, cy = 100, r = 78, sw = 18;
+
+  function arcPath(startDeg: number, endDeg: number) {
+    const toRad = (d: number) => (d * Math.PI) / 180;
+    const sx = cx + r * Math.cos(toRad(startDeg));
+    const sy = cy - r * Math.sin(toRad(startDeg));
+    const ex = cx + r * Math.cos(toRad(endDeg));
+    const ey = cy - r * Math.sin(toRad(endDeg));
+    return `M ${sx.toFixed(2)} ${sy.toFixed(2)} A ${r} ${r} 0 0 0 ${ex.toFixed(2)} ${ey.toFixed(2)}`;
+  }
+
+  const segments = [
+    [178, 144], [142, 108], [106, 72], [70, 36], [34, 2],
+  ];
+  const needleAngles = [162, 126, 90, 54, 18];
+  const needleAngle = needleAngles[dominantIdx];
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const needleLen = r - sw / 2 - 6;
+  const nx = cx + needleLen * Math.cos(toRad(needleAngle));
+  const ny = cy - needleLen * Math.sin(toRad(needleAngle));
+  const b1x = cx + 7 * Math.cos(toRad(needleAngle + 90));
+  const b1y = cy - 7 * Math.sin(toRad(needleAngle + 90));
+  const b2x = cx + 7 * Math.cos(toRad(needleAngle - 90));
+  const b2y = cy - 7 * Math.sin(toRad(needleAngle - 90));
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
+      <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground text-center">Community Verdict</h3>
+
+      {total === 0 ? (
+        <p className="text-center text-muted-foreground text-sm py-6">No reviews yet — be the first!</p>
+      ) : (
+        <>
+          <div className="flex flex-col items-center gap-1">
+            <svg viewBox="0 0 220 108" className="w-52 h-auto">
+              <path d={arcPath(178, 2)} fill="none" stroke="#ffffff10" strokeWidth={sw} strokeLinecap="round" />
+              {RATING_CONFIG.map((rc, i) => (
+                <path
+                  key={rc.key}
+                  d={arcPath(segments[i][0], segments[i][1])}
+                  fill="none"
+                  stroke={rc.color}
+                  strokeWidth={sw}
+                  strokeLinecap="round"
+                  opacity={dominantIdx === i ? 1 : 0.22}
+                />
+              ))}
+              <polygon
+                points={`${nx.toFixed(1)},${ny.toFixed(1)} ${b1x.toFixed(1)},${b1y.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}`}
+                fill="white" opacity={0.9}
+              />
+              <circle cx={cx} cy={cy} r={7} fill="#111" stroke="white" strokeWidth={2} />
+            </svg>
+            <p className="text-base font-black" style={{ color: dominant.color }}>{dominant.label}</p>
+            <p className="text-[11px] text-muted-foreground">{total} vote{total !== 1 ? 's' : ''}</p>
+          </div>
+
+          <div className="space-y-2">
+            {[...RATING_CONFIG].reverse().map(rc => {
+              const count = counts[rc.key];
+              const pct = total > 0 ? (count / total) * 100 : 0;
+              return (
+                <div key={rc.key} className="flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground w-28 text-right shrink-0">{rc.label}</span>
+                  <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: rc.color }} />
+                  </div>
+                  <span className="text-[11px] font-bold w-5 text-right shrink-0" style={{ color: count > 0 ? rc.color : '#666' }}>{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function MovieDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { id } = params;
   const { currentUser } = useAuth();
 
-  // Review form state
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     title: '',
@@ -1026,10 +1029,8 @@ export default function MovieDetailPage() {
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState(false);
 
-  // Watchlist state
   const [watchlistAdded, setWatchlistAdded] = useState(false);
 
-  // Confirmation state for new review
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     onConfirm: () => void;
@@ -1042,13 +1043,10 @@ export default function MovieDetailPage() {
     onConfirm: () => { },
   });
 
-  // 1. Fetch all movies (since API doesn't support getById)
   const { data: movieData, loading: movieLoading, error: movieError } = useQuery(GET_MOVIES);
 
-  // 2. Find the specific movie
   const movie = movieData?.getMovie?.find((m: any) => String(m.id) === String(id));
 
-  // 3. Fetch reviews only if movie is found
   const { data: reviewData, loading: reviewLoading, refetch: refetchReviews } = useQuery(GET_REVIEWS, {
     variables: { movieName: movie?.title || '' },
     skip: !movie,
@@ -1132,7 +1130,6 @@ export default function MovieDetailPage() {
     <div className="min-h-screen bg-background text-foreground pb-20">
       <UserNavBar />
 
-      {/* Backdrop / Hero */}
       <div className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-40 blur-sm transform scale-105"
@@ -1151,15 +1148,13 @@ export default function MovieDetailPage() {
           </div>
 
           <div className="flex-1 flex items-end md:items-center pb-12 md:pb-0">
-            <div className="flex flex-col md:flex-row gap-8 items-start md:items-end w-full">
-              {/* Poster Card */}
-              <div className="hidden md:block w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border rotate-1 hover:rotate-0 transition-transform duration-300">
+            <div className="flex flex-col md:flex-row gap-8 items-center md:items-end w-full">
+              <div className="w-48 md:w-64 lg:w-80 rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border md:rotate-1 hover:rotate-0 transition-transform duration-300 shrink-0">
                 <img src={poster} alt={movie.title} className="w-full h-auto object-cover" />
               </div>
 
-              {/* Content */}
-              <div className="flex-1 space-y-6 md:mb-10">
-                <div className="flex flex-wrap items-center gap-3 text-sm font-medium">
+              <div className="flex-1 space-y-4 md:space-y-6 md:mb-10 text-center md:text-left">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm font-medium">
                   {movie.MovieGenre?.map((g: any, i: number) => (
                     <span key={i} className="px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 backdrop-blur-md">
                       {g.genre.name}
@@ -1177,13 +1172,13 @@ export default function MovieDetailPage() {
                   )}
                 </div>
 
-                <h1 className="text-4xl md:text-6xl font-black text-foreground leading-tight drop-shadow-xl">{movie.title}</h1>
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-foreground leading-tight drop-shadow-xl">{movie.title}</h1>
 
-                <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed drop-shadow-md">
+                <p className="text-base md:text-lg text-muted-foreground max-w-3xl leading-relaxed drop-shadow-md line-clamp-4 md:line-clamp-none">
                   {movie.overview || "No overview available."}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 pt-4">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
                   <button className="bg-primary text-primary-foreground px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25 transform hover:scale-105">
                     <Play fill="currentColor" size={20} /> Watch Movie
                   </button>
@@ -1208,10 +1203,8 @@ export default function MovieDetailPage() {
                     {watchlistAdded ? <Check size={18} className="text-green-400" /> : <BookmarkPlus size={18} />}
                     {watchlistAdded ? 'Added' : 'My List'}
                   </button>
-                  <div className="flex items-center gap-2 ml-auto">
-                    <div className={`backdrop-blur-md px-6 py-3 rounded-2xl border transition-all duration-500 ${getRatingStyle(movie.dominantRating || '')}`}>
-                      <span className="text-2xl font-black uppercase tracking-tighter whitespace-nowrap">{movie.dominantRating || 'No Ratings'}</span>
-                    </div>
+                  <div className={`backdrop-blur-md px-6 py-3 rounded-2xl border transition-all duration-500 ${getRatingStyle(movie.dominantRating || '')}`}>
+                    <span className="text-2xl font-black uppercase tracking-tighter whitespace-nowrap">{movie.dominantRating || 'No Ratings'}</span>
                   </div>
                 </div>
               </div>
@@ -1220,10 +1213,7 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      {/* Details & Reviews Section */}
       <div className="max-w-5xl mx-auto px-6 mt-16 space-y-16">
-
-        {/* Reviews Section */}
         <section>
           <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
             <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -1273,105 +1263,103 @@ export default function MovieDetailPage() {
             </button>
           </div>
 
-          {/* Success Toast */}
-          {reviewSuccess && (
-            <div className="mb-6 p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2 text-green-400 text-sm">
-              <Check size={16} /> Review submitted successfully!
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            <div className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24">
+              <RatingGaugeMeter reviews={reviews} />
             </div>
-          )}
 
-          {/* Write a Review Form */}
-          {showReviewForm && (
-            <form onSubmit={handleSubmitReview} className="mb-10 bg-card border border-border rounded-2xl p-6 space-y-5">
-              <h3 className="font-bold text-lg">Your Review</h3>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-muted-foreground">Title</label>
-                <input
-                  type="text"
-                  value={reviewForm.title}
-                  onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
-                  placeholder="Give your review a title"
-                  className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-muted-foreground">Your thoughts</label>
-                <textarea
-                  value={reviewForm.content}
-                  onChange={e => setReviewForm({ ...reviewForm, content: e.target.value })}
-                  placeholder="Share what you thought about this movie..."
-                  rows={4}
-                  className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
-                />
-              </div>
-
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 space-y-1">
-                  <label className="text-sm font-medium text-muted-foreground">Rating</label>
-                  <select
-                    value={reviewForm.rating}
-                    onChange={e => setReviewForm({ ...reviewForm, rating: e.target.value })}
-                    className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                  >
-                    {RATINGS.map(r => (
-                      <option key={r.value} value={r.value}>{r.label}</option>
-                    ))}
-                  </select>
+            <div className="flex-1 space-y-6">
+              {reviewSuccess && (
+                <div className="mb-6 p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2 text-green-400 text-sm">
+                  <Check size={16} /> Review submitted successfully!
                 </div>
-
-                <div className="flex items-end gap-3 pb-1">
-                  <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
-                    <div
-                      onClick={() => setReviewForm({ ...reviewForm, isSpoiler: !reviewForm.isSpoiler })}
-                      className={`w-10 h-6 rounded-full transition-all flex items-center px-1 border-2 ${reviewForm.isSpoiler ? 'bg-red-500 border-red-500' : 'bg-slate-200 dark:bg-zinc-700 border-slate-300 dark:border-zinc-600'
-                        }`}
-                    >
-                      <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-md transition-transform ${reviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
-                    </div>
-                    <span className={`font-bold transition-colors ${reviewForm.isSpoiler ? 'text-red-500' : 'text-muted-foreground'}`}>Contains Spoiler</span>
-                  </label>
-                </div>
-              </div>
-
-              {reviewError && (
-                <p className="text-sm text-red-400 bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/20">{reviewError}</p>
               )}
 
-              <button
-                type="submit"
-                disabled={submittingReview}
-                className="w-full py-3 bg-primary hover:bg-orange-600 text-black font-bold rounded-xl transition-all disabled:opacity-50"
-              >
-                {submittingReview ? 'Submitting...' : 'Submit Review'}
-              </button>
-            </form>
-          )}
+              {showReviewForm && (
+                <form onSubmit={handleSubmitReview} className="mb-10 bg-card border border-border rounded-2xl p-6 space-y-5">
+                  <h3 className="font-bold text-lg">Your Review</h3>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground">Title</label>
+                    <input
+                      type="text"
+                      value={reviewForm.title}
+                      onChange={e => setReviewForm({ ...reviewForm, title: e.target.value })}
+                      placeholder="Give your review a title"
+                      className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground">Your thoughts</label>
+                    <textarea
+                      value={reviewForm.content}
+                      onChange={e => setReviewForm({ ...reviewForm, content: e.target.value })}
+                      placeholder="Share what you thought about this movie..."
+                      rows={4}
+                      className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
+                    />
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 space-y-1">
+                      <label className="text-sm font-medium text-muted-foreground">Rating</label>
+                      <select
+                        value={reviewForm.rating}
+                        onChange={e => setReviewForm({ ...reviewForm, rating: e.target.value })}
+                        className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                      >
+                        {RATINGS.map(r => (
+                          <option key={r.value} value={r.value}>{r.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-end gap-3 pb-1">
+                      <label className="flex items-center gap-2 cursor-pointer select-none text-sm">
+                        <div
+                          onClick={() => setReviewForm({ ...reviewForm, isSpoiler: !reviewForm.isSpoiler })}
+                          className={`w-10 h-6 rounded-full transition-all flex items-center px-1 border-2 ${reviewForm.isSpoiler ? 'bg-red-500 border-red-500' : 'bg-slate-200 dark:bg-zinc-700 border-slate-300 dark:border-zinc-600'}`}
+                        >
+                          <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-md transition-transform ${reviewForm.isSpoiler ? 'translate-x-4' : ''}`} />
+                        </div>
+                        <span className={`font-bold transition-colors ${reviewForm.isSpoiler ? 'text-red-500' : 'text-muted-foreground'}`}>Contains Spoiler</span>
+                      </label>
+                    </div>
+                  </div>
+                  {reviewError && (
+                    <p className="text-sm text-red-400 bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/20">{reviewError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    className="w-full py-3 bg-primary hover:bg-orange-600 text-black font-bold rounded-xl transition-all disabled:opacity-50"
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </form>
+              )}
 
-          {reviewLoading ? (
-            <p className="text-muted-foreground">Loading reviews...</p>
-          ) : reviews.length > 0 ? (
-            <div className="grid gap-6">
-              {reviews.map((review: any) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  onRefetch={() => refetchReviews()}
-                  canComment={canComment}
-                  canReview={canReview}
-                  canLike={canLike}
-                  parentSetConfirmConfig={setConfirmConfig}
-                />
-              ))}
+              {reviewLoading ? (
+                <p className="text-muted-foreground">Loading reviews...</p>
+              ) : reviews.length > 0 ? (
+                <div className="grid gap-6">
+                  {reviews.map((review: any) => (
+                    <ReviewCard
+                      key={review.id}
+                      review={review}
+                      onRefetch={() => refetchReviews()}
+                      canComment={canComment}
+                      canReview={canReview}
+                      canLike={canLike}
+                      parentSetConfirmConfig={setConfirmConfig}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-secondary/20 rounded-xl border border-dashed border-border">
+                  <p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12 bg-secondary/20 rounded-xl border border-dashed border-border">
-              <p className="text-muted-foreground">No reviews yet. Be the first to share your thoughts!</p>
-            </div>
-          )}
+          </div>
         </section>
-
       </div>
 
       <ConfirmDialog

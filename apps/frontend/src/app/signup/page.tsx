@@ -11,7 +11,7 @@ type SignupStep = 'register' | 'verify-otp';
 
 export default function SignupPage() {
     const router = useRouter();
-    const { token } = useAuth();
+    const { token, googleLogin } = useAuth();
 
     useEffect(() => {
         if (token) {
