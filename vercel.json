@@ -1,6 +1,6 @@
 {
   "buildCommand": "yarn build:frontend",
-  "outputDirectory": "apps/frontend/dist",
+  "outputDirectory": "dist",
   "installCommand": "yarn install",
   "framework": "nextjs"
 }
