@@ -140,6 +140,7 @@ export const movieTypeDefs = gql`
     createMovie(
       title: String!
       originalTitle: String
+      overview: String
       releaseDate: Date
       runtime: Int!
       posterBase64: String

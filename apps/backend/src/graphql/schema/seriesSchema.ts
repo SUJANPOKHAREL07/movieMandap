@@ -86,6 +86,12 @@ export const seriesTypeDefs = gql`
     SeriesReview: [SeriesReview]
   }
 
+  type SeriesMutationResponse {
+    success: Boolean!
+    message: String!
+    series: Series
+  }
+
   extend type Query {
     getSeries: [Series]
     getAllSeriesData: [Series]
@@ -95,6 +101,7 @@ export const seriesTypeDefs = gql`
     createSeries(
       title: String!
       originalTitle: String
+      overview: String
       releaseDate: Date
       runtime: Int!
       posterBase64: String
@@ -105,11 +112,13 @@ export const seriesTypeDefs = gql`
       adult: Boolean!
       trailerLink: String
       genreIds: [Int]
-    ): MutationResponse
+    ): SeriesMutationResponse
 
     updateSeries(
+      id: Int!
       title: String
       originalTitle: String
+      overview: String
       releaseDate: Date
       runtime: Int
       posterBase64: String
@@ -119,7 +128,8 @@ export const seriesTypeDefs = gql`
       tagline: String
       adult: Boolean
       trailerLink: String
-    ): MutationResponse
+      genreIds: [Int]
+    ): SeriesMutationResponse
 
     deleteSeries(title: String): MutationResponse
   }

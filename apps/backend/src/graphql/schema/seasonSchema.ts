@@ -11,6 +11,21 @@ export const seasonTypeDefs = gql`
     episodeCount: Int
     posterPath: String
     SeasonReview: [SeasonReview]
+    episodes: [Episode]
+  }
+
+  type SeasonComment {
+    id: Int!
+    content: String!
+    parentId: Int
+    user: User!
+    likesCount: Int!
+    disLikesCount: Int!
+    userHasLiked: Boolean
+    userHasDisliked: Boolean
+    createdAt: String!
+    updatedAt: String!
+    replies: [SeasonComment!]
   }
 
   type SeasonReview {
@@ -20,13 +35,21 @@ export const seasonTypeDefs = gql`
     rating: Ratings!
     isSpoiler: Boolean!
     user: User!
+    comments: [SeasonComment!]
     likesCount: Int!
     disLikesCount: Int!
     commentsCount: Int!
     userHasLiked: Boolean
     userHasDisliked: Boolean
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: String!
+    updatedAt: String!
+    episodes: [Episode]
+  }
+
+  type SeasonMutationResponse {
+    success: Boolean!
+    message: String!
+    season: Season
   }
 
   extend type Query {
@@ -43,16 +66,18 @@ export const seasonTypeDefs = gql`
       airDate: Date
       episodeCount: Int
       posterBase64: String
-    ): MutationResponse
+    ): SeasonMutationResponse
 
     updateSeason(
       id: Int!
+      seasonNumber: Int
       title: String
       overview: String
       airDate: Date
       episodeCount: Int
       posterBase64: String
-    ): MutationResponse
+    ): SeasonMutationResponse
+
 
     deleteSeason(id: Int!): MutationResponse
 
@@ -76,5 +101,11 @@ export const seasonTypeDefs = gql`
 
     toggleSeasonReviewLike(reviewId: Int!): MutationResponse
     toggleSeasonReviewDislike(reviewId: Int!): MutationResponse
+
+    createSeasonComment(reviewId: Int!, content: String!, parentId: Int): MutationResponse
+    updateSeasonComment(commentId: Int!, content: String!): MutationResponse
+    deleteSeasonComment(commentId: Int!): MutationResponse
+    toggleSeasonCommentLike(commentId: Int!): MutationResponse
+    toggleSeasonCommentDislike(commentId: Int!): MutationResponse
   }
 `;

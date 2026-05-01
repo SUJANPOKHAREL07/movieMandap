@@ -33,6 +33,8 @@ model user {
   login                login[]
   Review               Review[]
   SeasonComment        SeasonComment[]
+  SeasonCommentLike    SeasonCommentLike[]
+  SeasonCommentDislike SeasonCommentDislike[]
   SeasonDislike        SeasonDislike[]
   SeasonLike           SeasonLike[]
   SeasonReview         SeasonReview[]
@@ -349,11 +351,28 @@ model Season {
   episodeCount Int            @default(0)
   posterPath   String?
   SeasonReview SeasonReview[]
+  episodes     Episode[]  
   series       Series         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
 
   @@unique([seriesId, seasonNumber])
   @@map("seasons")
 }
+
+model Episode {
+  id            Int       @id @default(autoincrement())
+  seasonId      Int
+  episodeNumber Int
+  title         String?
+  overview      String?
+  airDate       DateTime?
+  runtime       Int?
+  posterPath    String?
+  season        Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, episodeNumber])
+  @@map("episodes")
+}
+
 
 model SeasonReview {
   id            Int             @id @default(autoincrement())
@@ -410,15 +429,43 @@ model SeasonComment {
   parentId  Int?
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
-  parent    SeasonComment?  @relation("SeasonCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   SeasonComment[] @relation("SeasonCommentReplies")
-  review    SeasonReview    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  user      user            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent               SeasonComment?         @relation("SeasonCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies              SeasonComment[]        @relation("SeasonCommentReplies")
+  SeasonCommentLike    SeasonCommentLike[]
+  SeasonCommentDislike SeasonCommentDislike[]
+  review               SeasonReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user                 user                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([parentId], map: "season_comments_parentId_fkey")
   @@index([reviewId], map: "season_comments_reviewId_fkey")
   @@index([userId], map: "season_comments_userId_fkey")
   @@map("season_comments")
+}
+
+model SeasonCommentLike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeasonComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "season_comment_likes_commentId_fkey")
+  @@map("season_comment_likes")
+}
+
+model SeasonCommentDislike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeasonComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "season_comment_dislikes_commentId_fkey")
+  @@map("season_comment_dislikes")
 }
 
 model SeriesGenre {

@@ -9,6 +9,7 @@ import { seasonResolver } from './seasonResolver';
 import { userResolvers } from './userResolver';
 import { dashboardResolver } from './dashboardResolver';
 import { routeAccessResolver } from './routeAccessResolver';
+import { episodeResolver } from './episodeResolver';
 
 export const resolvers = [
   userResolvers,
@@ -22,4 +23,5 @@ export const resolvers = [
   seasonResolver,
   dashboardResolver,
   routeAccessResolver,
+  episodeResolver,
 ];

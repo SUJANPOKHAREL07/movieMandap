@@ -8,7 +8,7 @@ import {
   TSeriesResponse,
   TSeriesUpdate,
 } from '../types/series.types';
-import { TResponse } from '../types/user.types';
+
 // import fs from 'fs';
 // import { randomUUID } from 'crypto';
 const getAllSeries = async (): Promise<TSeriesResponse> => {
@@ -30,7 +30,7 @@ const getAllSeries = async (): Promise<TSeriesResponse> => {
 const createSeries = async (
   data: TSeriesInput,
   poster: string
-): Promise<TResponse> => {
+) => {
   try {
     console.log('poster and data', poster, data);
 
@@ -42,6 +42,7 @@ const createSeries = async (
     return {
       message: 'Series created',
       success: true,
+      series: createSeries,
     };
   } catch (err) {
     throw new Error('Failed to create the series');
@@ -153,36 +154,34 @@ const getAllSeriesData = async () => {
     };
   }
 };
-const updateSeries = async (data: TSeriesUpdate, poster: string) => {
+const updateSeries = async (data: TSeriesUpdate, poster: string, genreIds?: number[]) => {
   try {
     if (!data) {
       return {
         success: false,
         message: 'Failed: No data provided to update',
-        data: data,
       };
     }
-    const update = await seriesModal.updateSeries(data, poster);
+    const update = await seriesModal.updateSeries(data, poster, genreIds);
     if (!update) {
       return {
         success: false,
         message: 'Failed to update the series data',
-        data: [],
       };
     }
     return {
       success: true,
-      message: 'Series data updated successfully',
-      data: [update],
+      message: 'Series Updated Successfully',
+      series: update,
     };
-  } catch (err) {
+  } catch (err: any) {
     return {
       success: false,
-      message: err,
-      data: [],
+      message: err.message || 'Unknown error occurred',
     };
   }
 };
+
 const deleteSeries = async (seriesname: string) => {
   try {
     console.log('Series data', seriesname);

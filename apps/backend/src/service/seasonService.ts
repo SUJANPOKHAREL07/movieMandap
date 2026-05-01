@@ -7,8 +7,7 @@ export const seasonService = {
     async getSeasonsOfSeries(seriesId: number) {
         return prisma.season.findMany({
             where: { seriesId },
-            orderBy: { seasonNumber: 'asc' },
-            include: { SeasonReview: true },
+            include: { SeasonReview: true, episodes: { orderBy: { episodeNumber: 'asc' } } },
         });
     },
 
@@ -23,6 +22,37 @@ export const seasonService = {
                     SeasonLike: { where: { userId } },
                     SeasonDislike: { where: { userId } },
                 } : {}),
+                SeasonComment: {
+                    where: { parentId: null },
+                    include: {
+                        user: { select: { id: true, username: true } },
+                        _count: { select: { SeasonCommentLike: true, SeasonCommentDislike: true } },
+                        ...(userId ? {
+                            SeasonCommentLike: { where: { userId } },
+                            SeasonCommentDislike: { where: { userId } },
+                        } : {}),
+                        replies: {
+                            include: {
+                                user: { select: { id: true, username: true } },
+                                _count: { select: { SeasonCommentLike: true, SeasonCommentDislike: true } },
+                                ...(userId ? {
+                                    SeasonCommentLike: { where: { userId } },
+                                    SeasonCommentDislike: { where: { userId } },
+                                } : {}),
+                                replies: {
+                                    include: {
+                                        user: { select: { id: true, username: true } },
+                                        _count: { select: { SeasonCommentLike: true, SeasonCommentDislike: true } },
+                                        ...(userId ? {
+                                            SeasonCommentLike: { where: { userId } },
+                                            SeasonCommentDislike: { where: { userId } },
+                                        } : {}),
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
         });
         return reviews.map((r: any) => ({
@@ -44,6 +74,13 @@ export const seasonService = {
         episodeCount?: number;
         posterBase64?: string;
     }) {
+        const existing = await prisma.season.findFirst({
+            where: { seriesId: data.seriesId, seasonNumber: data.seasonNumber }
+        });
+        if (existing) {
+            return { success: false, message: `Season ${data.seasonNumber} already exists for this series.` };
+        }
+
         let posterPath: string | undefined;
         if (data.posterBase64) {
             posterPath = await uploadBase64(data.posterBase64);
@@ -59,7 +96,7 @@ export const seasonService = {
                 posterPath,
             },
         });
-        return { success: true, message: `Season ${season.seasonNumber} added.` };
+        return { success: true, message: `Season ${season.seasonNumber} added.`, season };
     },
 
     async updateSeason(id: number, data: any) {
@@ -67,9 +104,10 @@ export const seasonService = {
         if (data.posterBase64) {
             posterPath = await uploadBase64(data.posterBase64);
         }
-        await prisma.season.update({
+        const season = await prisma.season.update({
             where: { id },
             data: {
+                ...(data.seasonNumber !== undefined ? { seasonNumber: data.seasonNumber } : {}),
                 title: data.title,
                 overview: data.overview,
                 airDate: data.airDate ? new Date(data.airDate) : undefined,
@@ -77,7 +115,7 @@ export const seasonService = {
                 ...(posterPath ? { posterPath } : {}),
             },
         });
-        return { success: true, message: 'Season updated.' };
+        return { success: true, message: 'Season updated.', season };
     },
 
     async deleteSeason(id: number) {
@@ -124,5 +162,51 @@ export const seasonService = {
         }
         await (prisma as any).seasonDislike.create({ data: { userId, reviewId } });
         return { success: true, message: 'Disliked.' };
+    },
+
+    async createSeasonComment(userId: number, data: { reviewId: number; content: string; parentId?: number }) {
+        await (prisma as any).seasonComment.create({
+            data: {
+                userId,
+                reviewId: data.reviewId,
+                content: data.content,
+                parentId: data.parentId || null,
+            }
+        });
+        return { success: true, message: 'Comment created.' };
+    },
+
+    async updateSeasonComment(userId: number, commentId: number, content: string) {
+        const comment = await (prisma as any).seasonComment.findUnique({ where: { id: commentId } });
+        if (!comment || comment.userId !== userId) return { success: false, message: 'Not authorized.' };
+        await (prisma as any).seasonComment.update({ where: { id: commentId }, data: { content } });
+        return { success: true, message: 'Comment updated.' };
+    },
+
+    async deleteSeasonComment(userId: number, commentId: number) {
+        const comment = await (prisma as any).seasonComment.findUnique({ where: { id: commentId } });
+        if (!comment || comment.userId !== userId) return { success: false, message: 'Not authorized.' };
+        await (prisma as any).seasonComment.delete({ where: { id: commentId } });
+        return { success: true, message: 'Comment deleted.' };
+    },
+
+    async toggleSeasonCommentLike(userId: number, commentId: number) {
+        const existing = await (prisma as any).seasonCommentLike.findUnique({ where: { userId_commentId: { userId, commentId } } });
+        if (existing) {
+            await (prisma as any).seasonCommentLike.delete({ where: { userId_commentId: { userId, commentId } } });
+            return { success: true, message: 'Like removed.' };
+        }
+        await (prisma as any).seasonCommentLike.create({ data: { userId, commentId } });
+        return { success: true, message: 'Liked comment.' };
+    },
+
+    async toggleSeasonCommentDislike(userId: number, commentId: number) {
+        const existing = await (prisma as any).seasonCommentDislike.findUnique({ where: { userId_commentId: { userId, commentId } } });
+        if (existing) {
+            await (prisma as any).seasonCommentDislike.delete({ where: { userId_commentId: { userId, commentId } } });
+            return { success: true, message: 'Dislike removed.' };
+        }
+        await (prisma as any).seasonCommentDislike.create({ data: { userId, commentId } });
+        return { success: true, message: 'Disliked comment.' };
     },
 };

@@ -9,6 +9,7 @@ import { seasonTypeDefs } from './seasonSchema';
 import { userTypeDefs } from './userSchema';
 import { dashboardTypeDefs } from './dashboardSchema';
 import { routeAccessTypeDefs } from './routeAccessSchema';
+import { episodeSchema } from './episodeSchema';
 
 export const typeDefs = [
   userTypeDefs,
@@ -22,4 +23,5 @@ export const typeDefs = [
   seasonTypeDefs,
   dashboardTypeDefs,
   routeAccessTypeDefs,
+  episodeSchema,
 ];

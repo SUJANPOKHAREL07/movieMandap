@@ -72,13 +72,14 @@ export const seriesResolver = {
           message: 'User are not allowed to create',
         };
       }
-      const { posterBase64, ...data } = args as any;
+      const { posterBase64, genreIds, ...data } = args as any;
       let posterPath = '';
       if (posterBase64) {
         posterPath = await uploadBase64(posterBase64);
       }
-      return await seriesService.updateSeries(data, posterPath);
+      return await seriesService.updateSeries(data, posterPath, genreIds);
     },
+
     deleteSeries: async (_: any, { title }: any, context: any) => {
       if (typeof title !== 'string') {
         throw new Error('Title must be string');

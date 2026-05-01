@@ -141,10 +141,10 @@ async function createSeriesGenre(seriesId: number, genreId: number) {
     },
   });
 }
-async function updateSeries(data: any, poster: string) {
+async function updateSeries(data: any, poster: string, genreIds?: number[]) {
   return await prisma.series.update({
     where: {
-      title: data.title,
+      id: data.id,
     },
     data: {
       title: data.title,
@@ -152,16 +152,25 @@ async function updateSeries(data: any, poster: string) {
       overview: data.overview,
       releaseDate: data.releaseDate,
       runtime: data.runtime,
-      posterPath: poster,
+      ...(poster ? { posterPath: poster } : {}),
       budget: data.budget,
       revenue: data.revenue,
       status: data.status,
       tagline: data.tagline,
       adult: data.adult,
       trailerLink: data.trailerLink,
+      ...(genreIds !== undefined
+        ? {
+          SeriesGenre: {
+            deleteMany: {},
+            create: genreIds.map((id: number) => ({ generesId: id })),
+          },
+        }
+        : {}),
     },
   });
 }
+
 async function deleteSeries(title: string) {
   return await prisma.series.delete({
     where: {
