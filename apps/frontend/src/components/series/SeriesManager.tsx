@@ -74,9 +74,9 @@ export default function SeriesManager() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-80px)] overflow-hidden bg-black/40 border border-zinc-800/50 rounded-3xl shadow-2xl backdrop-blur-3xl">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)] overflow-hidden bg-black/40 border border-zinc-800/50 rounded-3xl shadow-2xl backdrop-blur-3xl">
       {/* LEFT SIDEBAR: Master List */}
-      <div className="w-[380px] flex flex-col border-r border-zinc-800/50 bg-zinc-950/40 shrink-0">
+      <div className={`${selectedSeries || isCreating ? 'hidden lg:flex' : 'flex'} w-full lg:w-[380px] flex-col border-r border-zinc-800/50 bg-zinc-950/40 shrink-0 h-full`}>
         <div className="p-5 border-b border-zinc-800/50">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent">

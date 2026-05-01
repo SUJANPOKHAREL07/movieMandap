@@ -95,11 +95,11 @@ const Movies = () => {
         </div>
       )}
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-1">Movies Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">Movies Management</h1>
           <p className="text-muted-foreground text-sm">
-            {movies.length} movie{movies.length !== 1 ? 's' : ''} in the database
+            {movies.length} blockbuster titles in your library
           </p>
         </div>
         <button
@@ -107,10 +107,27 @@ const Movies = () => {
             setMovieToEdit(null);
             setisOpen(true);
           }}
-          className="bg-primary px-5 py-2.5 text-sm font-bold hover:opacity-90 duration-200 text-black rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
+          className="w-full sm:w-auto bg-primary text-black font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
         >
-          <span className="text-lg">+</span> Add Movie
+          <Clapperboard size={18} /> Add Movie
         </button>
+      </div>
+
+      {/* Search Input */}
+      <div className="border border-border p-3 rounded-2xl flex items-center gap-2 bg-card shadow-sm transition-all focus-within:border-primary/50">
+        <IoSearchOutline size={20} className="text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search movies by title, overview..."
+          className="w-full bg-transparent focus:ring-0 outline-none text-sm"
+        />
+        {search && (
+          <button onClick={() => setSearch('')} className="text-xs text-zinc-500 hover:text-foreground">
+            Clear
+          </button>
+        )}
       </div>
 
       {isOpen && (

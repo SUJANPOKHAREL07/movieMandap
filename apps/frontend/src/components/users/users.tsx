@@ -51,11 +51,11 @@ const Users = () => {
     return (
         <section className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
-                    <h1 className="text-3xl font-bold text-primary mb-1">Users Management</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">Users Management</h1>
                     <p className="text-muted-foreground text-sm">
-                        {usersList.length} user{usersList.length !== 1 ? 's' : ''} registered
+                        {usersList.length} user{usersList.length !== 1 ? 's' : ''} registered on the platform
                     </p>
                 </div>
             </div>

@@ -140,59 +140,61 @@ export default function AccessControlPage() {
                     {[1, 2, 3].map(i => <div key={i} className="h-20 bg-card border border-border rounded-2xl animate-pulse" />)}
                 </div>
             ) : (
-                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-                    {/* Table Header */}
-                    <div className="grid grid-cols-[1fr_repeat(3,_140px)] border-b border-border bg-background/50">
-                        <div className="px-6 py-4 text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                            Route / Feature
+                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm overflow-x-auto custom-scrollbar">
+                    <div className="min-w-[800px]">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-[1fr_repeat(3,_140px)] border-b border-border bg-background/50">
+                            <div className="px-6 py-4 text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                                Route / Feature
+                            </div>
+                            {ROLES.map(role => (
+                                <div key={role.id} className={`px-6 py-4 text-sm font-bold uppercase tracking-wider text-center ${role.color}`}>
+                                    {role.label}
+                                </div>
+                            ))}
                         </div>
-                        {ROLES.map(role => (
-                            <div key={role.id} className={`px-6 py-4 text-sm font-bold uppercase tracking-wider text-center ${role.color}`}>
-                                {role.label}
+
+                        {/* Route Rows */}
+                        {CONTROLLABLE_ROUTES.map((route, idx) => (
+                            <div
+                                key={route.id}
+                                className={`grid grid-cols-[1fr_repeat(3,_140px)] items-center transition-colors hover:bg-primary/5 ${idx !== CONTROLLABLE_ROUTES.length - 1 ? 'border-b border-border/50' : ''}`}
+                            >
+                                <div className="px-6 py-5 space-y-1">
+                                    <p className="font-semibold text-sm flex items-center gap-2">
+                                        <span className="text-base">{route.icon}</span>
+                                        {route.label}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">{route.description}</p>
+                                    <code className="text-[10px] bg-secondary/50 px-1.5 py-0.5 rounded text-muted-foreground">{route.path}</code>
+                                </div>
+
+                                {ROLES.map(role => {
+                                    const isOn = accessMap[route.id]?.[role.id] ?? true;
+                                    const isAdmin = role.id === 'admin';
+                                    return (
+                                        <div key={role.id} className="flex items-center justify-center px-6 py-5">
+                                            <button
+                                                onClick={() => !isAdmin && toggle(route.id, role.id)}
+                                                disabled={isAdmin}
+                                                title={isAdmin ? 'Admins always have access' : undefined}
+                                                className={`relative w-11 h-6 rounded-full transition-all duration-300 focus:outline-none ${isAdmin
+                                                    ? 'opacity-40 cursor-not-allowed bg-primary'
+                                                    : isOn
+                                                        ? 'bg-primary shadow-[0_0_10px_rgba(249,115,22,0.4)]'
+                                                        : 'bg-border'
+                                                    }`}
+                                            >
+                                                <span
+                                                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${isOn ? 'translate-x-5' : 'translate-x-0'}`}
+                                                />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
-
-                    {/* Route Rows */}
-                    {CONTROLLABLE_ROUTES.map((route, idx) => (
-                        <div
-                            key={route.id}
-                            className={`grid grid-cols-[1fr_repeat(3,_140px)] items-center transition-colors hover:bg-primary/5 ${idx !== CONTROLLABLE_ROUTES.length - 1 ? 'border-b border-border/50' : ''}`}
-                        >
-                            <div className="px-6 py-5 space-y-1">
-                                <p className="font-semibold text-sm flex items-center gap-2">
-                                    <span className="text-base">{route.icon}</span>
-                                    {route.label}
-                                </p>
-                                <p className="text-xs text-muted-foreground">{route.description}</p>
-                                <code className="text-[10px] bg-secondary/50 px-1.5 py-0.5 rounded text-muted-foreground">{route.path}</code>
-                            </div>
-
-                            {ROLES.map(role => {
-                                const isOn = accessMap[route.id]?.[role.id] ?? true;
-                                const isAdmin = role.id === 'admin';
-                                return (
-                                    <div key={role.id} className="flex items-center justify-center px-6 py-5">
-                                        <button
-                                            onClick={() => !isAdmin && toggle(route.id, role.id)}
-                                            disabled={isAdmin}
-                                            title={isAdmin ? 'Admins always have access' : undefined}
-                                            className={`relative w-11 h-6 rounded-full transition-all duration-300 focus:outline-none ${isAdmin
-                                                ? 'opacity-40 cursor-not-allowed bg-primary'
-                                                : isOn
-                                                    ? 'bg-primary shadow-[0_0_10px_rgba(249,115,22,0.4)]'
-                                                    : 'bg-border'
-                                                }`}
-                                        >
-                                            <span
-                                                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${isOn ? 'translate-x-5' : 'translate-x-0'}`}
-                                            />
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
                 </div>
             )}
         </section>
