@@ -23,6 +23,7 @@
     "start": "next start",
     "dev": "PORT=3001 next dev",
     "build": "next build",
+    "build:frontend": "yarn build",
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "description": "Frontend application for Cine Gudi. Server-rendered Next app that visualizes the backend GraphQL API.",
