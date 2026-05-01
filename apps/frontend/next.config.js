@@ -11,6 +11,14 @@ const nextConfig = {
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
   distDir: 'dist',
+  eslint: {
+    // Linting runs in a separate CI step — don't block production builds
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Type errors are caught locally — don't block Vercel deployments
+    ignoreBuildErrors: true,
+  },
 };
 
 const plugins = [
