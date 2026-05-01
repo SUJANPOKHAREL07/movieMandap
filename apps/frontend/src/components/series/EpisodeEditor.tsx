@@ -121,13 +121,6 @@ export default function EpisodeEditor({ season, series, onBack }: any) {
         }
     }, [episodes.length, editingEpisode]);
 
-    if (error) return (
-        <div className="p-8 text-center bg-red-500/10 rounded-3xl border border-red-500/20">
-            <h3 className="text-red-500 font-bold mb-2">Error Loading Episodes</h3>
-            <p className="text-zinc-500 text-sm">{error.message}</p>
-        </div>
-    );
-
     const [formData, setFormData] = useState({
         episodeNumber: episodes.length + 1,
         title: '',
@@ -136,6 +129,13 @@ export default function EpisodeEditor({ season, series, onBack }: any) {
         runtime: '',
         posterBase64: '',
     });
+
+    if (error) return (
+        <div className="p-8 text-center bg-red-500/10 rounded-3xl border border-red-500/20">
+            <h3 className="text-red-500 font-bold mb-2">Error Loading Episodes</h3>
+            <p className="text-zinc-500 text-sm">{error.message}</p>
+        </div>
+    );
 
     const handleEditClick = (ep: any) => {
         setEditingEpisode(ep);

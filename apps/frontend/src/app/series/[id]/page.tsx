@@ -621,7 +621,7 @@ function SeasonReviewCard({ review, onRefetch, currentUser }: { review: any; onR
     confirmText?: string;
     showCancel?: boolean;
   }>({
-    isOpen: false, title: '', description: '', onConfirm: () => { }, variant: 'primary'
+    isOpen: false, title: '', description: '', onConfirm: () => { /* noop */ }, variant: 'primary'
   });
 
   const isOwner = currentUser?.id === review.user?.id;
@@ -998,7 +998,7 @@ function SeriesReviewCard({ review, onRefetch, currentUser }: { review: any; onR
     confirmText?: string;
     showCancel?: boolean;
   }>({
-    isOpen: false, title: '', description: '', onConfirm: () => { }, variant: 'primary'
+    isOpen: false, title: '', description: '', onConfirm: () => { /* noop */ }, variant: 'primary'
   });
 
   const isOwner = currentUser?.id === review.user?.id;
@@ -1280,7 +1280,7 @@ function SeasonPanel({ season, currentUser, seriesTitle }: { season: any; curren
                   {reviews.length === 0 && !showReviewForm ? (
                     <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl w-full">
                       <p className="text-sm text-muted-foreground italic font-light italic-editorial px-4">
-                        \"A sensory overload that demands your individual attention.\" — Be the first to share.
+                        &quot;A sensory overload that demands your individual attention.&quot; — Be the first to share.
                       </p>
                     </div>
                   ) : (
@@ -1336,7 +1336,7 @@ export default function SeriesDetailPage() {
   const { currentUser } = useAuth();
 
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [confirmConfig, setConfirmConfig] = useState<any>({ isOpen: false, onConfirm: () => { } });
+  const [confirmConfig, setConfirmConfig] = useState<any>({ isOpen: false, onConfirm: () => { /* noop */ } });
 
   const { data } = useQuery(GET_SERIES);
   const series = data?.getSeries?.find((s: any) => String(s.id) === String(id));
@@ -1359,7 +1359,7 @@ export default function SeriesDetailPage() {
 
   const [addWatchlist] = useMutation(ADD_SERIES_WATCHLIST, {
     onCompleted: (d) => setConfirmConfig({
-      isOpen: true, onConfirm: () => { },
+      isOpen: true, onConfirm: () => { /* noop */ },
       title: d.createSeriesWatchList.success ? 'Added!' : 'Error',
       description: d.createSeriesWatchList.message,
       confirmText: 'OK', variant: 'primary',

@@ -62,7 +62,7 @@ export default function WatchlistPage() {
                         <Bookmark className="mx-auto text-muted-foreground mb-4 opacity-50" size={48} />
                         <h3 className="text-xl font-bold mb-2">Your watchlist is empty</h3>
                         <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                            Looks like you haven't added any movies to your list yet. Start exploring to find something to watch!
+                            Looks like you haven&apos;t added any movies to your list yet. Start exploring to find something to watch!
                         </p>
                         <Link
                             href="/"
@@ -99,7 +99,7 @@ export default function WatchlistPage() {
                                     <div className="p-5 flex flex-col flex-1">
                                         <h3 className="font-bold text-lg leading-tight mb-2 line-clamp-1">{movie.title}</h3>
                                         {item.note ? (
-                                            <p className="text-sm text-muted-foreground italic bg-secondary/50 p-2.5 rounded-lg border border-border/30 mb-2">"{item.note}"</p>
+                                            <p className="text-sm text-muted-foreground italic bg-secondary/50 p-2.5 rounded-lg border border-border/30 mb-2">&quot;{item.note}&quot;</p>
                                         ) : (
                                             <div className="flex-1"></div>
                                         )}

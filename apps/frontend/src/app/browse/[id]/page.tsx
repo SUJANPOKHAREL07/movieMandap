@@ -258,7 +258,7 @@ const CommentItem = ({
     isOpen: false,
     title: '',
     description: '',
-    onConfirm: () => { },
+    onConfirm: () => { /* noop */ },
     variant: 'primary',
     showCancel: true,
   });
@@ -523,7 +523,7 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
     isOpen: false,
     title: '',
     description: '',
-    onConfirm: () => { },
+    onConfirm: () => { /* noop */ },
     variant: 'primary',
     showCancel: true,
   });
@@ -553,7 +553,7 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
           confirmText: "OK",
           variant: 'warning',
           showCancel: false,
-          onConfirm: () => { }
+          onConfirm: () => { /* noop */ }
         });
       }
     },
@@ -580,7 +580,7 @@ const ReviewCard = ({ review, onRefetch, canComment, canReview, canLike, parentS
           confirmText: "OK",
           variant: 'warning',
           showCancel: false,
-          onConfirm: () => { }
+          onConfirm: () => { /* noop */ }
         });
       }
     },
@@ -1040,7 +1040,7 @@ export default function MovieDetailPage() {
     variant?: 'danger' | 'warning' | 'primary';
   }>({
     isOpen: false,
-    onConfirm: () => { },
+    onConfirm: () => { /* noop */ },
   });
 
   const { data: movieData, loading: movieLoading, error: movieError } = useQuery(GET_MOVIES);

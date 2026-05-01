@@ -53,7 +53,7 @@ const UserNavBar = () => {
     variant?: 'danger' | 'warning' | 'primary';
   }>({
     isOpen: false,
-    onConfirm: () => { },
+    onConfirm: () => { /* noop */ },
   });
 
   useEffect(() => {
@@ -70,7 +70,7 @@ const UserNavBar = () => {
     try {
       await logoutUser();
       await logout();
-    } catch (e) { }
+    } catch (e) { /* silent fail */ }
     router.push('/login');
   };
 
