@@ -34,19 +34,22 @@ const defaultOrigins = [
 ];
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-      .map((o) => o.trim().replace(/\/$/, '')) // Remove trailing slash
+      .map((o) => o.trim().replace(/\/$/, '')) 
       .concat(defaultOrigins)
   : defaultOrigins;
 
 console.log('✅ CORS Allowed Origins:', allowedOrigins);
 
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+  next();
+});
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
         console.error(`❌ CORS blocked for origin: ${origin}`);
