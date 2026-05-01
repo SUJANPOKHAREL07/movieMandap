@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import session from 'express-session';
@@ -90,7 +92,7 @@ async function startServer() {
     path: '/graphql',
   });
 
-  const PORT = process.env.PORT || 4000;
+  const PORT = process.env.BACKEND_PORT || 8000;
   app.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });
