@@ -10,7 +10,77 @@ import { userModal } from '../modal/userModal';
 import { TLoad } from '../types/login.types';
 import { TReqRes, TResponse } from '../types/user.types';
 import { resetPasswordService } from '../userVerifyOTP/resetPassOtpService';
-import { comparePassword } from '../utils/passwordHashing';
+import { comparePassword, hashPassword } from '../utils/passwordHashing';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+async function googleLogin(credential: string) {
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return { success: false, message: 'Invalid Google token' };
+    }
+
+    const { email, name } = payload;
+    console.log('🔍 Google token verified for:', email);
+
+    // Check if user exists
+    let user = await userModal.searchUserEmail({ email });
+    console.log('👤 User search result:', user ? 'Found' : 'Not Found');
+
+    if (!user) {
+      // Create new user (Signup via Google)
+      const baseName = name || email.split('@')[0];
+      const username = baseName.replace(/\s+/g, '').toLowerCase() + Math.floor(Math.random() * 1000);
+      const randomPassword = Math.random().toString(36).slice(-10);
+      const hashedPassword = await hashPassword(randomPassword);
+
+      user = await userModal.createUserModal({
+        username,
+        email,
+        password: hashedPassword,
+        role: 'user',
+      });
+      console.log('✅ New Google user created:', email);
+    } else {
+      console.log('✅ Existing Google user logged in:', email);
+    }
+
+    const userId = user.id;
+    const role = user.role;
+    const userPayload: TLoad = {
+      userId,
+      role,
+    };
+
+    // token generation
+    const refresh_token = JWT.generateRefreshToken(userPayload);
+    const access_token = JWT.generateAccessToken(userPayload);
+
+    await loginModal.loginUser({
+      em: email,
+      userId,
+      password: user.password, // Existing hashed password
+      role,
+      refresh_token,
+    });
+
+    return {
+      success: true,
+      message: 'Google Login Success',
+      accessToken: access_token,
+      refreshToken: refresh_token,
+    };
+  } catch (error: any) {
+    console.error('Google Auth Error:', error);
+    return { success: false, message: 'Google authentication failed' };
+  }
+}
 
 async function loginUser(email: string, password: string, username: string) {
   if (!email && !username) {
@@ -59,7 +129,12 @@ async function loginUser(email: string, password: string, username: string) {
       message: 'Failed to login',
     };
   }
-  return { success: true, message: 'Success Login' };
+  return {
+    success: true,
+    message: 'Success Login',
+    accessToken: access_token,
+    refreshToken: refresh_token,
+  };
 }
 async function logoutService(
   userId: string,
@@ -94,6 +169,7 @@ async function logoutService(
 }
 export const loginService = {
   loginUser,
+  googleLogin,
   logoutService,
   resetPassword,
   resendOtp,

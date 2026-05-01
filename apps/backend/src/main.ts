@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import session from 'express-session';
@@ -12,6 +14,8 @@ import path from 'path';
 // import { JWT } from './authMiddleware/jwtToken';
 
 const app = express();
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(graphqlUploadExpress());
 app.use(cookieParser());
 // app.use(express.json());
@@ -25,7 +29,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: ['https://studio.apollographql.com', 'http://localhost:3001'],
+    origin: ['https://studio.apollographql.com', 'http://localhost:3001', 'http://localhost:3000'],
     credentials: true,
   })
 );
@@ -44,6 +48,24 @@ async function startServer() {
           user: auth.user,
           token: auth.token,
         };
+      },
+      formatError: (error) => {
+        console.error('GraphQL Error:', error);
+
+        // Check for Prisma connection errors
+        if (
+          error.message.includes('Can\'t reach database server') ||
+          error.message.includes('PrismaClientKnownRequestError') ||
+          error.message.includes('P1001') ||
+          error.message.includes('P1002') ||
+          error.message.includes('P1003')
+        ) {
+          return new Error(
+            'Database connection failed. Please ensure your database server is running and accessible at the configured port.'
+          );
+        }
+
+        return error;
       },
     }
     // @ts-ignore
@@ -70,7 +92,7 @@ async function startServer() {
     path: '/graphql',
   });
 
-  const PORT = process.env.PORT || 4000;
+  const PORT = process.env.BACKEND_PORT || 8000;
   app.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });

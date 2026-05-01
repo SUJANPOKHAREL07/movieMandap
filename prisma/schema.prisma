@@ -1,284 +1,671 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model user {
-    id              Int             @id @default(autoincrement())
-    username        String          @unique
-    email           String          @unique
-    password        String
-    createdAt       DateTime        @default(now())
-    udpatedAt       DateTime        @default(now()) @updatedAt
-    verified        Boolean         @default(false)
-    otpVerify       String?         @default("")
-    otpExpired      DateTime?
-    updateOtp       String?
-    updateOtpExpire DateTime?
-    resetOtp        String?         @default("")
-    resetOtpExpired DateTime?
-    role            Role            @default(user)
-    login           login[]
-    Review          Review[]
-    Like            Like[]
-    Comment         Comment[]
-    WatchlistItem   WatchlistItem[]
-    followers       Follow[]        @relation("Follower")
-    following       Follow[]        @relation("Following")
-    Follow          Follow[]
-    Dislike         Dislike[]
+  id                   Int                    @id @default(autoincrement())
+  username             String                 @unique
+  email                String                 @unique
+  password             String
+  createdAt            DateTime               @default(now())
+  udpatedAt            DateTime               @default(now()) @updatedAt
+  verified             Boolean                @default(false)
+  otpVerify            String?                @default("")
+  otpExpired           DateTime?
+  updateOtp            String?
+  updateOtpExpire      DateTime?
+  resetOtp             String?                @default("")
+  resetOtpExpired      DateTime?
+  role                 Role                   @default(user)
+  followers            Follow[]               @relation("Follower")
+  following            Follow[]               @relation("Following")
+  Follow               Follow[]
+  CommentDislike       CommentDislike[]
+  CommentLike          CommentLike[]
+  Comment              Comment[]
+  Dislike              Dislike[]
+  Like                 Like[]
+  login                login[]
+  Review               Review[]
+  SeasonComment        SeasonComment[]
+  SeasonCommentLike    SeasonCommentLike[]
+  SeasonCommentDislike SeasonCommentDislike[]
+  SeasonDislike        SeasonDislike[]
+  SeasonLike           SeasonLike[]
+  SeasonReview         SeasonReview[]
+  SeriesCommentDislike SeriesCommentDislike[]
+  SeriesCommentLike    SeriesCommentLike[]
+  SeriesComment        SeriesComment[]
+  SeriesDislike        SeriesDislike[]
+  SeriesLike           SeriesLike[]
+  SeriesReview         SeriesReview[]
+  SeriesWatchlistItem  SeriesWatchlistItem[]
+  WatchlistItem        WatchlistItem[]
 
-    @@unique([email, id])
-}
-
-enum Role {
-    user
-    moderator
-    admin
+  @@unique([email, id])
+  @@map("users")
 }
 
 model login {
-    id            Int      @id @default(autoincrement())
-    userId        Int
-    useremail     String
-    password      String
-    role          Role
-    refresh_token String   @db.Text()
-    user          user?    @relation(fields: [useremail, userId], references: [email, id], onDelete: Cascade)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  useremail     String
+  password      String
+  role          Role
+  refresh_token String   @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          user     @relation(fields: [useremail, userId], references: [email, id], onDelete: Cascade)
+
+  @@index([useremail, userId], map: "login_useremail_userId_idx")
 }
 
 model Movie {
-    id                     Int                      @id @default(autoincrement())
-    title                  String                   @unique
-    originalTitle          String?
-    overview               String?
-    releaseDate            DateTime?
-    runtime                Int?
-    posterPath             String?
-    trailerLink            String?
-    budget                 Int?
-    revenue                Int?
-    status                 movieStatus              @default(IN_PRODUCTION)
-    tagline                String?
-    adult                  Boolean                  @default(false)
-    MovieGenre             MovieGenre[]
-    MovieProductionCompany MovieProductionCompany[]
-    crewMember             crewMember[]
-    CastMember             CastMember[]
-    Review                 Review[]
-    WatchlistItem          WatchlistItem[]
+  id                     Int                      @id @default(autoincrement())
+  title                  String                   @unique
+  originalTitle          String?
+  overview               String?
+  releaseDate            DateTime?
+  runtime                Int?
+  posterPath             String?
+  budget                 Int?
+  revenue                Int?
+  status                 movieStatus              @default(IN_PRODUCTION)
+  tagline                String?
+  adult                  Boolean                  @default(false)
+  trailerLink            String?
+  CastMember             CastMember[]
+  crewMember             crewMember[]
+  MovieGenre             MovieGenre[]
+  MovieProductionCompany MovieProductionCompany[]
+  Review                 Review[]
+  WatchlistItem          WatchlistItem[]
 
-    @@unique([id, title])
-    @@map("movies")
-}
-
-enum movieStatus {
-    RELEASED
-    IN_PRODUCTION
-    POST_PRODUCTION
-    PLANNED
-    CANCELLED
-    RUMORED
+  @@unique([id, title])
+  @@map("movies")
 }
 
 model Genre {
-    id         Int          @id @default(autoincrement())
-    name       String       @unique
-    MovieGenre MovieGenre[]
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  MovieGenre  MovieGenre[]
+  SeriesGenre SeriesGenre[]
 
-    @@unique([id, name])
-    @@map("genres")
+  @@unique([id, name])
+  @@map("genres")
 }
 
 model MovieGenre {
-    id Int @id @default(autoincrement())
+  id        Int   @id @default(autoincrement())
+  movieId   Int
+  generesId Int
+  genre     Genre @relation(fields: [generesId], references: [id], onDelete: Cascade)
+  movie     Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
-    movieId   Int
-    generesId Int
-
-    movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
-    genre Genre @relation(fields: [generesId], references: [id], onDelete: Cascade)
-
-    @@unique([movieId, generesId])
-    @@map("movie_genere")
+  @@unique([movieId, generesId])
+  @@index([generesId], map: "movie_genere_generesId_idx")
+  @@map("movie_genere")
 }
 
 model ProductionCompany {
-    id                     Int                      @id @default(autoincrement())
-    name                   String
-    logoPath               String?
-    originCountry          String?
-    MovieProductionCompany MovieProductionCompany[]
+  id                      Int                       @id @default(autoincrement())
+  name                    String
+  logoPath                String?
+  originCountry           String?
+  MovieProductionCompany  MovieProductionCompany[]
+  SeriesProductionCompany SeriesProductionCompany[]
 
-    @@unique([id, name])
-    @@map("production_companies")
+  @@unique([id, name])
+  @@map("production_companies")
 }
 
 model MovieProductionCompany {
-    id        Int               @id @default(autoincrement())
-    movieId   Int
-    conpanyId Int
-    movie     Movie             @relation(references: [id], fields: [movieId], onDelete: Cascade)
-    company   ProductionCompany @relation(references: [id], fields: [conpanyId], onDelete: Cascade)
+  id        Int               @id @default(autoincrement())
+  movieId   Int
+  conpanyId Int
+  company   ProductionCompany @relation(fields: [conpanyId], references: [id], onDelete: Cascade)
+  movie     Movie             @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
-    @@unique([movieId, conpanyId])
-    @@map("movie_production_companies")
+  @@unique([movieId, conpanyId])
+  @@index([conpanyId], map: "movie_production_companies_conpanyId_idx")
+  @@map("movie_production_companies")
 }
 
-// people worked in the movie
 model Person {
-    id         Int          @id @default(autoincrement())
-    name       String
-    birthDay   DateTime
-    deathDay   DateTime?
-    birthPlace String?
-    socialPath String?
-    adult      Boolean      @default(true)
-    crewMember crewMember[]
-    CastMember CastMember[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  birthDay         DateTime
+  deathDay         DateTime?
+  birthPlace       String?
+  socialPath       String?
+  adult            Boolean            @default(true)
+  CastMember       CastMember[]
+  crewMember       crewMember[]
+  SeriesCastMember SeriesCastMember[]
+  SeriesCrewMember SeriesCrewMember[]
 
-    @@map("people")
+  @@map("people")
 }
 
 model crewMember {
-    id         Int    @id @default(autoincrement())
-    movieId    Int
-    personId   Int
-    department String
-    job        String
+  id         Int    @id @default(autoincrement())
+  movieId    Int
+  personId   Int
+  department String
+  job        String
+  movie      Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person     Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-    movie  Movie  @relation(references: [id], fields: [movieId], onDelete: Cascade)
-    person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
-
-    @@unique([movieId, personId, job])
-    @@map("crew_member")
+  @@unique([movieId, personId, job])
+  @@index([personId], map: "crew_member_personId_idx")
+  @@map("crew_member")
 }
 
-// actot actress
 model CastMember {
-    id        Int    @id @default(autoincrement())
-    movieId   Int
-    personId  Int
-    character String
-    // order Int
-    creditId  String
+  id        Int    @id @default(autoincrement())
+  movieId   Int
+  personId  Int
+  character String
+  creditId  String
+  movie     Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person    Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-    movie  Movie  @relation(references: [id], fields: [movieId], onDelete: Cascade)
-    person Person @relation(references: [id], fields: [personId], onDelete: Cascade)
-
-    @@unique([movieId, personId, character])
-    @@map("cast_member")
+  @@unique([movieId, personId, character])
+  @@index([personId], map: "cast_member_personId_idx")
+  @@map("cast_member")
 }
 
 model Review {
-    id         Int      @id @default(autoincrement())
-    title      String
-    content    String
-    rating     Ratings  @default(Good_To_Watch)
-    isSpoiler  Boolean  @default(false)
-    creadtedAt DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    userId     Int
-    movieId    Int
+  id         Int       @id @default(autoincrement())
+  title      String
+  content    String
+  rating     Ratings   @default(Good_To_Watch)
+  isSpoiler  Boolean   @default(false)
+  creadtedAt DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userId     Int
+  movieId    Int
+  Comment    Comment[]
+  Dislike    Dislike[]
+  Like       Like[]
+  movie      Movie     @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user       user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user    user      @relation(references: [id], fields: [userId], onDelete: Cascade)
-    movie   Movie     @relation(references: [id], fields: [movieId], onDelete: Cascade)
-    Like    Like[]
-    Comment Comment[]
-    Dislike Dislike[]
-
-    @@unique([userId, movieId])
-    @@map("reviews")
-}
-
-enum Ratings {
-    Worst
-    Bearable
-    Good_To_Watch
-    Worthy
-    Absolute_Cinema
+  @@unique([userId, movieId])
+  @@index([movieId], map: "reviews_movieId_idx")
+  @@map("reviews")
 }
 
 model Like {
-    id        Int      @id @default(autoincrement())
-    userId    Int
-    reviewId  Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user   user   @relation(references: [id], fields: [userId], onDelete: Cascade)
-    review Review @relation(references: [id], fields: [reviewId], onDelete: Cascade)
-
-    @@unique([userId, reviewId])
-    @@map("likes")
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "likes_reviewId_idx")
+  @@map("likes")
 }
 
 model Dislike {
-    id        Int      @id @default(autoincrement())
-    userId    Int
-    reviewId  Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user   user   @relation(references: [id], fields: [userId], onDelete: Cascade)
-    review Review @relation(references: [id], fields: [reviewId], onDelete: Cascade)
-
-    @@unique([userId, reviewId])
-    @@map("dislikes")
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "dislikes_reviewId_idx")
+  @@map("dislikes")
 }
 
 model Comment {
-    id        Int      @id @default(autoincrement())
-    content   String
-    userId    Int
-    reviewId  Int
-    parentId  Int?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id             Int              @id @default(autoincrement())
+  content        String
+  userId         Int
+  reviewId       Int
+  parentId       Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  CommentDislike CommentDislike[]
+  CommentLike    CommentLike[]
+  parent         Comment?         @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies        Comment[]        @relation("CommentReplies")
+  review         Review           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user           user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user    user      @relation(references: [id], fields: [userId], onDelete: Cascade)
-    review  Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-    parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-    replies Comment[] @relation("CommentReplies")
+  @@index([parentId], map: "comments_parentId_idx")
+  @@index([reviewId], map: "comments_reviewId_idx")
+  @@index([userId], map: "comments_userId_idx")
+  @@map("comments")
+}
 
-    @@map("comments")
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "comment_likes_commentId_idx")
+  @@map("comment_likes")
+}
+
+model CommentDislike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "comment_dislikes_commentId_idx")
+  @@map("comment_dislikes")
 }
 
 model WatchlistItem {
-    id      Int         @id @default(autoincrement())
-    userId  Int
-    movieId Int
-    addedAt DateTime    @default(now())
-    note    String?
-    status  watchStatus @default(Yet_To_Watch)
-    user    user        @relation(references: [id], fields: [userId], onDelete: Cascade)
-    movie   Movie       @relation(references: [id], fields: [movieId], onDelete: Cascade)
+  id      Int         @id @default(autoincrement())
+  userId  Int
+  movieId Int
+  addedAt DateTime    @default(now())
+  note    String?
+  status  watchStatus @default(Yet_To_Watch)
+  movie   Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  user    user        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([userId, movieId])
-    @@map("watchlist_items")
-}
-
-enum watchStatus {
-    Watched
-    Yet_To_Watch
+  @@unique([userId, movieId])
+  @@index([movieId], map: "watchlist_items_movieId_idx")
+  @@map("watchlist_items")
 }
 
 model Follow {
-    id          Int      @id @default(autoincrement())
-    followerId  Int
-    followingId Int
-    createdAt   DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  createdAt   DateTime @default(now())
+  userId      Int?
+  follower    user     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   user     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  user        user?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    follower  user  @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
-    following user  @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
-    user      user? @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId    Int?
+  @@unique([followerId, followingId])
+  @@index([followingId], map: "Follow_followingId_idx")
+  @@index([userId], map: "Follow_userId_idx")
+}
 
-    @@unique([followerId, followingId])
+model RouteAccess {
+  id      Int     @id @default(autoincrement())
+  routeId String
+  role    Role
+  allowed Boolean @default(true)
+
+  @@unique([routeId, role])
+  @@map("route_access")
+}
+
+model Series {
+  id                      Int                       @id @default(autoincrement())
+  title                   String                    @unique
+  originalTitle           String?
+  overview                String?
+  releaseDate             DateTime?
+  runtime                 Int?
+  posterPath              String?
+  trailerLink             String?
+  budget                  Int?
+  revenue                 Int?
+  status                  seriesStatus              @default(IN_PRODUCTION)
+  tagline                 String?
+  adult                   Boolean                   @default(false)
+  Season                  Season[]
+  SeriesCastMember        SeriesCastMember[]
+  SeriesCrewMember        SeriesCrewMember[]
+  SeriesGenre             SeriesGenre[]
+  SeriesProductionCompany SeriesProductionCompany[]
+  SeriesReview            SeriesReview[]
+  SeriesWatchlistItem     SeriesWatchlistItem[]
+
+  @@unique([id, title])
+  @@map("series")
+}
+
+model Season {
+  id           Int            @id @default(autoincrement())
+  seriesId     Int
+  seasonNumber Int
+  title        String?
+  overview     String?
+  airDate      DateTime?
+  episodeCount Int            @default(0)
+  posterPath   String?
+  SeasonReview SeasonReview[]
+  episodes     Episode[]  
+  series       Series         @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, seasonNumber])
+  @@map("seasons")
+}
+
+model Episode {
+  id            Int       @id @default(autoincrement())
+  seasonId      Int
+  episodeNumber Int
+  title         String?
+  overview      String?
+  airDate       DateTime?
+  runtime       Int?
+  posterPath    String?
+  season        Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, episodeNumber])
+  @@map("episodes")
+}
+
+
+model SeasonReview {
+  id            Int             @id @default(autoincrement())
+  title         String
+  content       String
+  rating        Ratings         @default(Good_To_Watch)
+  isSpoiler     Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  userId        Int
+  seasonId      Int
+  SeasonComment SeasonComment[]
+  SeasonDislike SeasonDislike[]
+  SeasonLike    SeasonLike[]
+  season        Season          @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  user          user            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seasonId])
+  @@index([seasonId], map: "season_reviews_seasonId_idx")
+  @@map("season_reviews")
+}
+
+model SeasonLike {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime     @default(now())
+  review    SeasonReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "season_likes_reviewId_idx")
+  @@map("season_likes")
+}
+
+model SeasonDislike {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime     @default(now())
+  review    SeasonReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "season_dislikes_reviewId_idx")
+  @@map("season_dislikes")
+}
+
+model SeasonComment {
+  id        Int             @id @default(autoincrement())
+  content   String
+  userId    Int
+  reviewId  Int
+  parentId  Int?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  parent               SeasonComment?         @relation("SeasonCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies              SeasonComment[]        @relation("SeasonCommentReplies")
+  SeasonCommentLike    SeasonCommentLike[]
+  SeasonCommentDislike SeasonCommentDislike[]
+  review               SeasonReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user                 user                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([parentId], map: "season_comments_parentId_idx")
+  @@index([reviewId], map: "season_comments_reviewId_idx")
+  @@index([userId], map: "season_comments_userId_idx")
+  @@map("season_comments")
+}
+
+model SeasonCommentLike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeasonComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "season_comment_likes_commentId_idx")
+  @@map("season_comment_likes")
+}
+
+model SeasonCommentDislike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeasonComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "season_comment_dislikes_commentId_idx")
+  @@map("season_comment_dislikes")
+}
+
+model SeriesGenre {
+  id        Int    @id @default(autoincrement())
+  seriesId  Int
+  generesId Int
+  genre     Genre  @relation(fields: [generesId], references: [id], onDelete: Cascade)
+  series    Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, generesId])
+  @@index([generesId], map: "series_genere_generesId_idx")
+  @@map("series_genere")
+}
+
+model SeriesProductionCompany {
+  id        Int               @id @default(autoincrement())
+  seriesId  Int
+  conpanyId Int
+  company   ProductionCompany @relation(fields: [conpanyId], references: [id], onDelete: Cascade)
+  series    Series            @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, conpanyId])
+  @@index([conpanyId], map: "series_production_companies_conpanyId_idx")
+  @@map("series_production_companies")
+}
+
+model SeriesCrewMember {
+  id         Int    @id @default(autoincrement())
+  seriesId   Int
+  personId   Int
+  department String
+  job        String
+  person     Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  series     Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, personId, job])
+  @@index([personId], map: "series_crew_member_personId_idx")
+  @@map("series_crew_member")
+}
+
+model SeriesCastMember {
+  id        Int    @id @default(autoincrement())
+  seriesId  Int
+  personId  Int
+  character String
+  creditId  String
+  person    Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  series    Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, personId, character])
+  @@index([personId], map: "series_cast_member_personId_idx")
+  @@map("series_cast_member")
+}
+
+model SeriesReview {
+  id            Int             @id @default(autoincrement())
+  title         String
+  content       String
+  rating        Ratings         @default(Good_To_Watch)
+  isSpoiler     Boolean         @default(false)
+  creadtedAt    DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  userId        Int
+  seriesId      Int
+  SeriesComment SeriesComment[]
+  SeriesDislike SeriesDislike[]
+  SeriesLike    SeriesLike[]
+  series        Series          @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  user          user            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([seriesId], map: "series_reviews_seriesId_idx")
+  @@map("series_reviews")
+}
+
+model SeriesLike {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  review    SeriesReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "series_likes_reviewId_idx")
+  @@map("series_likes")
+}
+
+model SeriesDislike {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  reviewId  Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  review    SeriesReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "series_dislikes_reviewId_idx")
+  @@map("series_dislikes")
+}
+
+model SeriesComment {
+  id                   Int                    @id @default(autoincrement())
+  content              String
+  userId               Int
+  reviewId             Int
+  parentId             Int?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  SeriesCommentDislike SeriesCommentDislike[]
+  SeriesCommentLike    SeriesCommentLike[]
+  parent               SeriesComment?         @relation("SeriesCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies              SeriesComment[]        @relation("SeriesCommentReplies")
+  review               SeriesReview           @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user                 user                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([parentId], map: "series_comments_parentId_idx")
+  @@index([reviewId], map: "series_comments_reviewId_idx")
+  @@index([userId], map: "series_comments_userId_idx")
+  @@map("series_comments")
+}
+
+model SeriesCommentLike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeriesComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "series_comment_likes_commentId_idx")
+  @@map("series_comment_likes")
+}
+
+model SeriesCommentDislike {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  createdAt DateTime      @default(now())
+  comment   SeriesComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId], map: "series_comment_dislikes_commentId_idx")
+  @@map("series_comment_dislikes")
+}
+
+model SeriesWatchlistItem {
+  id       Int         @id @default(autoincrement())
+  userId   Int
+  seriesId Int
+  addedAt  DateTime    @default(now())
+  note     String?
+  status   watchStatus @default(Yet_To_Watch)
+  series   Series      @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  user     user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seriesId])
+  @@index([seriesId], map: "series_watchlist_items_seriesId_idx")
+  @@map("series_watchlist_items")
+}
+
+enum Role {
+  user
+  moderator
+  admin
+}
+
+enum movieStatus {
+  RELEASED
+  IN_PRODUCTION
+  POST_PRODUCTION
+  PLANNED
+  CANCELLED
+  RUMORED
+}
+
+enum Ratings {
+  Worst
+  Bearable
+  Good_To_Watch
+  Worthy
+  Absolute_Cinema
+}
+
+enum watchStatus {
+  Watched
+  Yet_To_Watch
+}
+
+enum seriesStatus {
+  RELEASED
+  IN_PRODUCTION
+  POST_PRODUCTION
+  PLANNED
+  CANCELLED
+  RUMORED
 }

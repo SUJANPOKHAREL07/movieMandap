@@ -15,15 +15,18 @@ export const authContextMiddleware = async ({ req, res }: any) => {
   const token =
     req.headers.authorization?.replace('Bearer ', '') ||
     (req.headers.refresh_token as string);
-  // console.log('token of the conetxt::', token);
+  console.log('--- Auth Middleware ---');
+  console.log('authorization header:', req.headers.authorization);
+  console.log('token extracted:', token);
+
   if (!token) {
-    // console.log('!tokne inside');
+    console.error('No token found in headers!');
     return { user: null, token: null };
   }
 
   try {
-    // console.log('Inside the user verificarion try catch');
-    const user = await JWT.verifyRefreshToken(token);
+    // Use verifyAccessToken since we're pulling Bearer <accessToken>
+    const user = await JWT.verifyAccessToken(token);
 
     // console.log('user verification', user);
 
@@ -39,7 +42,8 @@ export const authContextMiddleware = async ({ req, res }: any) => {
     // console.log('user -----', user);
 
     return { user, token, req, res };
-  } catch (err) {
+  } catch (err: any) {
+    console.error('JWT verification failed:', err.message);
     return { user: null, token: null };
   }
 };

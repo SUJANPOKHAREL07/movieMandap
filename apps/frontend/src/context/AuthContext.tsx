@@ -5,11 +5,13 @@ import { fetchGraphQL } from '../lib/graphql';
 
 type AuthContextType = {
   token: string | null;
+  currentUser: { id: number; username: string; email: string; role: string } | null;
   login: (
     email: string,
     password: string
   ) => Promise<{ success: boolean; message: string }>;
   logout: () => Promise<void>;
+  googleLogin: (credential: string) => Promise<{ success: boolean; message: string }>;
   register?: (
     username: string,
     email: string,
@@ -30,14 +32,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
     typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
   );
+  const [currentUser, setCurrentUser] = useState<AuthContextType['currentUser']>(null);
 
   useEffect(() => {
-    if (token) localStorage.setItem('accessToken', token);
-    else localStorage.removeItem('accessToken');
+    if (token) {
+      localStorage.setItem('accessToken', token);
+      fetchGraphQL(`query { getMe { id username email role } }`)
+        .then((data) => {
+          if (data?.getMe) {
+            setCurrentUser(data.getMe);
+          } else {
+            setToken(null);
+            setCurrentUser(null);
+          }
+        })
+        .catch(() => {
+          setToken(null);
+          setCurrentUser(null);
+        });
+    } else {
+      localStorage.removeItem('accessToken');
+      setCurrentUser(null);
+    }
   }, [token]);
 
   async function login(email: string, password: string) {
-    const query = `mutation Login($email: String, $password: String!, $username: String) { loginUser(email: $email, password: $password) { success message accessToken refreshToken } }`;
+    const query = `mutation Login($email: String, $password: String!) { loginUser(email: $email, password: $password) { success message accessToken refreshToken } }`;
     try {
       const data = await fetchGraphQL(query, { email, password });
       const res = data?.loginUser;
@@ -60,6 +80,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // ignore
     }
     setToken(null);
+    setCurrentUser(null);
+  }
+
+  async function googleLogin(credential: string) {
+    const query = `mutation GoogleLogin($credential: String!) { googleLogin(credential: $credential) { success message accessToken refreshToken } }`;
+    try {
+      const data = await fetchGraphQL(query, { credential });
+      const res = data?.googleLogin;
+      if (res?.success) {
+        setToken(res.accessToken || null);
+        return { success: true, message: res.message };
+      }
+      return { success: false, message: res?.message || 'Google Login failed' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Network error' };
+    }
   }
 
   async function register(
@@ -85,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, register }}>
+    <AuthContext.Provider value={{ token, currentUser, login, logout, register, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );

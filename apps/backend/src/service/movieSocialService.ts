@@ -45,20 +45,40 @@ const createReview = async (
       success: true,
       message: 'review posted',
     };
-  } catch (err) {
+  } catch (err: any) {
+    console.error('Create Review Error:', err);
+    if (err.code === 'P2002') {
+      return {
+        success: false,
+        message: 'You have already reviewed this movie! Only one review per user is allowed.',
+      };
+    }
     return {
       success: false,
-      message: 'Unexpected error: Failed to crete the review',
+      message: 'Unexpected error: Failed to create the review',
     };
   }
 };
-const deleteReview = async (reviewId: number) => {
+const deleteReview = async (reviewId: number, userId: number) => {
   try {
-    const del = movieSocialModalDelete.deleteReview(reviewId);
-    if (!del) {
+    const review = await movieSocialModalGet.getReviewById(reviewId);
+    if (!review) {
       return {
         success: false,
         message: 'No review found',
+      };
+    }
+    if (review.userId !== userId) {
+      return {
+        success: false,
+        message: 'Unauthorized: You can only delete your own reviews',
+      };
+    }
+    const del = await movieSocialModalDelete.deleteReview(reviewId);
+    if (!del) {
+      return {
+        success: false,
+        message: 'Failed to delete the review',
       };
     }
     return {
@@ -68,7 +88,7 @@ const deleteReview = async (reviewId: number) => {
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
@@ -112,6 +132,39 @@ const createDisLike = async (data: TCreateLike) => {
     };
   }
 };
+
+const toggleReviewLike = async (userId: number, reviewId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleReviewLike(userId, reviewId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle like' };
+  }
+};
+
+const toggleReviewDislike = async (userId: number, reviewId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleReviewDislike(userId, reviewId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle dislike' };
+  }
+};
+
+const toggleCommentLike = async (userId: number, commentId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleCommentLike(userId, commentId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle comment like' };
+  }
+};
+
+const toggleCommentDislike = async (userId: number, commentId: number) => {
+  try {
+    return await movieSocialModalCreate.toggleCommentDislike(userId, commentId);
+  } catch (err) {
+    return { success: false, message: 'Failed to toggle comment dislike' };
+  }
+};
+
 const createComment = async (data: TCreateComment) => {
   try {
     const comment = await movieSocialModalCreate.createComment(data);
@@ -207,6 +260,10 @@ export const movieSocialCreate = {
   createWatchList,
   createDisLike,
   createFollow,
+  toggleReviewLike,
+  toggleReviewDislike,
+  toggleCommentLike,
+  toggleCommentDislike,
 };
 const getAllReviewOfMovie = async (movieName: string) => {
   try {
@@ -352,6 +409,7 @@ const updateMovieWatchList = async (movieName: string, userId: number) => {
   }
 };
 const updateReview = async (
+  userId: number,
   reviewId: number,
   title?: string,
   content?: string,
@@ -359,6 +417,21 @@ const updateReview = async (
   isSpoiler?: boolean
 ) => {
   try {
+    const review = await movieSocialModalGet.getReviewById(reviewId);
+    if (!review) {
+      return {
+        success: false,
+        message: 'No review found',
+        data: [],
+      };
+    }
+    if (review.userId !== userId) {
+      return {
+        success: false,
+        message: 'Unauthorized: You can only edit your own reviews',
+        data: [],
+      };
+    }
     const update = await movieSocialModalUpdate.updateReview(
       reviewId,
       title,
@@ -381,11 +454,31 @@ const updateReview = async (
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
-export const MovieSocialUpdate = { updateMovieWatchList, updateReview };
+
+const updateComment = async (userId: number, commentId: number, content: string) => {
+  try {
+    const comment = await movieSocialModalGet.getCommentById(commentId);
+    if (!comment) {
+      return { success: false, message: 'No comment found' };
+    }
+    if (comment.userId !== userId) {
+      return { success: false, message: 'Unauthorized: You can only edit your own comments' };
+    }
+    const update = await movieSocialModalUpdate.updateComment(commentId, content);
+    if (!update) {
+      return { success: false, message: 'Failed to update the comment' };
+    }
+    return { success: true, message: 'Comment updated successfully' };
+  } catch (err) {
+    return { success: false, message: 'Unexpected error occurred' };
+  }
+};
+
+export const MovieSocialUpdate = { updateMovieWatchList, updateReview, updateComment };
 const deleteLike = async (likeId: number) => {
   try {
     const isLiked = await movieSocialModalGet.getLikedOrNot(likeId);
@@ -467,13 +560,29 @@ const deleteFollowData = async (followerId: number, followingId: number) => {
   } catch (err) {
     return {
       success: false,
-      message: err,
+      message: 'Unexpected error occurred',
     };
   }
 };
+
+const deleteComment = async (userId: number, commentId: number) => {
+  try {
+    const comment = await movieSocialModalGet.getCommentById(commentId);
+    if (!comment) return { success: false, message: 'Comment not found' };
+    if (comment.userId !== userId) return { success: false, message: 'Unauthorized' };
+
+    const del = await movieSocialModalDelete.deleteComment(commentId);
+    if (!del) return { success: false, message: 'Failed to delete the comment' };
+    return { success: true, message: 'Comment deleted successfully' };
+  } catch (err) {
+    return { success: false, message: 'Unexpected error occurred' };
+  }
+};
+
 export const MovieSocialDelete = {
   deleteLike,
   deleteDisLike,
   deleteFollowData,
   deleteReview,
+  deleteComment,
 };

@@ -2,6 +2,15 @@
   "name": "@cine-gudi/frontend",
   "version": "0.0.1",
   "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "next": "~15.2.4",
     "react": "19.0.0",

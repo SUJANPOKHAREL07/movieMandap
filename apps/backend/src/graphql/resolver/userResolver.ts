@@ -1,10 +1,17 @@
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { userService } from '../../service/userService';
 import { TCreateUser, TReqRes } from '../../types/user.types';
+import { userModal } from '../../modal/userModal';
 
 export const userResolvers = {
   Query: {
     users: async () => userService.getUserController(),
+    getMe: async (_: any, __: any, context: any) => {
+      const auth = await authContextMiddleware(context);
+      if (auth.token === null || !auth.user?.userId) return null;
+      const userId = Number(auth.user.userId);
+      return await userModal.searchUserById(userId);
+    },
   },
   Mutation: {
     createUser: async (_: any, args: TCreateUser, context: TReqRes) => {

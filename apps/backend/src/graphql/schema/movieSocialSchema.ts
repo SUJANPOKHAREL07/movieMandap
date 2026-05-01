@@ -2,6 +2,7 @@ import { gql } from 'apollo-server-express';
 
 export const movieSocialTypeDef = gql`
   scalar Date
+
   enum Ratings {
     Worst
     Bearable
@@ -9,6 +10,7 @@ export const movieSocialTypeDef = gql`
     Worthy
     Absolute_Cinema
   }
+
   enum watchStatus {
     Watched
     Yet_To_Watch
@@ -18,7 +20,14 @@ export const movieSocialTypeDef = gql`
     id: Int!
     content: String!
     user: User!
-    replies: [Comment]
+    parentId: Int
+    replies: [Comment!]
+    likesCount: Int!
+    disLikesCount: Int!
+    userHasLiked: Boolean
+    userHasDisliked: Boolean
+    createdAt: String!
+    updatedAt: String!
   }
 
   type User {
@@ -37,13 +46,18 @@ export const movieSocialTypeDef = gql`
     likesCount: Int!
     disLikesCount: Int!
     commentsCount: Int!
-    creadtedAt: String!
+    userHasLiked: Boolean
+    userHasDisliked: Boolean
+    createdAt: Date!
+    updatedAt: Date!
   }
+
   type Movie {
     title: String
     posterPath: String
     adult: Boolean
   }
+
   type WatchList {
     note: String
     status: watchStatus
@@ -70,6 +84,13 @@ export const movieSocialTypeDef = gql`
       isSpoiler: Boolean!
       movieName: String!
     ): MutationResponse
+
+    createComment(
+      content: String!
+      reviewId: Int!
+      parentId: Int
+    ): MutationResponse
+
     updateReview(
       reviewId: Int!
       title: String
@@ -77,14 +98,26 @@ export const movieSocialTypeDef = gql`
       rating: Ratings
       isSpoiler: Boolean
     ): MutationResponse
-    deleteReview(reviewId: Int): MutationResponse
+
+    deleteReview(reviewId: Int!): MutationResponse
+    updateComment(commentId: Int!, content: String!): MutationResponse
+    deleteComment(commentId: Int!): MutationResponse
     createWatchList(movieName: String!, note: String): MutationResponse
     createFollow(toFollowId: Int): MutationResponse
     updateWatchListStatus(movieName: String): MutationResponse
+    
+    # Interaction Mutations
+    toggleReviewLike(reviewId: Int!): MutationResponse
+    toggleReviewDislike(reviewId: Int!): MutationResponse
+    toggleCommentLike(commentId: Int!): MutationResponse
+    toggleCommentDislike(commentId: Int!): MutationResponse
+
+    # Legacy (kept for safety, but we should use toggle)
     createLike(reviewId: Int): MutationResponse
     deleteLike(likeId: Int): MutationResponse
     createDisLike(reviewId: Int): MutationResponse
     deleteDisLike(disLikeId: Int): MutationResponse
+    
     unFollow(notToFollowId: Int): MutationResponse
   }
 `;

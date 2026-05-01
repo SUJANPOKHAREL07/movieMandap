@@ -87,6 +87,7 @@ export const movieTypeDefs = gql`
     tagline: String
     adult: Boolean
     voteAverage: Float
+    dominantRating: String
     # Change these to arrays to match Prisma response:
     MovieGenre: [MovieGenre] # Array
     MovieProductionCompany: [MovieProductionCompany] # Array
@@ -139,22 +140,24 @@ export const movieTypeDefs = gql`
     createMovie(
       title: String!
       originalTitle: String
+      overview: String
       releaseDate: Date
       runtime: Int!
-      poster: Upload
+      posterBase64: String
       budget: Int!
       revenue: Int
       status: MovieStatus!
       tagline: String!
       adult: Boolean!
       trailerLink: String
+      genreIds: [Int]
     ): MutationResponse
     updateMovie(
       title: String
       originalTitle: String
       releaseDate: Date
       runtime: Int
-      poster: Upload
+      posterBase64: String
       budget: Int
       revenue: Int
       status: MovieStatus

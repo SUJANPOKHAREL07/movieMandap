@@ -35,6 +35,7 @@ export interface TUpdateUser {
 export type TResponse = {
   success: Boolean;
   message: string;
+  seriesId?: number;
 };
 export interface TReqRes {
   req: express.Request;

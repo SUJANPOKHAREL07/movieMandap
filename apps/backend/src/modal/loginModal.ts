@@ -9,31 +9,40 @@ export const loginModal = {
 };
 
 async function checkLoginCred(data: { email?: string; username?: string }) {
-  if (data.email) {
-    return await prisma.user.findUnique({
-      where: { email: data.email },
-      select: {
-        username: true,
-        id: true,
-        email: true,
-        password: true,
-        role: true,
-      },
-    });
+  try {
+    if (data.email) {
+      return await prisma.user.findUnique({
+        where: { email: data.email },
+        select: {
+          username: true,
+          id: true,
+          email: true,
+          password: true,
+          role: true,
+        },
+      });
+    }
+    if (data.username) {
+      return await prisma.user.findUnique({
+        where: { username: data.username },
+        select: {
+          username: true,
+          id: true,
+          email: true,
+          password: true,
+          role: true,
+        },
+      });
+    }
+    return null;
+  } catch (error: any) {
+    if (error.message.includes('Can\'t reach database server')) {
+      throw new Error(
+        'Unable to connect to the database. Please check if your MySQL server is running on port 3307.'
+      );
+    }
+    throw error;
   }
-  if (data.username) {
-    return await prisma.user.findUnique({
-      where: { username: data.username },
-      select: {
-        username: true,
-        id: true,
-        email: true,
-        password: true,
-        role: true,
-      },
-    });
-  }
-  return null;
 }
 async function loginUser(data: {
   userId: number;

@@ -20,6 +20,17 @@ export const loginResolver = {
       }
       return await loginService.loginUser(email, password, username);
     },
+    googleLogin: async (_: any, { credential }: { credential: string }, context: any) => {
+      console.log('🚀 googleLogin mutation called');
+      try {
+        const result = await loginService.googleLogin(credential);
+        console.log('✅ googleLogin service result:', result.success);
+        return result;
+      } catch (err: any) {
+        console.error('❌ googleLogin resolver error:', err);
+        throw err;
+      }
+    },
     logoutUser: async (_: any, __: any, context: any) => {
       const auth = await authContextMiddleware(context);
       // console.log('auth ', auth);

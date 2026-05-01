@@ -54,6 +54,16 @@ async function main() {
         verified: true,
         createdAt: new Date("2024-01-10T09:15:00Z")
       }
+    }),
+    prisma.user.create({
+      data: {
+        username: "admin",
+        email: "admin@moviemandap.com",
+        password: bcrypt.hashSync("adminpassword", 10),
+        role: "admin",
+        verified: true,
+        createdAt: new Date("2024-01-10T09:15:00Z")
+      }
     })
   ]);
 

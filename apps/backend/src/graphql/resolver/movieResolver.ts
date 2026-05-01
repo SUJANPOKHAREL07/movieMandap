@@ -3,7 +3,7 @@ import { movieService } from '../../service/movieService';
 // import { TMovieInput } from '../../types/movie.types';
 // import { TReqRes } from '../../types/user.types';
 import { GraphQLUpload } from 'graphql-upload';
-import { uploadFile } from '../../utils/cloudnary';
+import { uploadBase64 } from '../../utils/cloudnary';
 import { authContextMiddleware } from '../../authMiddleware/authMiddleware';
 import { TMovieInput } from '../../types/movie.types';
 export const movieResolver = {
@@ -48,10 +48,10 @@ export const movieResolver = {
           message: 'User are not allowed to create',
         };
       }
-      const { poster, ...data } = args;
+      const { posterBase64, ...data } = args as any;
       let posterPath = '';
-      if (typeof poster !== 'undefined') {
-        posterPath = await uploadFile(poster);
+      if (posterBase64) {
+        posterPath = await uploadBase64(posterBase64);
       }
       return await movieService.createMovie(data, posterPath);
     },
@@ -72,10 +72,10 @@ export const movieResolver = {
           message: 'User are not allowed to create',
         };
       }
-      const { poster, ...data } = args;
+      const { posterBase64, ...data } = args as any;
       let posterPath = '';
-      if (typeof poster !== 'undefined') {
-        posterPath = await uploadFile(poster);
+      if (posterBase64) {
+        posterPath = await uploadBase64(posterBase64);
       }
       return await movieService.updateMovie(data, posterPath);
     },
@@ -149,6 +149,28 @@ export const movieResolver = {
         return acc + ratingValue;
       }, 0);
       return Number((total / parent.Review.length).toFixed(1));
+    },
+    dominantRating: (parent: any) => {
+      if (!parent.Review || parent.Review.length === 0) return 'No Ratings';
+      const counts: Record<string, number> = {};
+      parent.Review.forEach((review: any) => {
+        counts[review.rating] = (counts[review.rating] || 0) + 1;
+      });
+
+      let maxCount = 0;
+      let dominant = '';
+
+      // Define order of ratings if ties occur, or just pick the first one
+      // But typically, we just pick the one with the highest count.
+      for (const rating in counts) {
+        if (counts[rating] > maxCount) {
+          maxCount = counts[rating];
+          dominant = rating;
+        }
+      }
+
+      // Replace underscores with spaces for better display
+      return dominant.replace(/_/g, ' ');
     },
   },
 };
