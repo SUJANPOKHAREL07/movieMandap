@@ -1,6 +1,6 @@
 export async function fetchGraphQL(query: string, variables?: any) {
   const url =
-    process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:8000/graphql';
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/graphql';
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 

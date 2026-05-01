@@ -49,5 +49,7 @@ out
 
 test-output
 .env
+.env.local
+.env*.local
 .gitignore
 schema.txt

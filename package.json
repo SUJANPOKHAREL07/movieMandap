@@ -9,6 +9,7 @@
     "start": "nx run backend:serve",
     "dev:backend": "nx run backend:serve",
     "build:backend": "nx build backend",
+    "build:backend:prod": "npx prisma generate && nx build backend",
     "start:backend": "node apps/backend/dist/main.js",
     "dev:frontend": "nx run frontend:dev",
     "build:frontend": "nx build frontend",
@@ -120,8 +121,6 @@
   },
   "workspaces": [
     "packages/*",
-    "frontend",
-    "apps",
     "apps/*"
   ]
 }

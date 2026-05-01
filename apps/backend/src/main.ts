@@ -27,9 +27,18 @@ app.use(
     cookie: { maxAge: 15 * 60 * 1000, httpOnly: true }, // 15 min
   })
 );
+const defaultOrigins = [
+  'https://studio.apollographql.com',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? [...process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()), ...defaultOrigins]
+  : defaultOrigins;
+
 app.use(
   cors({
-    origin: ['https://studio.apollographql.com', 'http://localhost:3001', 'http://localhost:3000'],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
