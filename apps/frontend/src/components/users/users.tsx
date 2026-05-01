@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { Users as UsersIcon, Mail, Award, Search } from 'lucide-react';
+import AdminAlert from '../AdminAlert';
 
 const GET_USERS = gql`
   query GetUsers {
@@ -17,13 +18,13 @@ const GET_USERS = gql`
 
 const ROLE_COLORS: Record<string, string> = {
     admin: 'bg-red-500/10 text-red-400 border-red-500/20',
-    moderator: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    moderator: 'bg-primary/10 text-primary border-primary/20',
     user: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
 };
 
 const CHART_COLORS: Record<string, string> = {
     admin: 'bg-red-500',
-    moderator: 'bg-purple-500',
+    moderator: 'bg-primary',
     user: 'bg-blue-500',
 };
 
@@ -52,7 +53,7 @@ const Users = () => {
             {/* Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-bold text-orange-500 mb-1">Users Management</h1>
+                    <h1 className="text-3xl font-bold text-primary mb-1">Users Management</h1>
                     <p className="text-muted-foreground text-sm">
                         {usersList.length} user{usersList.length !== 1 ? 's' : ''} registered
                     </p>
@@ -63,7 +64,7 @@ const Users = () => {
             {!loading && !error && usersList.length > 0 && (
                 <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                     <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-                        <Award className="text-orange-500" size={20} />
+                        <Award className="text-primary" size={20} />
                         Role Distribution
                     </h2>
                     <div className="flex items-end gap-4 h-40 mt-4 border-b border-border/50 pb-2">
@@ -93,7 +94,7 @@ const Users = () => {
             )}
 
             {/* Search Input */}
-            <div className="border border-border p-3 rounded-2xl flex items-center gap-2 bg-card shadow-sm transition-all focus-within:border-orange-500/50">
+            <div className="border border-border p-3 rounded-2xl flex items-center gap-2 bg-card shadow-sm transition-all focus-within:border-primary/50">
                 <Search size={20} className="text-muted-foreground" />
                 <input
                     type="text"
@@ -119,9 +120,11 @@ const Users = () => {
             )}
 
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-sm">
-                    Failed to load users: {error.message}
-                </div>
+                <AdminAlert
+                    type="error"
+                    title="User Data Error"
+                    message={error.message}
+                />
             )}
 
             {!loading && !error && filteredUsers.length === 0 && (
@@ -137,11 +140,11 @@ const Users = () => {
                     {filteredUsers.map((user: any) => (
                         <div
                             key={user.id}
-                            className="bg-card border border-border rounded-2xl p-5 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-200 flex flex-col gap-3"
+                            className="bg-card border border-border rounded-2xl p-5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 flex flex-col gap-3"
                         >
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold">
+                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                                         {user.username.charAt(0).toUpperCase()}
                                     </div>
                                     <div>

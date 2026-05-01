@@ -6,6 +6,7 @@ import { IoSearchOutline } from 'react-icons/io5';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { Clapperboard, Trash2, Clock, Film, Pencil } from 'lucide-react';
 import ConfirmDialog from '../ConfirmDialog';
+import AdminAlert from '../AdminAlert';
 
 const GET_MOVIES = gql`
   query GetMovies {
@@ -40,9 +41,9 @@ const DELETE_MOVIE = gql`
 
 const STATUS_COLORS: Record<string, string> = {
   RELEASED: 'bg-green-500/10 text-green-400 border-green-500/20',
-  IN_PRODUCTION: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  IN_PRODUCTION: 'bg-primary/10 text-primary border-primary/20',
   POST_PRODUCTION: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  PLANNED: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  PLANNED: 'bg-primary/10 text-primary border-primary/20',
   CANCELLED: 'bg-red-500/10 text-red-400 border-red-500/20',
   RUMORED: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
 };
@@ -53,6 +54,7 @@ const Movies = () => {
   const [movieToDelete, setMovieToDelete] = useState<{ id: number; title: string } | null>(null);
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [alertInfo, setAlertInfo] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; message: string } | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_MOVIES);
   const [deleteMovie] = useMutation(DELETE_MOVIE);
@@ -63,8 +65,10 @@ const Movies = () => {
     try {
       await deleteMovie({ variables: { title: movieToDelete.title } });
       await refetch();
-    } catch (e) {
-      alert('Failed to delete movie.');
+      setAlertInfo({ type: 'success', message: `Movie "${movieToDelete.title}" deleted successfully.` });
+      setTimeout(() => setAlertInfo(null), 3000);
+    } catch (e: any) {
+      setAlertInfo({ type: 'error', message: e.message || 'Failed to delete movie.' });
     } finally {
       setDeletingId(null);
       setMovieToDelete(null);
@@ -79,10 +83,21 @@ const Movies = () => {
 
   return (
     <section className="space-y-8">
+      {alertInfo && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[60] w-full max-w-lg px-4 pointer-events-none">
+          <div className="pointer-events-auto">
+            <AdminAlert
+              type={alertInfo.type}
+              message={alertInfo.message}
+              onClose={() => setAlertInfo(null)}
+            />
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-orange-500 mb-1">Movies Management</h1>
+          <h1 className="text-3xl font-bold text-primary mb-1">Movies Management</h1>
           <p className="text-muted-foreground text-sm">
             {movies.length} movie{movies.length !== 1 ? 's' : ''} in the database
           </p>
@@ -92,7 +107,7 @@ const Movies = () => {
             setMovieToEdit(null);
             setisOpen(true);
           }}
-          className="bg-orange-500 px-5 py-2.5 text-sm font-bold hover:bg-orange-600 duration-200 rounded-xl shadow-lg shadow-orange-500/20 flex items-center gap-2"
+          className="bg-primary px-5 py-2.5 text-sm font-bold hover:opacity-90 duration-200 text-black rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
         >
           <span className="text-lg">+</span> Add Movie
         </button>
@@ -101,9 +116,13 @@ const Movies = () => {
       {isOpen && (
         <MovieUploadForm
           movieToEdit={movieToEdit}
-          onClose={() => {
+          onClose={(alert) => {
             setisOpen(false);
             setMovieToEdit(null);
+            if (alert) {
+              setAlertInfo(alert);
+              setTimeout(() => setAlertInfo(null), 3000);
+            }
             refetch();
           }}
         />
@@ -146,9 +165,11 @@ const Movies = () => {
       )}
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-sm">
-          Failed to load movies: {error.message}
-        </div>
+        <AdminAlert
+          type="error"
+          title="Loading Error"
+          message={`Failed to load movies: ${error.message}`}
+        />
       )}
 
       {!loading && !error && filtered.length === 0 && (
@@ -164,7 +185,7 @@ const Movies = () => {
           {filtered.map((movie: any) => (
             <div
               key={movie.id}
-              className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-200 flex flex-col"
+              className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 flex flex-col"
             >
               {/* Poster */}
               <div className="relative h-48 bg-zinc-900 flex items-center justify-center overflow-hidden">
@@ -184,7 +205,7 @@ const Movies = () => {
                       setMovieToEdit(movie);
                       setisOpen(true);
                     }}
-                    className="p-1.5 bg-black/60 hover:bg-orange-500 text-white rounded-lg transition-all duration-200"
+                    className="p-1.5 bg-black/60 hover:bg-primary hover:text-black text-white rounded-lg transition-all duration-200"
                     title="Edit movie"
                   >
                     <Pencil size={14} />
@@ -219,7 +240,7 @@ const Movies = () => {
 
                 <div className="flex flex-wrap gap-1 mt-auto pt-2">
                   {movie.MovieGenre?.slice(0, 3).map((mg: any) => (
-                    <span key={mg.genre?.id} className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                    <span key={mg.genre?.id} className="text-[10px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
                       {mg.genre?.name}
                     </span>
                   ))}

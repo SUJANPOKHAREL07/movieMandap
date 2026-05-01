@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { IoMdClose, IoMdCheckmark } from 'react-icons/io';
 import { Clapperboard, Film, DollarSign, ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { useMutation, useQuery, gql } from '@apollo/client';
+import AdminAlert, { AlertType } from '../AdminAlert';
 
 const CREATE_MOVIE_MUTATION = gql`
   mutation CreateMovie(
@@ -82,7 +83,7 @@ const GET_GENRES = gql`
 `;
 
 interface MovieUploadFormProps {
-  onClose: () => void;
+  onClose: (alert?: { type: AlertType; message: string } | null) => void;
   movieToEdit?: any;
 }
 
@@ -108,6 +109,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
   );
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState<string>(movieToEdit?.posterPath || '');
+  const [alertInfo, setAlertInfo] = useState<{ type: AlertType; message: string } | null>(null);
 
   const readFileAsBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -130,28 +132,28 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
   const [createMovie, { loading: creating }] = useMutation(CREATE_MOVIE_MUTATION, {
     onCompleted: (data) => {
       if (data.createMovie.success) {
-        alert('Movie added successfully!');
-        onClose();
+        setAlertInfo({ type: 'success', message: 'Movie added successfully!' });
+        setTimeout(() => onClose({ type: 'success', message: 'Movie added successfully!' }), 1500);
       } else {
-        alert('Error: ' + data.createMovie.message);
+        setAlertInfo({ type: 'error', message: data.createMovie.message });
       }
     },
     onError: (error) => {
-      alert('Mutation Error: ' + error.message);
+      setAlertInfo({ type: 'error', message: error.message });
     }
   });
 
   const [updateMovie, { loading: updating }] = useMutation(UPDATE_MOVIE_MUTATION, {
     onCompleted: (data) => {
       if (data.updateMovie.success) {
-        alert('Movie updated successfully!');
-        onClose();
+        setAlertInfo({ type: 'success', message: 'Movie updated successfully!' });
+        setTimeout(() => onClose({ type: 'success', message: 'Movie updated successfully!' }), 1500);
       } else {
-        alert('Error: ' + data.updateMovie.message);
+        setAlertInfo({ type: 'error', message: data.updateMovie.message });
       }
     },
     onError: (error) => {
-      alert('Mutation Error: ' + error.message);
+      setAlertInfo({ type: 'error', message: error.message });
     }
   });
 
@@ -222,11 +224,11 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
         {/* Header */}
         <div className="px-8 py-6 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
           <div>
-            <h1 className="text-2xl font-bold text-orange-500">{isEditing ? 'Edit Movie' : 'Add New Movie'}</h1>
+            <h1 className="text-2xl font-bold text-primary">{isEditing ? 'Edit Movie' : 'Add New Movie'}</h1>
             <p className="text-zinc-400 text-sm">Step {step} of 3: {steps[step - 1].title}</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => onClose()}
             className="p-2 hover:bg-zinc-800 rounded-full transition-colors text-zinc-400 hover:text-white"
           >
             <IoMdClose size={24} />
@@ -235,20 +237,29 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
 
         {/* Stepper */}
         <div className="px-8 py-4 bg-zinc-950/30">
+          {alertInfo && (
+            <div className="mb-6">
+              <AdminAlert
+                type={alertInfo.type}
+                message={alertInfo.message}
+                onClose={() => setAlertInfo(null)}
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between relative">
             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-zinc-800 -translate-y-1/2 z-0" />
             {steps.map((s, i) => (
               <div key={i} className="relative z-10 flex flex-col items-center gap-2">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${step > i + 1 ? 'bg-green-500 text-white' :
-                    step === i + 1 ? 'bg-orange-500 text-white ring-4 ring-orange-500/20' :
+                    step === i + 1 ? 'bg-primary text-black ring-4 ring-primary/20' :
                       'bg-zinc-800 text-zinc-500'
                     }`}
                 >
                   {step > i + 1 ? <IoMdCheckmark size={20} /> : s.icon}
                 </div>
-                <span className={`text-xs font-medium ${step === i + 1 ? 'text-orange-500' : 'text-zinc-500'}`}>
-                  {s.title}
+                <span className={`text-xs font-medium ${step === i + 1 ? 'text-primary' : 'text-zinc-500'}`}>
+                   {s.title}
                 </span>
               </div>
             ))}
@@ -268,7 +279,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       required
                       value={formData.title}
                       onChange={handleChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all placeholder:text-zinc-600"
                       placeholder="e.g. Inception"
                     />
                   </div>
@@ -278,7 +289,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       name="originalTitle"
                       value={formData.originalTitle}
                       onChange={handleChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all placeholder:text-zinc-600"
                       placeholder="Title in original language"
                     />
                   </div>
@@ -292,7 +303,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       type="date"
                       value={formData.releaseDate}
                       onChange={handleChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all [color-scheme:dark]"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all [color-scheme:dark]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -303,7 +314,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       required
                       value={formData.runtime || ''}
                       onChange={handleChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all"
                       placeholder="120"
                     />
                   </div>
@@ -346,13 +357,13 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                         {selectedGenres.map(genre => (
                           <div
                             key={genre.id}
-                            className="bg-orange-500/10 text-orange-400 border border-orange-500/20 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 animate-in zoom-in-95"
+                            className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 animate-in zoom-in-95"
                           >
                             {genre.name}
                             <button
                               type="button"
                               onClick={() => removeGenre(genre.id)}
-                              className="hover:text-orange-300"
+                              className="hover:text-primary/70"
                             >
                               <X size={14} />
                             </button>
@@ -370,7 +381,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                     rows={4}
                     value={formData.overview}
                     onChange={handleChange}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600 resize-none"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all placeholder:text-zinc-600 resize-none"
                     placeholder="Describe the movie plot..."
                   ></textarea>
                 </div>
@@ -382,7 +393,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                     required
                     value={formData.tagline}
                     onChange={handleChange}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all placeholder:text-zinc-600"
                     placeholder="Short catchy hook"
                   />
                 </div>
@@ -390,7 +401,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-zinc-300">Poster Image</label>
-                    <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-800 rounded-2xl cursor-pointer hover:border-orange-500/50 hover:bg-orange-500/5 transition-all overflow-hidden">
+                    <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-800 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all overflow-hidden">
                       {posterPreview ? (
                         <img src={posterPreview} alt="Poster preview" className="absolute inset-0 w-full h-full object-cover opacity-80" />
                       ) : (
@@ -402,7 +413,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                     </label>
                     {posterFile && (
-                      <p className="text-xs text-orange-400">{posterFile.name}</p>
+                      <p className="text-xs text-primary">{posterFile.name}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -411,7 +422,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                       name="trailerLink"
                       value={formData.trailerLink}
                       onChange={handleChange}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all placeholder:text-zinc-600"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all placeholder:text-zinc-600"
                       placeholder="YouTube link"
                     />
                   </div>
@@ -427,7 +438,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-orange-500 outline-none transition-all cursor-pointer"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:border-primary outline-none transition-all cursor-pointer"
                   >
                     <option value="RELEASED">Released</option>
                     <option value="IN_PRODUCTION">In Production</option>
@@ -449,7 +460,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                         required
                         value={formData.budget || ''}
                         onChange={handleChange}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 pl-8 focus:border-orange-500 outline-none transition-all"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 pl-8 focus:border-primary outline-none transition-all"
                         placeholder="0"
                       />
                     </div>
@@ -463,15 +474,15 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
                         type="number"
                         value={formData.revenue || ''}
                         onChange={handleChange}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 pl-8 focus:border-orange-500 outline-none transition-all"
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 pl-8 focus:border-primary outline-none transition-all"
                         placeholder="0"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-orange-500/5 border border-orange-500/20 p-6 rounded-3xl">
-                  <h3 className="font-bold text-orange-400 mb-2">Almost Done!</h3>
+                <div className="bg-primary/5 border border-primary/20 p-6 rounded-3xl">
+                  <h3 className="font-bold text-primary mb-2">Almost Done!</h3>
                   <p className="text-sm text-zinc-400">
                     Review your entries before submitting. You can go back to any step to make changes.
                   </p>
@@ -497,7 +508,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
             <button
               type="button"
               onClick={nextStep}
-              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+              className="flex items-center gap-2 bg-primary hover:opacity-90 text-black px-8 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
             >
               Next <ChevronRight size={20} />
             </button>
@@ -506,7 +517,7 @@ const MovieUploadForm: React.FC<MovieUploadFormProps> = ({ onClose, movieToEdit 
               form="movie-form"
               type="submit"
               disabled={isMutating}
-              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+              className="flex items-center gap-2 bg-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-black px-10 py-3 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
             >
               {isMutating ? (isEditing ? 'Updating...' : 'Adding Movie...') : (isEditing ? 'Update Movie' : 'Create Movie')}
             </button>
