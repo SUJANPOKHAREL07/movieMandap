@@ -3,8 +3,13 @@ import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
+const getApiUrl = () => {
+  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return base.endsWith('/graphql') ? base : `${base}/graphql`;
+};
+
 const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/graphql',
+  uri: getApiUrl(),
   credentials: 'include',
 });
 

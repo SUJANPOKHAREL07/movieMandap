@@ -97,11 +97,11 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({
     app: app as any,
-    cors: { origin: true, credentials: true },
+    cors: false, // Handled by global CORS middleware
     path: '/graphql',
   });
 
-  const PORT = process.env.BACKEND_PORT || 8000;
+  const PORT = process.env.PORT || process.env.BACKEND_PORT || 8000;
   app.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });
