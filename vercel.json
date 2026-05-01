@@ -1,6 +1,6 @@
 {
-  "buildCommand": "yarn build:frontend",
+  "buildCommand": "NX_DAEMON=false yarn build:frontend",
   "outputDirectory": "dist",
-  "installCommand": "yarn install",
+  "installCommand": "yarn install --frozen-lockfile",
   "framework": "nextjs"
 }
