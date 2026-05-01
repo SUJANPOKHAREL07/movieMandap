@@ -131,11 +131,11 @@ function BrowseContent() {
                 {featuredMovie.title}
               </h1>
               <p className="text-base md:text-lg text-muted-foreground line-clamp-3 max-w-xl mx-auto md:mx-0">{featuredMovie.overview}</p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
-                <button className="bg-primary text-primary-foreground px-6 sm:px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
+              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 pt-4">
+                <button className="w-full sm:w-auto bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25">
                   <Play fill="currentColor" size={20} /> Play Now
                 </button>
-                <button className="bg-secondary/80 backdrop-blur-md text-foreground px-6 sm:px-8 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-secondary transition-all border border-border">
+                <button className="w-full sm:w-auto bg-secondary/80 backdrop-blur-md text-foreground px-8 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-secondary transition-all border border-border">
                   <Info size={20} /> More Info
                 </button>
               </div>

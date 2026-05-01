@@ -256,24 +256,24 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
   return (
     <div className="flex-1 flex flex-col h-full bg-zinc-950/50 relative">
       {/* Header Tabs & Actions */}
-      <div className="px-8 py-5 border-b border-zinc-800/50 flex items-center justify-between bg-zinc-950/80 backdrop-blur-md sticky top-0 z-20">
-        <div className="flex bg-zinc-900/80 p-1 rounded-2xl border border-zinc-800/50 shadow-inner">
+      <div className="px-4 sm:px-8 py-4 sm:py-5 border-b border-zinc-800/50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="flex bg-zinc-900/80 p-1 rounded-2xl border border-zinc-800/50 shadow-inner w-full sm:w-auto">
           <button
             onClick={() => setActiveTab('DETAILS')}
-            className={`px-6 py-2 text-sm font-bold rounded-xl transition-all ${activeTab === 'DETAILS' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${activeTab === 'DETAILS' ? 'bg-zinc-800 text-white shadow-md' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             Series Details
           </button>
-            <button
+          <button
             onClick={() => setActiveTab('SEASONS')}
             disabled={!isEditing}
-            className={`px-6 py-2 text-sm font-bold rounded-xl transition-all ${!isEditing ? 'opacity-30 cursor-not-allowed' : activeTab === 'SEASONS' ? 'bg-primary shadow-[0_0_15px_rgba(249,115,22,0.4)] text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${!isEditing ? 'opacity-30 cursor-not-allowed' : activeTab === 'SEASONS' ? 'bg-primary shadow-[0_0_15px_rgba(249,115,22,0.4)] text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             Seasons & Episodes
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 w-full sm:w-auto">
           {isEditing && onDelete && (
             <button onClick={onDelete} type="button" className="p-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
               <Trash2 size={18} />
@@ -285,16 +285,16 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="bg-zinc-100 hover:bg-white text-black px-6 py-2.5 text-sm font-bold rounded-xl transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
+            className="flex-1 sm:flex-none bg-zinc-100 hover:bg-white text-black px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
           >
             {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            {isEditing ? 'Save Changes' : 'Create Series'}
+            <span className="whitespace-nowrap">{isEditing ? 'Save Changes' : 'Create Series'}</span>
           </button>
         </div>
-      </div >
+      </div>
 
       {/* Main Content Area */}
-      < div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar relative" >
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8 custom-scrollbar relative">
         <ConfirmDialog
           isOpen={showConfirm}
           onClose={() => setShowConfirm(false)}
@@ -316,13 +316,13 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
           </div>
         )}
         {activeTab === 'DETAILS' ? (
-          <div className="max-w-4xl mx-auto flex gap-10">
+          <div className="max-w-4xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-10">
             {/* Left Col: Poster */}
-            <div className="w-64 shrink-0 space-y-4">
-              <label className="block text-sm font-bold ztext-zinc-400 mb-2">Series Poster</label>
-              <div className="relative aspect-[2/3] w-full rounded-2xl bg-zinc-900 border-2 border-dashed border-zinc-800 hover:border-primary/50 transition-colors overflow-hidden group cursor-pointer">
+            <div className="w-full lg:w-64 shrink-0 space-y-4">
+              <label className="block text-sm font-bold text-zinc-400 mb-2 text-center lg:text-left">Series Poster</label>
+              <div className="relative aspect-[2/3] w-48 sm:w-64 mx-auto lg:w-full rounded-2xl bg-zinc-900 border-2 border-dashed border-zinc-800 hover:border-primary/50 transition-colors overflow-hidden group cursor-pointer">
                 {posterPreview ? (
-                   <img src={posterPreview} alt="Poster" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
+                  <img src={posterPreview} alt="Poster" className="w-full h-full object-cover group-hover:opacity-50 transition-opacity" />
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-600 group-hover:text-primary transition-colors">
                     <ImageIcon size={32} className="mb-2" />
@@ -342,15 +342,15 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
             <form id="series-form" onSubmit={handleSubmit} className="flex-1 space-y-6">
               <div>
                 <label className="text-sm font-bold text-zinc-400 mb-2 block">Series Title <span className="text-red-500">*</span></label>
-                  <input
+                <input
                   type="text" required
                   value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-primary rounded-xl px-4 py-3 text-white outline-none transition-all text-lg font-bold"
+                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-primary rounded-xl px-4 py-3 text-white outline-none transition-all text-base sm:text-lg font-bold"
                   placeholder="e.g., Breaking Bad"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-bold text-zinc-500 mb-2 block">Release Date</label>
                   <input
@@ -379,7 +379,7 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-bold text-zinc-500 mb-2 block">Status</label>
                   <select
@@ -394,7 +394,7 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
                     <option value="RUMORED">Rumored</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-3 pt-8">
+                <div className="flex items-center gap-3 pt-0 sm:pt-8">
                   <input
                     type="checkbox"
                     id="adult"
@@ -419,7 +419,7 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
                         type="button"
                         key={g.id}
                         onClick={() => toggleGenre(g.id)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${isSelected ? 'bg-primary/20 text-primary border-primary/50' : 'bg-transparent text-zinc-500 border-zinc-800 hover:border-zinc-600'}`}
+                        className={`px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-lg border transition-all ${isSelected ? 'bg-primary/20 text-primary border-primary/50' : 'bg-transparent text-zinc-500 border-zinc-800 hover:border-zinc-600'}`}
                       >
                         {g.name}
                       </button>
@@ -427,14 +427,12 @@ export default function SeriesEditor({ series, onCancel, onSave, onDelete }: Ser
                   })}
                 </div>
               </div>
-
-            </form >
-          </div >
+            </form>
+          </div>
         ) : (
           <SeasonEditor series={series} />
-        )
-        }
-      </div >
+        )}
+      </div>
     </div >
   );
 }
