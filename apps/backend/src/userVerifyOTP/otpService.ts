@@ -4,6 +4,7 @@ export const otpService = {
     generateOtp: () => String(Math.floor(100000 + Math.random() * 900000)),
 
     sendOtpEmail: async (email: string, otp: string) => {
+        console.log(`✉️ Sending from: ${process.env.SENDER_EMAIL} to: ${email}`);
         await transporter.sendMail({
             from: process.env.SENDER_EMAIL,
             to: email,
