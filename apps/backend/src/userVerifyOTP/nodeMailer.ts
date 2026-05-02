@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 const transporter = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
-  port: 465,
-  secure: true, // use SSL
+  port: 587,
+  secure: false, // use STARTTLS (better for Render free tier)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
