@@ -19,12 +19,20 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(graphqlUploadExpress());
 app.use(cookieParser());
 // app.use(express.json());
+// Trust Render's reverse proxy so secure cookies work
+app.set('trust proxy', 1);
+
 app.use(
   session({
     secret: process.env.JWT_SECRETE || 'supersecret',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 15 * 60 * 1000, httpOnly: true }, // 15 min
+    cookie: { 
+      maxAge: 15 * 60 * 1000, // 15 min
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // 'none' for cross-domain in production
+    }, 
   })
 );
 const defaultOrigins = [
