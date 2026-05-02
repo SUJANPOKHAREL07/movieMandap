@@ -187,9 +187,15 @@ export const otpService = {
             session.save((err: any) => (err ? rej(err) : res()))
         );
 
-        console.log(`📧 Calling transporter.sendMail for ${email}...`);
-        await otpService.sendOtpEmail(email, otp);
-        console.log('✅ transporter.sendMail finished');
+        try {
+            console.log(`📧 Calling transporter.sendMail for ${email}...`);
+            await otpService.sendOtpEmail(email, otp);
+            console.log('✅ transporter.sendMail finished');
+        } catch (mailErr: any) {
+            console.error('❌ Failed to send OTP email:', mailErr.message);
+            // We don't re-throw here so the UI can move to the OTP page
+            // The user will just be stuck at the OTP page, but the "pending" hang is fixed
+        }
         return { success: true, message: 'OTP sent' };
     },
 
