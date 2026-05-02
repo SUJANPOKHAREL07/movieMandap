@@ -61,7 +61,20 @@ app.use(
 );
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 async function startServer() {
+  console.log('⏳ Checking database connection...');
+  try {
+    await prisma.$connect();
+    console.log('✅ Database connected successfully');
+  } catch (dbErr: any) {
+    console.error('❌ Database connection failed!');
+    console.error('Error details:', dbErr.message);
+    // Don't throw here, let the server try to start anyway for debugging
+  }
+
   const server = new ApolloServer(
     {
       typeDefs,
