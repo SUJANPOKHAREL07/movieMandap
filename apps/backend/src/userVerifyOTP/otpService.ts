@@ -187,7 +187,9 @@ export const otpService = {
             session.save((err: any) => (err ? rej(err) : res()))
         );
 
+        console.log(`📧 Calling transporter.sendMail for ${email}...`);
         await otpService.sendOtpEmail(email, otp);
+        console.log('✅ transporter.sendMail finished');
         return { success: true, message: 'OTP sent' };
     },
 

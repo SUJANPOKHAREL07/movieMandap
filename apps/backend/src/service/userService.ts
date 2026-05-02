@@ -50,7 +50,9 @@ const createUserController = async (
     );
 
     // ✅ Send OTP
+    console.log('⏳ Triggering OTP service...');
     const sendOtp = await otpService.sendOtp(email, req.session);
+    console.log('✅ OTP service finished');
     // return(success:true,message:"user registeres")
     console.log('response of the otp send --', sendOtp);
     // if (sendOtp.success === true) {
@@ -104,7 +106,9 @@ const resendOtpController = async (email: string, req: any) => {
     return { success: false, message: 'No pending user session found' };
   }
 
+  console.log(`📧 Attempting to send OTP email to: ${email}`);
   await otpService.resendOtp(req.session);
+  console.log('✅ OTP email sent successfully');
   return { success: true, message: 'OTP resent' };
 };
 const updateUserDetail = async (username: string, userId: number) => {
