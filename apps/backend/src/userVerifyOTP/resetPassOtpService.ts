@@ -3,37 +3,37 @@ import { sendMail } from '../userVerifyOTP/nodeMailer';
 import { hashPassword } from '../utils/passwordHashing';
 
 function generateOtp(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export const resetPasswordService = {
-  async sendOtp(email: string, session: any) {
-    console.log('email in the send opt--', email);
-    // console.log('session in the send otp--', session);
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error('User not found');
+    async sendOtp(email: string, session: any) {
+        console.log('email in the send opt--', email);
+        // console.log('session in the send otp--', session);
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) throw new Error('User not found');
 
-    const otp = generateOtp();
-    const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes (timestamp in ms)
+        const otp = generateOtp();
+        const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes (timestamp in ms)
 
-    await prisma.user.update({
-      where: { email },
-      data: { resetOtp: otp, resetOtpExpired: expiry },
-    });
+        await prisma.user.update({
+            where: { email },
+            data: { resetOtp: otp, resetOtpExpired: expiry },
+        });
 
-    // Save email in session
-    session.resetEmail = email;
-    session.otpVerified = false;
+        // Save email in session
+        session.resetEmail = email;
+        session.otpVerified = false;
 
-    await sendMail(
-      email,
-      'Reset Password OTP',
-      `<!DOCTYPE html>
+        await sendMail(
+            email,
+            'Reset Password OTP',
+            `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Reset OTP - Cinegudi</title>
+    <title>Password Reset OTP - Movie Mandap</title>
     <style>
         /* Reset CSS for email compatibility */
         body, table, td, a {
@@ -172,7 +172,7 @@ export const resetPasswordService = {
                     <!-- Logo Section -->
                     <tr>
                         <td class="logo">
-                            <h1>Cinegudi</h1>
+                            <h1> Movie Mandap</h1>
                         </td>
                     </tr>
                     
@@ -187,7 +187,7 @@ export const resetPasswordService = {
                             <h2 style="text-align: center; color: #333; margin-bottom: 5px;">Password Reset Request</h2>
                             <p style="text-align: center; color: #666; margin-top: 0;">Hello ${email}</p>
                       
-                            <p>We received a request to reset your Cinegudi account password. Use the One-Time Password (OTP) below to verify your identity and create a new password.</p>
+                            <p>We received a request to reset your Movie Mandap account password. Use the One-Time Password (OTP) below to verify your identity and create a new password.</p>
                             
                             <!-- OTP Code Display -->
                             <div class="otp-code">${otp}</div>
@@ -197,7 +197,7 @@ export const resetPasswordService = {
                             </div>
                             
                             <div class="security-note">
-                                <p><strong>Security Tip:</strong> Never share your OTP with anyone. Cinegudi will never ask for your password or OTP via email, phone, or text message.</p>
+                                <p><strong>Security Tip:</strong> Never share your OTP with anyone. Movie Mandap will never ask for your password or OTP via email, phone, or text message.</p>
                             </div>
                             
                             <p style="text-align: center;">
@@ -219,14 +219,14 @@ export const resetPasswordService = {
                     <!-- Support Section -->
                     <tr>
                         <td class="support">
-                            <p>Need help? Contact our support team at <a href="mailto:support@cinegudi.com">support@cinegudi.com</a> or visit our Help Center.</p>
+                            <p>Need help? Contact our support team at <a href="mailto:moviemandap@gmail.com">moviemandap@gmail.com</a> or visit our Help Center.</p>
                         </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
                         <td class="footer">
-                            <p>© 2023 Cinegudi. All rights reserved.</p>
+                            <p>© 2023 Movie Mandap. All rights reserved.</p>
                             <p>123 Entertainment Avenue, Film City, FC 12345</p>
                             <p>
                                 <a href="#">Unsubscribe</a> | 
@@ -241,51 +241,51 @@ export const resetPasswordService = {
     </table>
 </body>
 </html>`
-    );
-    return { message: 'OTP sent successfully', success: true };
-  },
-  async resendOtp(session: any) {
-    if (!session.resetEmail) throw new Error('No email in session');
-    const send = this.sendOtp(session.resetEmail, session);
-    return send;
-  },
+        );
+        return { message: 'OTP sent successfully', success: true };
+    },
+    async resendOtp(session: any) {
+        if (!session.resetEmail) throw new Error('No email in session');
+        const send = this.sendOtp(session.resetEmail, session);
+        return send;
+    },
 
-  async verifyOtp(otp: string, session: any) {
-    if (!session.resetEmail) throw new Error('Session expired');
+    async verifyOtp(otp: string, session: any) {
+        if (!session.resetEmail) throw new Error('Session expired');
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.resetEmail },
-    });
-    if (!user || !user.resetOtp || !user.resetOtpExpired)
-      throw new Error('Invalid request');
+        const user = await prisma.user.findUnique({
+            where: { email: session.resetEmail },
+        });
+        if (!user || !user.resetOtp || !user.resetOtpExpired)
+            throw new Error('Invalid request');
 
-    if (user.resetOtp !== otp) throw new Error('Invalid OTP');
-    if (Date.now() > Number(user.resetOtpExpired))
-      throw new Error('OTP expired');
+        if (user.resetOtp !== otp) throw new Error('Invalid OTP');
+        if (Date.now() > Number(user.resetOtpExpired))
+            throw new Error('OTP expired');
 
-    session.otpVerified = true;
-    return { message: 'OTP verified successfully', success: true };
-  },
+        session.otpVerified = true;
+        return { message: 'OTP verified successfully', success: true };
+    },
 
-  async resetPassword(newPassword: string, session: any) {
-    if (!session.resetEmail) throw new Error('Session expired');
-    if (!session.otpVerified) throw new Error('OTP not verified');
+    async resetPassword(newPassword: string, session: any) {
+        if (!session.resetEmail) throw new Error('Session expired');
+        if (!session.otpVerified) throw new Error('OTP not verified');
 
-    const hashed = await hashPassword(newPassword);
+        const hashed = await hashPassword(newPassword);
 
-    await prisma.user.update({
-      where: { email: session.resetEmail },
-      data: {
-        password: hashed,
-        resetOtp: '',
-        resetOtpExpired: null,
-      },
-    });
+        await prisma.user.update({
+            where: { email: session.resetEmail },
+            data: {
+                password: hashed,
+                resetOtp: '',
+                resetOtpExpired: null,
+            },
+        });
 
-    // clear session
-    session.resetEmail = null;
-    session.otpVerified = false;
+        // clear session
+        session.resetEmail = null;
+        session.otpVerified = false;
 
-    return { message: 'Password reset successfully', success: true };
-  },
+        return { message: 'Password reset successfully', success: true };
+    },
 };
