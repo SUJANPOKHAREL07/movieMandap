@@ -111,17 +111,25 @@ async function startServer() {
     //   },
   );
 
+  console.log('⏳ Starting Apollo Server...');
   await server.start();
+  console.log('✅ Apollo Server started');
+
   server.applyMiddleware({
     app: app as any,
     cors: false, // Handled by global CORS middleware
     path: '/graphql',
   });
+  console.log('✅ Middleware applied at /graphql');
 
   const PORT = process.env.PORT || process.env.BACKEND_PORT || 8000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+    console.log(`🚀 Server ready at port ${PORT}`);
+    console.log(`📡 URL: http://localhost:${PORT}/graphql`);
   });
 }
 
-startServer();
+console.log('🚀 Initializing application...');
+startServer().catch(err => {
+  console.error('💥 Failed to start server:', err);
+});
